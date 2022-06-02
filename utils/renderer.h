@@ -18,18 +18,19 @@ public:
 
 	Renderer(Camera* _camera);
 	//bool DrawStandardObject(ModelName _modelName, std::vector<Entity> _entities);
-	bool Draw(std::map<std::string, std::vector<Entity>> _entities);
+	bool Draw(std::map<const ModelData*, std::vector<Entity>> _entities);
 
+	const ModelData* AddNewModel(const unsigned int _vao, const unsigned int _indiceCount, const ShaderReference _shader, const std::vector<Texture> _textures, const float _shininess);
 
 private:
 
 	Camera* m_camera;
 
 	// model data holds VAO and shader references, aswell as diffuse/specular maps and shininess
-	std::unordered_map<std::string, ModelData*> m_models;			// map for models
+	std::vector<const ModelData*> m_models;
 
 	// maps hold all shader and VAO references
-	std::unordered_map<ShaderReference, Shader*> m_shaders;		// map for shaders
+	std::unordered_map<ShaderReference, const unsigned int> m_shaders;		// map for shaders
 	std::unordered_map<VaoReference, unsigned int> m_baseVaos;		// map for VAOs
 	std::unordered_map<std::string, unsigned int> m_modelVaos;		// map for VAOs
 
@@ -37,21 +38,6 @@ private:
 	bool SetupShaders();
 	bool SetShaderVariables(ShaderReference _shaderRef);
 
-	bool SetupBaseVaos();
-	unsigned int createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices);
-	unsigned int createVao(const std::vector<VertexData>& _vertices);
 	bool BindVao(unsigned int _vao);
 
-	bool SetupModelData();
-
-	// functions for creating the different model data
-	//bool AddNewModel(std::string _modelName, VaoReference _vao, ShaderReference _shader, std::vector<VertexData> _vertices,
-	//	std::vector<unsigned int> _indices, std::vector<Texture> _textures, float _shininess);
-	bool AddNewModel(std::string _modelName, VaoReference _vao, ShaderReference _shader, std::vector<Texture> _textures, float _shininess);
-	bool AddNewModel(std::string _modelName, std::vector<VertexData> _vertices, std::vector<unsigned int> _indices, ShaderReference _shader, std::vector<Texture> _textures, float _shininess);
-	bool AddNewModel(std::string _modelName, std::vector<VertexData> _vertices, ShaderReference _shader, std::vector<Texture> _textures, float _shininess);
-	bool AddCrateModel();
-	bool AddShipModel();
-
-	unsigned int getBaseModelIndiceSize(VaoReference _vaoReference);
 };

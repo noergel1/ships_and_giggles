@@ -38,28 +38,6 @@ enum class TextureType {
     NORMAL
 };
 
-enum ModelName {
-    NO_MODEL,
-    SHIP_MODEL,
-    ROCK_MODEL,
-    CRATE_MODEL
-};
-
-static std::string getModelIdentifier(ModelName _modelName)
-{
-    switch (_modelName)
-    {
-        case ModelName::NO_MODEL:
-            return "no_model";
-        case ModelName::SHIP_MODEL:
-            return "standard_ship";
-        case ModelName::ROCK_MODEL:
-            return "standard_rock";
-        case ModelName::CRATE_MODEL:
-            return "standard_crate";
-    }
-}
-
 template<typename T>
 std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
 {

@@ -63,8 +63,68 @@ bool Application::setupWindow()
     return true;
 }
 
+bool Application::setupModels()
+{
+    ////////////////////////////////////////////////////////
+    // CREATE ALL VAOS AND GET TEXTURES                   //
+    ////////////////////////////////////////////////////////
+
+    unsigned int cubeVao = 0;
+    unsigned int shipVao = 0;
+
+    // cube model
+    std::vector<VertexData> cubeVertices = DataProvider::getCubeVertices();
+    std::vector<unsigned int> cubeIndices = DataProvider::getCubeIndices();
+    std::vector<Texture> standardCrateTextures = { Texture("ressources/crate/crate.png", false, TextureType::DIFFUSE),
+                                                    Texture("ressources/crate/crate_specular.png", false, TextureType::SPECULAR) };;
+
+    cubeVao = createVao(cubeVertices, cubeIndices);
+
+
+    // ship model
+    std::vector<VertexData> shipVertices;
+    std::vector<unsigned int> shipIndices;
+    std::vector<Texture> shipTextures;
+
+    ModelLoader::loadModel("ressources/ship/ship_2cannons.obj", &shipVertices, &shipIndices, &shipTextures, glm::mat4());
+
+    shipVao = createVao(shipVertices, shipIndices);
+
+
+    ////////////////////////////////////////////////////////////////
+    // CREATE MODELDATAS INSIDE RENDERER AN GET POINTERS TO THEM //
+    //////////////////////////////////////////////////////////////
+
+    const ModelData* standardCrateReference = m_renderer->AddNewModel(
+        cubeVao,
+        cubeIndices.size(),
+        ShaderReference::STANDARD_SHADER,
+        standardCrateTextures,
+        16.0f
+    );
+
+    const ModelData* standardShipReference = m_renderer->AddNewModel(
+        shipVao,
+        shipIndices.size(),
+        ShaderReference::STANDARD_SHADER,
+        shipTextures,
+        16.0f
+    );
+
+    ////////////////////////////////////////////////////////
+    // INSERT THEM INTO APPLICATIONS REFERENCE MAP        //
+    ////////////////////////////////////////////////////////
+
+    m_modelReferences.insert(std::pair<std::string, const ModelData*>("standard_ship", standardShipReference));
+    m_modelReferences.insert(std::pair<std::string, const ModelData*>("standard_crate", standardCrateReference));
+
+    return false;
+}
+
 bool Application::setupGamestate()
 {
+    setupModels();
+
     // generate objects
     addCrate(
         //scale
@@ -134,11 +194,9 @@ bool Application::runApplication()
     return true;
 }
 
-void Application
-::enablePolygonMode()
-{
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-}
+
+
+
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
@@ -160,16 +218,12 @@ void Application::processInput(GLFWwindow* _window)
         m_camera->ProcessKeyboard(RIGHT, deltaTime);
 }
 
-
-
 void Application::process_resize(GLFWwindow* _window, int _width, int _height)
 {
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, _width, _height);
 }
-
-
 
 void Application::process_mouse(GLFWwindow* _window, double _xpos, double _ypos)
 {
@@ -189,16 +243,17 @@ void Application::process_mouse(GLFWwindow* _window, double _xpos, double _ypos)
     m_camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
-
-
-
 void Application::process_scroll(GLFWwindow* _window, double _xoffset, double _yoffset)
 {
     m_camera->ProcessMouseScroll(_yoffset);
 }
 
+
+
 bool Application::addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _position, std::string _modelName)
 {
+    const ModelData* modelReference = m_modelReferences[_modelName];
+
     Entity newEntity = {
         //scale
         _scale,
@@ -209,7 +264,7 @@ bool Application::addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _po
     };
 
 
-    m_entities[_modelName].push_back(newEntity);
+    m_entities[modelReference].push_back(newEntity);
 
     return true;
 }
@@ -231,3 +286,71 @@ bool Application::addShip(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rota
     addEntity(_scale, _rotation, _position, getModelIdentifier(ModelName::SHIP_MODEL));
     return true;
 }
+
+
+
+void Application
+::enablePolygonMode()
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
+
+const std::string Application::getModelIdentifier(ModelName _modelName)
+{
+    switch (_modelName)
+    {
+    case ModelName::NO_MODEL:
+        return "no_model";
+    case ModelName::SHIP_MODEL:
+        return "standard_ship";
+    case ModelName::ROCK_MODEL:
+        return "standard_rock";
+    case ModelName::CRATE_MODEL:
+        return "standard_crate";
+    }
+}
+
+unsigned int Application::createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices)
+	{
+	
+		unsigned int VAO;
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+	
+		unsigned int VBO;
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * _vertices.size(), &_vertices.at(0), GL_STATIC_DRAW);
+	
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		// normal attribute
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+		// texCoord attribute
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+	
+		unsigned int EBO;
+		glGenBuffers(1, &EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * _indices.size(), &_indices.at(0), GL_STATIC_DRAW);
+	
+		glBindVertexArray(0);
+
+		return VAO;
+	}
+
+unsigned int Application::createVao(const std::vector<VertexData>& _vertices)
+{
+    std::vector<unsigned int> indices(_vertices.size());
+    std::iota(std::begin(indices), std::end(indices), 0); // Fill with consecutive ints up to _vertices.size() - 1
+
+    unsigned int VAO = createVao(_vertices, indices);
+
+
+    return VAO;
+};
+
+
