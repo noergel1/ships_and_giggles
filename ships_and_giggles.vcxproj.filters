@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Quelldateien">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{f573f9d3-7173-4e2c-9305-e249a7514780}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="models">
+      <UniqueIdentifier>{4c848abd-8ac9-4711-8bd0-c6b9ac2e4e88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="camera">
+      <UniqueIdentifier>{6ce3bb31-599d-4297-b26d-ebf44f4ba1ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{a780247e-96fb-4fbb-9a83-5d89e87def9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{fad59931-38a0-4609-b348-b75f6acdbdc5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="models\model_data.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\renderer.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\application.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\camera.cpp">
+      <Filter>camera</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\camera_freefloat.cpp">
+      <Filter>camera</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\camera_isometric.cpp">
+      <Filter>camera</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\texture.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\dataprovider.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="gl.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\debug.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\simple_model_loader.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="models\model_data.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\renderer.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\application.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\debug.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\dataprovider.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\shader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\definitions.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_image.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\texture.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\camera.h">
+      <Filter>camera</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\camera_freefloat.h">
+      <Filter>camera</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\camera_isometric.h">
+      <Filter>camera</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tiny_obj_loader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\simple_model_loader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\fs.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\fsSingleColor.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\lightFS.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\lightVS.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\vs.glsl">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="utils\todo.txt" />
+  </ItemGroup>
+</Project>
