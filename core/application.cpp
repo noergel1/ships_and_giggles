@@ -92,10 +92,11 @@ bool Application::setupModels()
 
 
     ////////////////////////////////////////////////////////////////
-    // CREATE MODELDATAS INSIDE RENDERER AN GET POINTERS TO THEM //
+    // CREATE MODELDATAS INSIDE RENDERER                         //
     //////////////////////////////////////////////////////////////
 
-    const ModelData* standardCrateReference = m_renderer->AddNewModel(
+    m_renderer->AddNewModel(
+        ModelName::CRATE_MODEL,
         cubeVao,
         cubeIndices.size(),
         ShaderReference::STANDARD_SHADER,
@@ -103,20 +104,14 @@ bool Application::setupModels()
         16.0f
     );
 
-    const ModelData* standardShipReference = m_renderer->AddNewModel(
+    m_renderer->AddNewModel(
+        ModelName::SHIP_MODEL,
         shipVao,
         shipIndices.size(),
         ShaderReference::STANDARD_SHADER,
         shipTextures,
         16.0f
     );
-
-    ////////////////////////////////////////////////////////
-    // INSERT THEM INTO APPLICATIONS REFERENCE MAP        //
-    ////////////////////////////////////////////////////////
-
-    m_modelReferences.insert(std::pair<std::string, const ModelData*>("standard_ship", standardShipReference));
-    m_modelReferences.insert(std::pair<std::string, const ModelData*>("standard_crate", standardCrateReference));
 
     return false;
 }
@@ -250,9 +245,8 @@ void Application::process_scroll(GLFWwindow* _window, double _xoffset, double _y
 
 
 
-bool Application::addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _position, std::string _modelName)
+bool Application::addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _position, ModelName _modelName)
 {
-    const ModelData* modelReference = m_modelReferences[_modelName];
 
     Entity newEntity = {
         //scale
@@ -264,26 +258,26 @@ bool Application::addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _po
     };
 
 
-    m_entities[modelReference].push_back(newEntity);
+    m_entities[_modelName].push_back(newEntity);
 
     return true;
 }
 
 bool Application::addRock(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, getModelIdentifier(ModelName::ROCK_MODEL));
+    addEntity(_scale, _rotation, _position, ModelName::ROCK_MODEL);
     return true;
 }
 
 bool Application::addCrate(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, getModelIdentifier(ModelName::CRATE_MODEL));
+    addEntity(_scale, _rotation, _position, ModelName::CRATE_MODEL);
     return true;
 }
 
 bool Application::addShip(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, getModelIdentifier(ModelName::SHIP_MODEL));
+    addEntity(_scale, _rotation, _position, ModelName::SHIP_MODEL);
     return true;
 }
 
@@ -293,21 +287,6 @@ void Application
 ::enablePolygonMode()
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-}
-
-const std::string Application::getModelIdentifier(ModelName _modelName)
-{
-    switch (_modelName)
-    {
-    case ModelName::NO_MODEL:
-        return "no_model";
-    case ModelName::SHIP_MODEL:
-        return "standard_ship";
-    case ModelName::ROCK_MODEL:
-        return "standard_rock";
-    case ModelName::CRATE_MODEL:
-        return "standard_crate";
-    }
 }
 
 unsigned int Application::createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices)

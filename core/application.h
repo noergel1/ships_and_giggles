@@ -19,13 +19,6 @@
 #include <sstream>
 #include <map>
 
-enum ModelName {
-	NO_MODEL,
-	SHIP_MODEL,
-	ROCK_MODEL,
-	CRATE_MODEL
-};
-
 
 
 class Application {
@@ -73,23 +66,21 @@ private:
 
 	// entities hold scale, rotation and position
 	Entity* m_player;										// pointer to the player entity
-	std::map<const ModelData*, std::vector<Entity> > m_entities;				// vector containing all entities in the game
+	std::map<ModelName, std::vector<Entity> > m_entities;				// vector containing all entities in the game
 
 	// entity management
-	bool addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _position, std::string _modelName);
+	bool addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _position, ModelName _modelName);
 
 	bool addRock (glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 	bool addCrate(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 	bool addShip (glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 
-	std::map<std::string, const ModelData*> m_modelReferences;
 
 
 	bool setupModels();
 	unsigned int createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices);
 	unsigned int createVao(const std::vector<VertexData>& _vertices);
 
-	const std::string getModelIdentifier(ModelName _modelName);
 
 
 

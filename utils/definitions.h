@@ -13,6 +13,14 @@
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+// A list of all models in the game
+enum class ModelName {
+    NO_MODEL,
+    SHIP_MODEL,
+    ROCK_MODEL,
+    CRATE_MODEL
+};
+
 struct Entity {
     // entity scaling
     glm::vec3 Scale;
@@ -45,12 +53,7 @@ std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::os
 }
 
 
-enum class VaoReference {
-    NO_VAO,
-    SHIP_VAO,
-    ROCK_VAO,
-    CUBE_VAO
-};
+
 
 enum class ShaderReference {
     NO_SHADER,

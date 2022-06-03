@@ -7,14 +7,14 @@
 		SetupShaders();
 	};
 
-	bool Renderer::Draw(std::map<const ModelData*, std::vector<Entity>> _entities)
+	bool Renderer::Draw(std::map<ModelName, std::vector<Entity>> _entities)
 	{
 		ShaderReference curActivatedShader_reference = ShaderReference::NO_SHADER;
 		unsigned int curActivatedVAO_reference = 0;
 
 		// go through all key/value pairs in the _entities map
 		for (auto const& _entityVector : _entities) {
-			const ModelData* modelData = _entityVector.first;
+			const ModelData* modelData = m_models[_entityVector.first];
 			std::vector<Entity> entities = _entityVector.second;
 
 			ShaderReference modelShaderReference = modelData->m_shader;
@@ -94,12 +94,12 @@
 		return true;
 	}
 
-	const ModelData* Renderer::AddNewModel(const unsigned int _vao, const unsigned int _indiceCount, const ShaderReference _shader, const std::vector<Texture> _textures, const float _shininess)
+	bool Renderer::AddNewModel( ModelName _modelName, const unsigned int _vao, const unsigned int _indiceCount, const ShaderReference _shader, const std::vector<Texture> _textures, const float _shininess)
 	{
 		const ModelData* newModel = new ModelData(_vao, _indiceCount, _shader, _textures, _shininess);
-		m_models.push_back(newModel);
+		m_models.insert(std::pair<ModelName, const ModelData*>(_modelName, newModel));
 
-		return newModel;
+		return true;
 	}
 
 
