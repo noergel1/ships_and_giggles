@@ -78,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\fh\gdv\ships_and_giggles\ships_and_giggles\dependencies\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\fh\gdv\ships_and_giggles\ships_and_giggles\dependencies\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\dependencies\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\dependencies\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
