@@ -30,14 +30,19 @@ void setupCallbacks(Application _gameInstance)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    gameInstance->process_resize(window, width, height);
+        gameInstance->process_resize(window, width, height);
 }
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    gameInstance->process_mouse(window, xpos, ypos);
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (!io.WantCaptureMouse)
+    {
+        gameInstance->process_mouse(window, xpos, ypos);
+    }
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called

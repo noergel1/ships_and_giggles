@@ -1,6 +1,7 @@
 #include "application.h"
 
 
+
 Application::Application(Camera_Mode _cameraMode)
 {
     setupWindow();
@@ -46,7 +47,8 @@ bool Application::setupWindow()
 
 
     // tell GLFW to capture our mouse
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -59,6 +61,7 @@ bool Application::setupWindow()
     m_debugger->enableDebug();
 
     m_window = window;
+
 
     return true;
 }
@@ -154,6 +157,18 @@ bool Application::setupGamestate()
 
 bool Application::runApplication()
 {
+#ifndef NDEBUG
+
+    // initialize imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(m_window, true);
+    ImGui_ImplOpenGL3_Init("#version 430");
+
+#endif // !NDEBUG
+
     setupGamestate();
 
     glEnable(GL_DEPTH_TEST);
@@ -178,7 +193,25 @@ bool Application::runApplication()
         glClearColor(0.5f, 0.5f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+#ifndef NDEBUG
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+#endif // !NDEBUG
+
         m_renderer->Draw(m_entities);
+
+#ifndef NDEBUG
+
+        ImGui::Begin("Hello imgui");
+        ImGui::Text("this is me");
+        ImGui::End();
+
+        ImGui::Render();
+    ImGui:ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif // !NDEBUG
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -186,7 +219,27 @@ bool Application::runApplication()
         glfwPollEvents();
     }
 
+    stopApplication();
+
     return true;
+}
+
+bool Application::stopApplication()
+{
+    // delete vaos, vbos & shaders
+    m_renderer->shutdownRenderer();
+
+#ifndef NDEBUG
+    // shutdown imgui if debugmode is enabled
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+#endif // !NDEBUG
+
+
+
+
+    return false;
 }
 
 
@@ -198,7 +251,7 @@ bool Application::runApplication()
 void Application::processInput(GLFWwindow* _window)
 {
     if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(_window, true);
+        glfwSetWindowShouldClose(m_window, true);
 
     if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS)
         m_camera->ProcessKeyboard(FORWARD, deltaTime);

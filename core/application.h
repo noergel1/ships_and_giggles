@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../utils/imgui/imgui.h"
+#include "../utils/imgui/imgui_impl_glfw.h"
+#include "../utils/imgui/imgui_impl_opengl3.h"
+
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
@@ -29,6 +33,7 @@ public:
 	bool setupWindow();
 	bool setupGamestate();
 	bool runApplication();
+	bool stopApplication();
 
 	void enablePolygonMode();
 

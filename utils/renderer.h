@@ -17,7 +17,8 @@ class Renderer {
 public:
 
 	Renderer(Camera* _camera);
-	//bool DrawStandardObject(ModelName _modelName, std::vector<Entity> _entities);
+	bool shutdownRenderer();
+
 	bool Draw(std::map<ModelName, std::vector<Entity>> _entities);
 
 	bool AddNewModel(ModelName _modelName, const unsigned int _vao, const unsigned int _indiceCount, const ShaderReference _shader, const std::vector<Texture> _textures, const float _shininess);

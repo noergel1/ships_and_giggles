@@ -5,6 +5,49 @@
 		:m_camera(_camera)
 	{
 		SetupShaders();
+	}
+
+	bool Renderer::shutdownRenderer()
+	{
+
+		// free all VAOS
+		std::vector<unsigned int> deletedVaos;
+		for (auto const& model : m_models)
+		{
+			const ModelData* modelData = model.second;
+			unsigned int modelVao = modelData->m_VAO;
+			if (std::find(deletedVaos.begin(), deletedVaos.end(), modelVao) != deletedVaos.end())
+			{
+				// VAO already in deletedVaos
+				continue;
+			}
+			else
+			{
+				deletedVaos.push_back(modelVao);
+			}
+		}
+
+		// should also free all VBOs aswell
+
+		/////////
+		////////
+		///////
+
+
+
+		// delete all the VAOs at once
+		glDeleteVertexArrays(deletedVaos.size(), &deletedVaos[0]);
+
+
+
+		// free all shaders
+		for (auto const& shader : m_shaders)
+		{
+			unsigned int shaderId = shader.second;
+			glDeleteProgram(shaderId);
+		}
+
+		return false;
 	};
 
 	bool Renderer::Draw(std::map<ModelName, std::vector<Entity>> _entities)

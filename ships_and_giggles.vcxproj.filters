@@ -20,6 +20,9 @@
     <Filter Include="utils">
       <UniqueIdentifier>{fad59931-38a0-4609-b348-b75f6acdbdc5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\imgui">
+      <UniqueIdentifier>{462ad4e3-743e-4d26-ac05-6a1b4454b6bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="models\model_data.cpp">
@@ -57,6 +60,27 @@
     </ClCompile>
     <ClCompile Include="utils\simple_model_loader.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\imgui\imgui.cpp">
+      <Filter>utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\imgui\imgui_demo.cpp">
+      <Filter>utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\imgui\imgui_draw.cpp">
+      <Filter>utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\imgui\imgui_impl_glfw.cpp">
+      <Filter>utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\imgui\imgui_impl_opengl3.cpp">
+      <Filter>utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\imgui\imgui_tables.cpp">
+      <Filter>utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\imgui\imgui_widgets.cpp">
+      <Filter>utils\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +125,33 @@
     </ClInclude>
     <ClInclude Include="utils\simple_model_loader.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imconfig.h">
+      <Filter>utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imgui.h">
+      <Filter>utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imgui_impl_glfw.h">
+      <Filter>utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imgui_impl_opengl3.h">
+      <Filter>utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imgui_internal.h">
+      <Filter>utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imstb_rectpack.h">
+      <Filter>utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imstb_textedit.h">
+      <Filter>utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\imgui\imstb_truetype.h">
+      <Filter>utils\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
