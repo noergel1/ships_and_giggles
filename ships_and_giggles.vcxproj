@@ -153,6 +153,8 @@
     <ClCompile Include="utils\camera_isometric.cpp" />
     <ClCompile Include="utils\dataprovider.cpp" />
     <ClCompile Include="utils\debug.cpp" />
+    <ClCompile Include="utils\framebuffer.cpp" />
+    <ClCompile Include="utils\helpers.cpp" />
     <ClCompile Include="utils\imgui\imgui.cpp" />
     <ClCompile Include="utils\imgui\imgui_demo.cpp" />
     <ClCompile Include="utils\imgui\imgui_draw.cpp" />
@@ -160,12 +162,15 @@
     <ClCompile Include="utils\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="utils\imgui\imgui_tables.cpp" />
     <ClCompile Include="utils\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="utils\renderbuffer.cpp" />
     <ClCompile Include="utils\renderer.cpp" />
     <ClCompile Include="utils\simple_model_loader.cpp" />
-    <ClCompile Include="utils\texture.cpp" />
+    <ClCompile Include="utils\texture_2d.cpp" />
+    <ClCompile Include="utils\texture_cubemap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\application.h" />
+    <ClInclude Include="core\gamesettings.h" />
     <ClInclude Include="models\model_data.h" />
     <ClInclude Include="utils\camera.h" />
     <ClInclude Include="utils\camera_freefloat.h" />
@@ -173,6 +178,8 @@
     <ClInclude Include="utils\dataprovider.h" />
     <ClInclude Include="utils\debug.h" />
     <ClInclude Include="utils\definitions.h" />
+    <ClInclude Include="utils\framebuffer.h" />
+    <ClInclude Include="utils\helpers.h" />
     <ClInclude Include="utils\imgui\imconfig.h" />
     <ClInclude Include="utils\imgui\imgui.h" />
     <ClInclude Include="utils\imgui\imgui_impl_glfw.h" />
@@ -182,11 +189,14 @@
     <ClInclude Include="utils\imgui\imstb_rectpack.h" />
     <ClInclude Include="utils\imgui\imstb_textedit.h" />
     <ClInclude Include="utils\imgui\imstb_truetype.h" />
+    <ClInclude Include="utils\renderbuffer.h" />
     <ClInclude Include="utils\renderer.h" />
     <ClInclude Include="utils\shader.h" />
     <ClInclude Include="utils\simple_model_loader.h" />
     <ClInclude Include="utils\stb_image.h" />
     <ClInclude Include="utils\texture.h" />
+    <ClInclude Include="utils\texture_2d.h" />
+    <ClInclude Include="utils\texture_cubemap.h" />
     <ClInclude Include="utils\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -194,7 +204,13 @@
     <None Include="shader\fsSingleColor.glsl" />
     <None Include="shader\lightFS.glsl" />
     <None Include="shader\lightVS.glsl" />
+    <None Include="shader\postprocess_screenFS.glsl" />
+    <None Include="shader\postprocess_screenVS.glsl" />
+    <None Include="shader\skyboxFS.glsl" />
+    <None Include="shader\skyboxVS.glsl" />
     <None Include="shader\vs.glsl" />
+    <None Include="shader\waterFS.glsl" />
+    <None Include="shader\waterVS.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="utils\todo.txt">

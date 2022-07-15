@@ -4,14 +4,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "definitions.h"
+#include "../core/gamesettings.h"
 
 #include <vector>
 
-// defines the camera modes
-enum Camera_Mode {
-    FREE_FLOAT,
-    ISOMETRIC
-};
+
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {

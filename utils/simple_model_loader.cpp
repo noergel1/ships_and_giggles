@@ -6,7 +6,7 @@
 #include <boost/spirit/home/x3.hpp>
 
 
-bool ModelLoader::loadModel(std::string _modelPath, std::vector<VertexData>* _vertices, std::vector<unsigned int>* _indices, std::vector<Texture>* _textures, glm::mat4 _preTransform)
+bool ModelLoader::loadModel(std::string _modelPath, std::vector<VertexData>* _vertices, std::vector<unsigned int>* _indices, std::vector<Texture*>* _textures, glm::mat4 _preTransform)
 {
     namespace x3 = boost::spirit::x3;
 
@@ -177,7 +177,7 @@ bool ModelLoader::loadModel(std::string _modelPath, std::vector<VertexData>* _ve
                     if (token == "map_Kd") continue;
 
                     std::string textureLocation = folderName + "/" + token;
-                    _textures->push_back(Texture(textureLocation.c_str(), false, TextureType::DIFFUSE));
+                    _textures->push_back(new Texture_2D(textureLocation.c_str(), false, TextureType::DIFFUSE, 0));
                 }
             }
         }
@@ -191,7 +191,7 @@ bool ModelLoader::loadModel(std::string _modelPath, std::vector<VertexData>* _ve
     return false;
 }
 
-bool ModelLoader::loadModel_x3(std::string _modelPath, std::vector<VertexData>* _vertices, std::vector<unsigned int>* _indices, std::vector<Texture>* _textures, glm::mat4 _preTransform)
+bool ModelLoader::loadModel_x3(std::string _modelPath, std::vector<VertexData>* _vertices, std::vector<unsigned int>* _indices, std::vector<Texture*>* _textures, glm::mat4 _preTransform)
 {
     namespace x3 = boost::spirit::x3;
 
@@ -365,7 +365,7 @@ bool ModelLoader::loadModel_x3(std::string _modelPath, std::vector<VertexData>* 
                     if (token == "map_Kd") continue;
 
                     std::string textureLocation = folderName + "/" + token;
-                    _textures->push_back(Texture(textureLocation.c_str(), false, TextureType::DIFFUSE));
+                    _textures->push_back(new Texture_2D(textureLocation.c_str(), false, TextureType::DIFFUSE, 0));
                 }
             }
         }

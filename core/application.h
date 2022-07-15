@@ -15,7 +15,8 @@
 #include "../utils/camera.h"
 #include "../utils/camera_freefloat.h"
 #include "../utils/camera.h"
-#include "../utils/texture.h"
+#include "../utils/texture_2d.h"
+#include "../utils/texture_cubemap.h"
 #include "../utils/debug.h"
 #include "../utils/renderer.h"
 
@@ -28,9 +29,9 @@
 class Application {
 
 public:
-	Application(Camera_Mode _cameraMode);
+	Application(GameSettings _settings);
 
-	bool setupWindow();
+	bool setupWindow(unsigned int _width, unsigned int _height);
 	bool setupGamestate();
 	bool runApplication();
 	bool stopApplication();
@@ -48,12 +49,15 @@ public:
 
 
 private: 
+	// game settings
+	GameSettings m_settings;
 
 	// window
 	GLFWwindow* m_window;
 
 
 	// timing
+
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
 
@@ -65,9 +69,14 @@ private:
 
 	// camera instance
 	Camera* m_camera;
-	float lastX = (float)SCR_WIDTH / 2.0;
-	float lastY = (float)SCR_HEIGHT / 2.0;
+	float lastX = (float)m_settings.SCR_WIDTH / 2.0;
+	float lastY = (float)m_settings.SCR_HEIGHT / 2.0;
 	bool firstMouse = true;
+
+	// controls
+	double lastCursorToggle = 0.0f;				// notes time tab was pressed the last time
+	const double cursorToggleDelay = 1.0f;		// the delay between toggling cursor
+	bool cursorEnabled = false;
 
 	// entities hold scale, rotation and position
 	Entity* m_player;										// pointer to the player entity
@@ -79,6 +88,7 @@ private:
 	bool addRock (glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 	bool addCrate(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 	bool addShip (glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
+	bool addWater(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 
 
 

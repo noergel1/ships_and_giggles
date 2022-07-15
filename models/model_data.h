@@ -6,7 +6,7 @@
 
 class ModelData {
 public:
-	ModelData(unsigned int _vao, unsigned int _indiceCount, const ShaderReference _shader, const std::vector<Texture> _textures, float _shininess);
+	ModelData(unsigned int _vao, unsigned int _indiceCount, const ShaderReference _shader, const std::vector<Texture*> _textures, float _shininess);
 
 	float getShininess();
 
@@ -15,7 +15,7 @@ public:
 
 	const unsigned int m_indiceCount;
 
-	const std::vector<Texture> m_textures;				// textures of the mesh
+	const std::vector<Texture*> m_textures;				// textures of the mesh
 	const float m_shininess;								// shininess value
 
 };

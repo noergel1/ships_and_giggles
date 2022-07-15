@@ -7,21 +7,16 @@
 #include <string>
 
 
+enum class TextureType {
+	DIFFUSE,
+	SPECULAR,
+	NORMAL,
+	CUBEMAP_FACE
+};
+
 class Texture {
 
 public:
-	// the texture ID
-	unsigned int m_ID;
-
-	// defines if it's diffuse/specular/normal/.. map
-	TextureType m_textureType;
-
-	// constructor reads and builds the texture
-	Texture(const char* filepath, bool transparency, TextureType _textureType);
-
 	// use/activate the texture
-	void use(int place);
-
-
-
+	virtual void use() = 0;
 };

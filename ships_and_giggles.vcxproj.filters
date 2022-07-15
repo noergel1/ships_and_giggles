@@ -23,6 +23,9 @@
     <Filter Include="utils\imgui">
       <UniqueIdentifier>{462ad4e3-743e-4d26-ac05-6a1b4454b6bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\textures">
+      <UniqueIdentifier>{72e3a5fb-ec34-4d1c-aa47-83a90e6f6b94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="models\model_data.cpp">
@@ -42,9 +45,6 @@
     </ClCompile>
     <ClCompile Include="utils\camera_isometric.cpp">
       <Filter>camera</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\texture.cpp">
-      <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Quelldateien</Filter>
@@ -82,6 +82,24 @@
     <ClCompile Include="utils\imgui\imgui_widgets.cpp">
       <Filter>utils\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="utils\helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\texture_2d.cpp">
+      <Filter>utils\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\texture_cubemap.cpp">
+      <Filter>utils\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\framebuffer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\framebuffer.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\renderbuffer.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="models\model_data.h">
@@ -106,9 +124,6 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\stb_image.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\texture.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\camera.h">
@@ -153,6 +168,27 @@
     <ClInclude Include="utils\imgui\imstb_truetype.h">
       <Filter>utils\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="utils\helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\texture.h">
+      <Filter>utils\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\texture_2d.h">
+      <Filter>utils\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\texture_cubemap.h">
+      <Filter>utils\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\framebuffer.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\renderbuffer.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gamesettings.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\fs.glsl">
@@ -168,6 +204,24 @@
       <Filter>shader</Filter>
     </None>
     <None Include="shader\vs.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\waterFS.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\waterVS.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\skyboxVS.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\skyboxFS.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\postprocess_screenVS.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\postprocess_screenFS.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

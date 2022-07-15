@@ -7,7 +7,7 @@
 #include <regex>
 #include <glad/gl.h>
 #include <glm/glm.hpp>
-#include "texture.h"
+#include "texture_2d.h"
 
 // a model loader for .obj files
 // can't handle normal maps and height maps at this point
@@ -19,10 +19,10 @@ public:
 	static bool loadModel(	std::string _modelPath, 
 							std::vector<VertexData>* _vertices, 
 							std::vector<unsigned int>* _indices, 
-							std::vector<Texture>* _textures, 
+							std::vector<Texture*>* _textures, 
 							glm::mat4 _preTransform					);
 
-	bool loadModel_x3(std::string _modelPath, std::vector<VertexData>* _vertices, std::vector<unsigned int>* _indices, std::vector<Texture>* _textures, glm::mat4 _preTransform);
+	bool loadModel_x3(std::string _modelPath, std::vector<VertexData>* _vertices, std::vector<unsigned int>* _indices, std::vector<Texture*>* _textures, glm::mat4 _preTransform);
 
 
 private:

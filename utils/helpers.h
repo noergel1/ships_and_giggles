@@ -1,0 +1,6 @@
+#pragma once
+# define M_PI           3.14159265358979323846  /* pi */
+
+float degreeToRadians(float _angle);
+
+float radiansToDegree(float _angle);

@@ -2,23 +2,25 @@
 
 
 
-Application::Application(Camera_Mode _cameraMode)
+Application::Application(GameSettings _settings)
+    : m_settings(_settings)
 {
-    setupWindow();
+
+    setupWindow(m_settings.SCR_WIDTH, m_settings.SCR_HEIGHT);
     
-    if (_cameraMode == FREE_FLOAT)
+    if (m_settings.CAM_MODE == Camera_Mode::FREE_FLOAT)
     {
         m_camera = new Camera_FreeFloat(glm::vec3(0.0f, 0.0f, 3.0f));
     }
-    else if (_cameraMode == ISOMETRIC)
+    else if (m_settings.CAM_MODE == ISOMETRIC)
     {
         return;
     }
 
-    m_renderer = new Renderer(m_camera);
+    m_renderer = new Renderer(m_camera, m_settings);
 }
 
-bool Application::setupWindow()
+bool Application::setupWindow(unsigned int _width, unsigned int _height)
 {
     // glfw: initialize and configure
  // ------------------------------
@@ -36,7 +38,7 @@ bool Application::setupWindow()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(_width, _height, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -47,8 +49,8 @@ bool Application::setupWindow()
 
 
     // tell GLFW to capture our mouse
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -61,6 +63,8 @@ bool Application::setupWindow()
     m_debugger->enableDebug();
 
     m_window = window;
+
+    if (m_settings.ENABLE_POLYGONMODE) enablePolygonMode();
 
 
     return true;
@@ -78,8 +82,8 @@ bool Application::setupModels()
     // cube model
     std::vector<VertexData> cubeVertices = DataProvider::getCubeVertices();
     std::vector<unsigned int> cubeIndices = DataProvider::getCubeIndices();
-    std::vector<Texture> standardCrateTextures = { Texture("ressources/crate/crate.png", false, TextureType::DIFFUSE),
-                                                    Texture("ressources/crate/crate_specular.png", false, TextureType::SPECULAR) };;
+    std::vector<Texture*> standardCrateTextures = { new Texture_2D("ressources/crate/crate.png", false, TextureType::DIFFUSE, 0),
+                                                    new Texture_2D("ressources/crate/crate_specular.png", false, TextureType::SPECULAR, 1) };
 
     cubeVao = createVao(cubeVertices, cubeIndices);
 
@@ -87,19 +91,40 @@ bool Application::setupModels()
     // ship model
     std::vector<VertexData> shipVertices;
     std::vector<unsigned int> shipIndices;
-    std::vector<Texture> shipTextures;
+    std::vector<Texture*> shipTextures;
 
     ModelLoader::loadModel("ressources/ship/ship_2cannons.obj", &shipVertices, &shipIndices, &shipTextures, glm::mat4());
 
     shipVao = createVao(shipVertices, shipIndices);
 
+    // plane model
+    std::vector<VertexData> planeVertices;
+    std::vector<unsigned int> planeIndices;
+    std::vector<Texture*> planeTextures;
+
+    planeVertices = DataProvider::getPlaneVertices();
+    planeIndices = DataProvider::getPlaneIndices();
+
+    unsigned int planeVao = createVao(planeVertices, planeIndices);
+
+    // skybox textures
+    std::vector<const char*> skyboxPaths =
+    {
+        "ressources/skybox/day_water/right.jpg",
+        "ressources/skybox/day_water/left.jpg",
+        "ressources/skybox/day_water/top.jpg",
+        "ressources/skybox/day_water/bottom.jpg",
+        "ressources/skybox/day_water/front.jpg",
+        "ressources/skybox/day_water/back.jpg"
+    };
+    std::vector<Texture*> skyboxTextures = { new Texture_CubeMap(skyboxPaths, false) };
 
     ////////////////////////////////////////////////////////////////
     // CREATE MODELDATAS INSIDE RENDERER                         //
     //////////////////////////////////////////////////////////////
 
     m_renderer->AddNewModel(
-        ModelName::CRATE_MODEL,
+        ModelName::CRATE,
         cubeVao,
         cubeIndices.size(),
         ShaderReference::STANDARD_SHADER,
@@ -108,11 +133,29 @@ bool Application::setupModels()
     );
 
     m_renderer->AddNewModel(
-        ModelName::SHIP_MODEL,
+        ModelName::SHIP_STANDARD,
         shipVao,
         shipIndices.size(),
         ShaderReference::STANDARD_SHADER,
         shipTextures,
+        16.0f
+    );
+
+    m_renderer->AddNewModel(
+        ModelName::WATER,
+        planeVao,
+        planeIndices.size(),
+        ShaderReference::STANDARD_SHADER,
+        planeTextures,
+        16.0f
+    );
+
+    m_renderer->AddNewModel(
+        ModelName::SKYBOX,
+        cubeVao,
+        cubeIndices.size(),
+        ShaderReference::SKYBOX_SHADER,
+        skyboxTextures,
         16.0f
     );
 
@@ -125,30 +168,59 @@ bool Application::setupGamestate()
 
     // generate objects
     addCrate(
-        //scale
-        glm::vec3(0.0f, 0.0f, 0.0f), 
-        //rotation
-        glm::vec3(0.0f, 0.0f, 0.0f), 
         // position
-        glm::vec3(0.0f, 0.0f, 0.0f) 
+        glm::vec3(1.0f, 0.0f, 0.0f), 
+        //scale
+        glm::vec3(1.0f), 
+        //rotation
+        glm::vec3(0.0f, 0.0f, 0.0f)
     );
 
     addCrate(
-        //scale
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        //rotation
-        glm::vec3(0.0f, 0.0f, 0.0f),
         // position
-        glm::vec3(3.0f, 0.0f, 0.0f)
+        glm::vec3(1.0f, 0.0f, 0.0f),
+        //scale
+        glm::vec3(3.0f, 1.0f, 1.0f),
+        //rotation
+        glm::vec3(1.0f, 1.0f, 1.0f)
     );
 
     addShip(
+        // position
+        glm::vec3(-1.0f, 0.0f, 0.0f),
         //scale
-        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(0.5f),
+        //rotation
+        glm::vec3(0.0f, 0.0f, 0.0f)
+    );
+
+    addCrate(
+        // position
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        //scale
+        glm::vec3(1.0f),
+        //rotation
+        glm::vec3(45.0f, 1.0f, 1.0f)
+    );
+
+    addWater(
+        // position
+        glm::vec3(-1.0f, 0.0f, 0.0f),
+        //scale
+        glm::vec3(1.0f),
+        //rotation
+        glm::vec3(0.0f, 0.0f, 0.0f)
+    );
+
+    addEntity(
+        // position
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        //scale
+        glm::vec3(1.0f),
         //rotation
         glm::vec3(0.0f, 0.0f, 0.0f),
-        // position
-        glm::vec3(3.0f, 0.0f, 0.0f)
+        //modelname
+        ModelName::SKYBOX
     );
 
 
@@ -171,7 +243,13 @@ bool Application::runApplication()
 
     setupGamestate();
 
+    // enable testing
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
+    //glCullFace(GL_FRONT);
+
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -194,10 +272,12 @@ bool Application::runApplication()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 #ifndef NDEBUG
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        if (cursorEnabled == true)
+        {
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+        }
 
 #endif // !NDEBUG
 
@@ -205,12 +285,15 @@ bool Application::runApplication()
 
 #ifndef NDEBUG
 
+        if (cursorEnabled == true)
+        {
         ImGui::Begin("Hello imgui");
         ImGui::Text("this is me");
         ImGui::End();
 
-        ImGui::Render();
-    ImGui:ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            ImGui::Render();
+            ImGui:ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
 #endif // !NDEBUG
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -250,6 +333,7 @@ bool Application::stopApplication()
 // ---------------------------------------------------------------------------------------------------------
 void Application::processInput(GLFWwindow* _window)
 {
+
     if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(m_window, true);
 
@@ -264,6 +348,24 @@ void Application::processInput(GLFWwindow* _window)
 
     if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS)
         m_camera->ProcessKeyboard(RIGHT, deltaTime);
+
+    if (glfwGetKey(_window, GLFW_KEY_TAB) == GLFW_PRESS && (lastFrame - lastCursorToggle) >= cursorToggleDelay)
+    {
+        lastCursorToggle = lastFrame;
+
+        if (cursorEnabled == false)
+        {
+            glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            cursorEnabled = true;
+        }
+        else
+        {
+            glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            cursorEnabled = false;
+        }
+    }
+
+
 }
 
 void Application::process_resize(GLFWwindow* _window, int _width, int _height)
@@ -275,20 +377,23 @@ void Application::process_resize(GLFWwindow* _window, int _width, int _height)
 
 void Application::process_mouse(GLFWwindow* _window, double _xpos, double _ypos)
 {
-    if (firstMouse)
+    if (cursorEnabled == false)
     {
+        if (firstMouse)
+        {
+            lastX = _xpos;
+            lastY = _ypos;
+            firstMouse = false;
+        }
+
+        float xoffset = _xpos - lastX;
+        float yoffset = lastY - _ypos; // reversed since y-coordinates go from bottom to top
+
         lastX = _xpos;
         lastY = _ypos;
-        firstMouse = false;
+
+        m_camera->ProcessMouseMovement(xoffset, yoffset);
     }
-
-    float xoffset = _xpos - lastX;
-    float yoffset = lastY - _ypos; // reversed since y-coordinates go from bottom to top
-
-    lastX = _xpos;
-    lastY = _ypos;
-
-    m_camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 void Application::process_scroll(GLFWwindow* _window, double _xoffset, double _yoffset)
@@ -318,19 +423,25 @@ bool Application::addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _po
 
 bool Application::addRock(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, ModelName::ROCK_MODEL);
+    addEntity(_scale, _rotation, _position, ModelName::ROCK);
     return true;
 }
 
 bool Application::addCrate(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, ModelName::CRATE_MODEL);
+    addEntity(_scale, _rotation, _position, ModelName::CRATE);
     return true;
 }
 
 bool Application::addShip(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, ModelName::SHIP_MODEL);
+    addEntity(_scale, _rotation, _position, ModelName::SHIP_STANDARD);
+    return true;
+}
+
+bool Application::addWater(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
+{
+    addEntity(_scale, _rotation, _position, ModelName::WATER);
     return true;
 }
 

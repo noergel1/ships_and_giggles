@@ -9,17 +9,24 @@
 #include <unordered_map>
 #include <map>
 
-// application settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
 
 // A list of all models in the game
 enum class ModelName {
     NO_MODEL,
-    SHIP_MODEL,
-    ROCK_MODEL,
-    CRATE_MODEL
+    SHIP_STANDARD,
+    ROCK,
+    CRATE,
+    WATER,
+    SKYBOX,
 };
+
+enum class ShaderReference {
+    NO_SHADER,
+    STANDARD_SHADER,
+    WATER_SHADER,
+    SKYBOX_SHADER
+};
+
 
 struct Entity {
     // entity scaling
@@ -40,12 +47,6 @@ struct VertexData {
     glm::vec2 TexCoords;
 };
 
-enum class TextureType {
-    DIFFUSE,
-    SPECULAR,
-    NORMAL
-};
-
 template<typename T>
 std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
 {
@@ -55,10 +56,7 @@ std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::os
 
 
 
-enum class ShaderReference {
-    NO_SHADER,
-    STANDARD_SHADER
-};
+
 
 
 
