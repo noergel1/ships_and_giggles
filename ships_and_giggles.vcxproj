@@ -204,8 +204,8 @@
     <None Include="shader\fsSingleColor.glsl" />
     <None Include="shader\lightFS.glsl" />
     <None Include="shader\lightVS.glsl" />
-    <None Include="shader\postprocess_screenFS.glsl" />
-    <None Include="shader\postprocess_screenVS.glsl" />
+    <None Include="shader\postprocessingFS.glsl" />
+    <None Include="shader\postprocessingVS.glsl" />
     <None Include="shader\skyboxFS.glsl" />
     <None Include="shader\skyboxVS.glsl" />
     <None Include="shader\vs.glsl" />

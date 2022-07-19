@@ -92,12 +92,12 @@
       <Filter>utils\textures</Filter>
     </ClCompile>
     <ClCompile Include="utils\framebuffer.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\framebuffer.cpp">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\renderbuffer.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\framebuffer.cpp">
       <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -218,10 +218,10 @@
     <None Include="shader\skyboxFS.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\postprocess_screenVS.glsl">
+    <None Include="shader\postprocessingVS.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\postprocess_screenFS.glsl">
+    <None Include="shader\postprocessingFS.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

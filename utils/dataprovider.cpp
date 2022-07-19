@@ -67,16 +67,23 @@ const unsigned int DataProvider::getPlaneIndiceSize()
     return planeIndices.size();
 }
 
-const std::vector<VertexData> DataProvider::getQuadVertices()
+const std::vector<float> DataProvider::getQuadVertices()
 {
-    return std::vector<VertexData>{
-        // positions                        // normals                      // texture Coords
-        { glm::vec3(-1.0f, 1.0f, 0.0f),     glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f) },
-        { glm::vec3(-1.0f, -1.0f, 0.0f),    glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f) },
-        { glm::vec3(1.0f, -1.0f, 0.0f),     glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
-        { glm::vec3(-1.0f, 1.0f, 0.0f),     glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f) },
-        { glm::vec3(1.0f, -1.0f, 0.0f),     glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
-        { glm::vec3(1.0f,  1.0f, 0.0f),     glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f) }, };
+    return std::vector<float>{
+        // positions   // texCoords
+        -1.0f, 1.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f,
+            1.0f, -1.0f, 1.0f, 0.0f,
+
+            -1.0f, 1.0f, 0.0f, 1.0f,
+            1.0f, -1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 1.0f, 1.0f
+    };
+}
+
+const std::vector<unsigned int> DataProvider::getQuadIndices()
+{
+    return std::vector<unsigned int>({ 0,1,2,3,4,5 });
 }
 
 

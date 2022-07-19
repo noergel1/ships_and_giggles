@@ -16,7 +16,7 @@ public:
     static const unsigned int getPlaneIndiceSize();
 
     // vertices for a quad that fille the entire screen in Normalized Device Coordinates
-    static const std::vector<VertexData> getQuadVertices();
+    static const std::vector<float> getQuadVertices();
     static const std::vector<unsigned int> getQuadIndices();
     static const unsigned int getQuadIndiceSize();
 

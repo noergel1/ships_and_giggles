@@ -93,11 +93,5 @@ private:
 
 
 	bool setupModels();
-	unsigned int createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices);
-	unsigned int createVao(const std::vector<VertexData>& _vertices);
-
-
-
-
 };
 

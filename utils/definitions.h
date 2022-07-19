@@ -12,19 +12,22 @@
 
 // A list of all models in the game
 enum class ModelName {
+    //models are rendered top->bottom
     NO_MODEL,
     SHIP_STANDARD,
     ROCK,
     CRATE,
     WATER,
     SKYBOX,
+    POSTPROCESSING
 };
 
 enum class ShaderReference {
     NO_SHADER,
     STANDARD_SHADER,
     WATER_SHADER,
-    SKYBOX_SHADER
+    SKYBOX_SHADER,
+    POSTPROCESSING_SHADER
 };
 
 

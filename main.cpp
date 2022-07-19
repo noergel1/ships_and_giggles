@@ -6,19 +6,25 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-
+#define ENABLE true
+#define DISABLE false
 
 Application* gameInstance;
 
 int main(void)
 {
+    // options for postprocessing:
+    // NULL to disable
+    // DataProvider::getBlurKernel()
+    // DataProvider::getEdgeDetectionKernel()
+    // DataProvider::getSharpenKernel()
 
     GameSettings gameSetting = {
         /* Screen Width: */             800,//px
         /* Screen Height: */            600,//px                           
         /* Camera Mode: */              Camera_Mode::FREE_FLOAT,
-        /* Enable Postprocessing: */    true,
-        /* Enable Polygon Mode: */      false,
+        /* Postprocessing: */           DataProvider::getBlurKernel(),
+        /* Polygon Mode: */             DISABLE,
     };
 
     gameInstance = new Application(gameSetting);

@@ -1,18 +1,21 @@
 #include "framebuffer.h"
 
 Framebuffer::Framebuffer(int _width, int _height)
+    : m_texture(Texture_2D(_width, _height, TextureType::DIFFUSE, 0))
 {
     // framebuffer configuration
 // -------------------------
     glGenFramebuffers(1, &m_framebufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);
     // create a color attachment texture
-    glGenTextures(1, &m_textureID);
-    glBindTexture(GL_TEXTURE_2D, m_textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_textureID, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture.getID(), 0);
+
+    // create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, _width, _height); // use a single renderbuffer object for both a depth AND stencil buffer.
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
 
     // check if frambuffer creation is finished
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -37,9 +40,9 @@ void Framebuffer::unbind()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::bindTexture(int _textureSlot)
+void Framebuffer::bindTexture()
 {
-    glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + _textureSlot);
+    m_texture.use();
 }
 
 void Framebuffer::unbindTexture()
@@ -49,6 +52,8 @@ void Framebuffer::unbindTexture()
 
 void Framebuffer::deleteBuffer()
 {
+    unsigned int textureID = m_texture.getID();
+
     glDeleteFramebuffers(1, &m_framebufferID);
-    glDeleteTextures(1, &m_textureID);
+    glDeleteTextures(1, &textureID);
 }

@@ -10,8 +10,14 @@
 #include "dataprovider.h"
 #include "simple_model_loader.h"
 #include "helpers.h"
+#include "framebuffer.h"
+#include "renderbuffer.h"
 
 #include "../models/model_data.h"
+
+struct RenderVariables {
+	Framebuffer framebuffer_postprocessing;
+};
 
 class Renderer {
 
@@ -40,8 +46,14 @@ private:
 
 	bool BindVao(unsigned int _vao);
 
-	// pre & post render functions
-	void preRender(ModelName _modelname, const  ModelData* _modelData, glm::mat4* _model, glm::mat4* _projection, glm::mat4* _view, const unsigned int& _shader);
-	void render(Entity _entity, ModelName _modelname, const  ModelData* _modelData, glm::mat4* _model, glm::mat4* _projection, glm::mat4* _view, const unsigned int& _shader);
-	void postRender(ModelName _modelname, const  ModelData* _modelData, glm::mat4* _model, glm::mat4* _projection, glm::mat4* _view, const unsigned int& _shader);
+	// render functions
+	RenderVariables m_renderVariables;
+
+	void preRenderScene(std::map<ModelName, std::vector<Entity>> _entities);
+	void renderScene(std::map<ModelName, std::vector<Entity>> _entities);
+	void postRenderScene(std::map<ModelName, std::vector<Entity>> _entities);
+
+	void modelPreRender(ModelName _modelname, const  ModelData* _modelData, glm::mat4* _model, glm::mat4* _projection, glm::mat4* _view);
+	void modelRender(Entity _entity, ModelName _modelname, const  ModelData* _modelData, glm::mat4* _model, glm::mat4* _projection, glm::mat4* _view);
+	void modelPostRender(ModelName _modelname, const  ModelData* _modelData, glm::mat4* _model, glm::mat4* _projection, glm::mat4* _view);
 };

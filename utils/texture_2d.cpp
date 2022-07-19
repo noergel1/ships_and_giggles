@@ -4,13 +4,14 @@
 
 Texture_2D::Texture_2D(const char* _filepath, bool _transparency, TextureType _textureType, unsigned int _place)
 	:m_place(_place)
+	,m_textureType(_textureType)
 {
+	glGenTextures(1, &m_ID);
+	glBindTexture(GL_TEXTURE_2D, m_ID);
+
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load(_filepath, &width, &height, &nrChannels, 0);
-
-	glGenTextures(1, &m_ID);
-	glBindTexture(GL_TEXTURE_2D, m_ID);
 
 	if (data)
 	{
@@ -47,8 +48,23 @@ Texture_2D::Texture_2D(const char* _filepath, bool _transparency, TextureType _t
 
 	stbi_image_free(data);
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
 
-	m_textureType = _textureType;
+Texture_2D::Texture_2D(unsigned int _width, unsigned int _height, TextureType _textureType, unsigned int _place)
+	:m_place(_place)
+	,m_textureType(_textureType)
+{
+	glGenTextures(1, &m_ID);
+	glBindTexture(GL_TEXTURE_2D, m_ID);
+
+	// NULL as data
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// unbind
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 // use/activate the texture
@@ -56,4 +72,9 @@ void Texture_2D::use()
 {
 	glActiveTexture(GL_TEXTURE0 + m_place);
 	glBindTexture(GL_TEXTURE_2D, m_ID);
+}
+
+unsigned int Texture_2D::getID()
+{
+	return m_ID;
 }

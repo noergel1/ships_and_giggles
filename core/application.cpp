@@ -119,6 +119,49 @@ bool Application::setupModels()
     };
     std::vector<Texture*> skyboxTextures = { new Texture_CubeMap(skyboxPaths, false) };
 
+
+    // postprocessing quad
+    std::vector<float> quadVertices = DataProvider::getQuadVertices();
+    std::vector<unsigned int> quadIndices = DataProvider::getQuadIndices();
+    // quad VAO
+    // TODO: createVAO should have parameters to know what is inside the vertexdata
+    // TODO: data format for vertex data should be more flexible to have different compositions
+    unsigned int quadVao;
+    glGenVertexArrays(1, &quadVao);
+    glBindVertexArray(quadVao);
+
+    unsigned int quadVBO;
+    glGenBuffers(1, &quadVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * quadVertices.size(), &quadVertices.at(0), GL_STATIC_DRAW);
+
+    // position with x and y coords
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    // texcoords
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+    unsigned int quadEbo;
+    glGenBuffers(1, &quadEbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEbo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * quadIndices.size(), &quadIndices.at(0), GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+
+    glBindVertexArray(0);
+    unsigned int QuadVao, QuadVbo;
+    glGenVertexArrays(1, &QuadVao);
+    glGenBuffers(1, &QuadVbo);
+    glBindVertexArray(QuadVao);
+    glBindBuffer(GL_ARRAY_BUFFER, QuadVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+
+    // texture 
+    std::vector<Texture*> quadTextures = { new Texture_2D(m_settings.SCR_WIDTH, m_settings.SCR_HEIGHT, TextureType::DIFFUSE, 0) };
+
+
+
     ////////////////////////////////////////////////////////////////
     // CREATE MODELDATAS INSIDE RENDERER                         //
     //////////////////////////////////////////////////////////////
@@ -158,6 +201,19 @@ bool Application::setupModels()
         skyboxTextures,
         16.0f
     );
+
+    // renderer does no postprocessing, if model isn't added
+    if (m_settings.POSTPROCESSING_KERNEL != NULL)
+    {
+        m_renderer->AddNewModel(
+            ModelName::POSTPROCESSING,
+            quadVao,
+            quadIndices.size(),
+            ShaderReference::POSTPROCESSING_SHADER,
+            quadTextures,
+            0.0f
+        );
+    }
 
     return false;
 }
@@ -212,12 +268,13 @@ bool Application::setupGamestate()
         glm::vec3(0.0f, 0.0f, 0.0f)
     );
 
+    //skybox
     addEntity(
-        // position
-        glm::vec3(0.0f, 0.0f, 0.0f),
         //scale
-        glm::vec3(1.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
         //rotation
+        glm::vec3(0.0f),
+        // position
         glm::vec3(0.0f, 0.0f, 0.0f),
         //modelname
         ModelName::SKYBOX
@@ -271,6 +328,8 @@ bool Application::runApplication()
         glClearColor(0.5f, 0.5f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+
+        // imgui
 #ifndef NDEBUG
         if (cursorEnabled == true)
         {
@@ -278,13 +337,14 @@ bool Application::runApplication()
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
         }
-
 #endif // !NDEBUG
 
+        // render the scene
         m_renderer->Draw(m_entities);
 
-#ifndef NDEBUG
 
+        // imgui
+#ifndef NDEBUG
         if (cursorEnabled == true)
         {
         ImGui::Begin("Hello imgui");
@@ -295,6 +355,7 @@ bool Application::runApplication()
             ImGui:ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
 #endif // !NDEBUG
+
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -318,8 +379,6 @@ bool Application::stopApplication()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 #endif // !NDEBUG
-
-
 
 
     return false;
@@ -452,48 +511,4 @@ void Application
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
-
-unsigned int Application::createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices)
-	{
-	
-		unsigned int VAO;
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-	
-		unsigned int VBO;
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * _vertices.size(), &_vertices.at(0), GL_STATIC_DRAW);
-	
-		// position attribute
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-		// normal attribute
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(1);
-		// texCoord attribute
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-	
-		unsigned int EBO;
-		glGenBuffers(1, &EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * _indices.size(), &_indices.at(0), GL_STATIC_DRAW);
-	
-		glBindVertexArray(0);
-
-		return VAO;
-	}
-
-unsigned int Application::createVao(const std::vector<VertexData>& _vertices)
-{
-    std::vector<unsigned int> indices(_vertices.size());
-    std::iota(std::begin(indices), std::end(indices), 0); // Fill with consecutive ints up to _vertices.size() - 1
-
-    unsigned int VAO = createVao(_vertices, indices);
-
-
-    return VAO;
-};
-
 

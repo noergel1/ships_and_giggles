@@ -16,7 +16,7 @@ struct GameSettings
 	const Camera_Mode CAM_MODE;
 
 	// debug options
-	const bool ENABLE_POSTPROCESSING;
+	const float* POSTPROCESSING_KERNEL;
 	const bool ENABLE_POLYGONMODE;
 
 	// other options
