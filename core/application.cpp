@@ -203,7 +203,7 @@ bool Application::setupModels()
     );
 
     // renderer does no postprocessing, if model isn't added
-    if (m_settings.POSTPROCESSING_KERNEL != NULL)
+    if (!m_settings.POSTPROCESSING_KERNEL.empty())
     {
         m_renderer->AddNewModel(
             ModelName::POSTPROCESSING,

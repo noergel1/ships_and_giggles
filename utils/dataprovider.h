@@ -23,9 +23,10 @@ public:
     static const std::string getShipObjPath();
 
     // kernels for postprocessing
-    static float* getSharpenKernel();
-    static float* getBlurKernel();
-    static float* getEdgeDetectionKernel();
+    static std::vector<float> noPostProcessing();
+    static std::vector<float> getSharpenKernel();
+    static std::vector<float> getBlurKernel();
+    static std::vector<float> getEdgeDetectionKernel();
 
 
 

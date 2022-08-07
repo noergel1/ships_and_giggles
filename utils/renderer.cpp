@@ -96,8 +96,15 @@
 		if (m_models[ModelName::POSTPROCESSING])
 		{
 			const ModelData* postprocessingModel = m_models[ModelName::POSTPROCESSING];
-			Shader::useShader(m_shaders[postprocessingModel->m_shader]);
-			Shader::setInt(m_shaders[postprocessingModel->m_shader], "screenTexture", 0);
+			const unsigned int postprocessingShader = m_shaders[postprocessingModel->m_shader];
+			const std::vector<float> kernel = m_settings.POSTPROCESSING_KERNEL;
+
+			Shader::useShader( postprocessingShader );
+			Shader::setInt( postprocessingShader, "screenTexture", 0);
+			for (int i = 0; i < 9; i++) 				{
+				std::string curKernel = "kernel[" + std::to_string(i) + "]";
+				Shader::setFloat( postprocessingShader, curKernel, kernel[i]);
+			}
 
 			//// bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);

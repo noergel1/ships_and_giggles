@@ -6,35 +6,34 @@ const std::string DataProvider::getShipObjPath()
     return "ressources/ship_2cannons.obj";
 };
 
-float* DataProvider::getSharpenKernel()
-{
-    float* kernel = new float[
-        2,  2, 2,
-        2,-15, 2,
-        2,  2, 2
-    ];
+std::vector<float> DataProvider::noPostProcessing() {
 
-    return kernel;
+    return std::vector<float>();
 }
-float* DataProvider::getBlurKernel()
-{
-    float* kernel = new float [
-            1.0f / 16, 2.0f / 16, 1.0f / 16,
-            2.0f / 16, 4.0f / 16, 2.0f / 16,
-            1.0f / 16, 2.0f / 16, 1.0f / 16
-    ];
 
-    return kernel;
-}
-float* DataProvider::getEdgeDetectionKernel()
+std::vector<float> DataProvider::getSharpenKernel()
 {
-    float* kernel = new float[
-            1,  1, 1,
+    return std::vector<float>{
+            2, 2, 2,
+            2, -15, 2,
+            2, 2, 2
+    };
+}
+std::vector<float> DataProvider::getBlurKernel()
+{
+    return std::vector<float>{
+        1.0 / 16, 2.0 / 16, 1.0 / 16,
+            2.0 / 16, 4.0 / 16, 2.0 / 16,
+            1.0 / 16, 2.0 / 16, 1.0 / 16
+    };
+}
+std::vector<float> DataProvider::getEdgeDetectionKernel()
+{
+    return std::vector<float>{
+        1, 1, 1,
             1, -8, 1,
-            1,  1, 1
-    ];
-
-    return kernel;
+            1, 1, 1
+    };
 };
 
 

@@ -14,7 +14,7 @@ Application* gameInstance;
 int main(void)
 {
     // options for postprocessing:
-    // NULL to disable
+    // DataProvider::noPostProcessing() to disable
     // DataProvider::getBlurKernel()
     // DataProvider::getEdgeDetectionKernel()
     // DataProvider::getSharpenKernel()
@@ -23,7 +23,7 @@ int main(void)
         /* Screen Width: */             800,//px
         /* Screen Height: */            600,//px                           
         /* Camera Mode: */              Camera_Mode::FREE_FLOAT,
-        /* Postprocessing: */           DataProvider::getBlurKernel(),
+        /* Postprocessing: */           DataProvider::noPostProcessing(),
         /* Polygon Mode: */             DISABLE,
     };
 
