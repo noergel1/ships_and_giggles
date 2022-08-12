@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <map>
 #include <numeric>
+#include <boost/filesystem/directory.hpp>
+#include <boost/regex.hpp>
 
 #include "shader.h"
 #include "definitions.h"

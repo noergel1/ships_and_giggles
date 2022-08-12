@@ -197,10 +197,10 @@
     <None Include="shader\fsSingleColor.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\lightFS.glsl">
+    <None Include="shader\testFS.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="shader\lightVS.glsl">
+    <None Include="shader\testVS.glsl">
       <Filter>shader</Filter>
     </None>
     <None Include="shader\vs.glsl">

@@ -202,8 +202,8 @@
   <ItemGroup>
     <None Include="shader\fs.glsl" />
     <None Include="shader\fsSingleColor.glsl" />
-    <None Include="shader\lightFS.glsl" />
-    <None Include="shader\lightVS.glsl" />
+    <None Include="shader\testFS.glsl" />
+    <None Include="shader\testVS.glsl" />
     <None Include="shader\postprocessingFS.glsl" />
     <None Include="shader\postprocessingVS.glsl" />
     <None Include="shader\skyboxFS.glsl" />

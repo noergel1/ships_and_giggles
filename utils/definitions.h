@@ -19,7 +19,8 @@ enum class ModelName {
     CRATE,
     WATER,
     SKYBOX,
-    POSTPROCESSING
+    POSTPROCESSING,
+    TEST_OBJECT
 };
 
 enum class ShaderReference {
@@ -27,7 +28,8 @@ enum class ShaderReference {
     STANDARD_SHADER,
     WATER_SHADER,
     SKYBOX_SHADER,
-    POSTPROCESSING_SHADER
+    POSTPROCESSING_SHADER,
+    TESTING_SHADER
 };
 
 

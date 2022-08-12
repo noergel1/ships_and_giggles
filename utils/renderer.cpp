@@ -16,6 +16,8 @@
 	// creates the shaders and puts the key/value pairs into the shader map
 	bool Renderer::SetupShaders()
 	{
+		//old
+
 		const unsigned int standardShader = Shader::createShader("shader/vs.glsl", "shader/fs.glsl");
 		m_shaders.insert(std::pair<ShaderReference, const unsigned int>(ShaderReference::STANDARD_SHADER, standardShader));
 
@@ -28,6 +30,40 @@
 		const unsigned int postprocessingShader = Shader::createShader("shader/postprocessingVS.glsl", "shader/postprocessingFS.glsl");
 		m_shaders.insert(std::pair<ShaderReference, const unsigned int>(ShaderReference::POSTPROCESSING_SHADER, postprocessingShader));
 
+		const unsigned int testingShader = Shader::createShader( "shader/testVS.glsl", "shader/testFS.glsl" );
+		m_shaders.insert( std::pair<ShaderReference, const unsigned int>( ShaderReference::TESTING_SHADER, testingShader ) );
+
+
+		struct shaderFiles {
+			std::string vs;
+			std::string fs;
+			std::string gs = "";
+		};
+
+		// wahrscheinlich am besten eine map 
+
+		boost::regex shaderRegex;
+		//new
+		try {
+			shaderRegex = boost::regex("shader\\\\\\w*(VS|FS|vs|fs).glsl");
+		}
+		catch (const std::string err) {
+			std::cout << err << '\n';
+		};
+
+		std::cout << (boost::regex_match( "shader\\blblafS.glsl", shaderRegex) ? "matched" : "not matched") << '\n';
+		for (auto const& dir_entry : boost::filesystem::directory_iterator( "shader" )) {
+			std::string shaderPath = dir_entry.path().string();
+			if (!boost::regex_match( shaderPath, shaderRegex )) {
+				std::cout << shaderPath << " didnt match regex" << '\n';
+				continue;
+			}
+
+			switch ()
+
+
+		}
+		
 
 		return true;
 	}

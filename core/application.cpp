@@ -202,6 +202,24 @@ bool Application::setupModels()
         16.0f
     );
 
+    m_renderer->AddNewModel(
+        ModelName::SKYBOX,
+        cubeVao,
+        cubeIndices.size(),
+        ShaderReference::SKYBOX_SHADER,
+        skyboxTextures,
+        16.0f
+    );
+
+    m_renderer->AddNewModel(
+        ModelName::TEST_OBJECT,
+        cubeVao,
+        cubeIndices.size(),
+        ShaderReference::TESTING_SHADER,
+        standardCrateTextures,
+        16.0f
+    );
+
     // renderer does no postprocessing, if model isn't added
     if (!m_settings.POSTPROCESSING_KERNEL.empty())
     {
@@ -278,6 +296,18 @@ bool Application::setupGamestate()
         glm::vec3(0.0f, 0.0f, 0.0f),
         //modelname
         ModelName::SKYBOX
+    );
+
+        //skybox
+    addEntity(
+        //scale
+        glm::vec3( 1.0f, 1.0f, 1.0f ),
+        //rotation
+        glm::vec3( 0.0f ),
+        // position
+        glm::vec3( 3.0f, 0.0f, 2.0f ),
+        //modelname
+        ModelName::TEST_OBJECT
     );
 
 
