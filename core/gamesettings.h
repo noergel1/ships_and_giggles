@@ -16,8 +16,11 @@ struct GameSettings
 	const Camera_Mode CAM_MODE;
 
 	// debug options
-	const std::vector<float> POSTPROCESSING_KERNEL;
-	const bool ENABLE_POLYGONMODE;
+	std::vector<float> POSTPROCESSING_KERNEL;
+	bool ENABLE_POLYGONMODE;
+	bool SHOW_NORMALS;
+	bool SHOW_VERTICES;
+
 
 	// other options
 };

@@ -200,16 +200,27 @@
     <ClInclude Include="utils\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\fs.glsl" />
-    <None Include="shader\fsSingleColor.glsl" />
+    <None Include="shader\showNormalsFS.glsl" />
+    <None Include="shader\showNormalsGS.glsl" />
+    <None Include="shader\showNormalsVS.glsl" />
+    <None Include="shader\showVerticesFS.glsl" />
+    <None Include="shader\showVerticesGS.glsl" />
+    <None Include="shader\showVerticesVS.glsl" />
+    <None Include="shader\standardFS.glsl" />
+    <None Include="shader\standardGS.glsl" />
     <None Include="shader\testFS.glsl" />
+    <None Include="shader\testGS.glsl" />
     <None Include="shader\testVS.glsl" />
     <None Include="shader\postprocessingFS.glsl" />
     <None Include="shader\postprocessingVS.glsl" />
     <None Include="shader\skyboxFS.glsl" />
     <None Include="shader\skyboxVS.glsl" />
-    <None Include="shader\vs.glsl" />
+    <None Include="shader\standardVS.glsl" />
     <None Include="shader\waterFS.glsl" />
+    <None Include="shader\waterGS.glsl" />
+    <None Include="shader\waterNormalsFS.glsl" />
+    <None Include="shader\waterNormalsGS.glsl" />
+    <None Include="shader\waterNormalsVS.glsl" />
     <None Include="shader\waterVS.glsl" />
   </ItemGroup>
   <ItemGroup>

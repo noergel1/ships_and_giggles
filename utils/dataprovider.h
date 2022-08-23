@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include "definitions.h"
+#include "helpers.h"
+#include "../models/model_data.h"
 
 
 class DataProvider {
@@ -14,6 +16,9 @@ public:
     static const std::vector<VertexData> getPlaneVertices();
     static const std::vector<unsigned int> getPlaneIndices();
     static const unsigned int getPlaneIndiceSize();
+
+    static const std::vector<VertexData> generatePlaneVertices( glm::vec3 _v0, glm::vec3 _v1, glm::vec3 _v2, glm::vec3 _v3, unsigned int _div );
+    static const std::vector<unsigned int> generatePlaneIndices( unsigned int _div );
 
     // vertices for a quad that fille the entire screen in Normalized Device Coordinates
     static const std::vector<float> getQuadVertices();

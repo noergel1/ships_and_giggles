@@ -23,8 +23,11 @@ int main(void)
         /* Screen Width: */             800,//px
         /* Screen Height: */            600,//px                           
         /* Camera Mode: */              Camera_Mode::FREE_FLOAT,
-        /* Postprocessing: */           DataProvider::noPostProcessing(),
+        /* Postprocessing: */           DataProvider::getBlurKernel(),
         /* Polygon Mode: */             DISABLE,
+        /* Show Normals: */             DISABLE,
+        /* Show Vertices: */            DISABLE,
+
     };
 
     gameInstance = new Application(gameSetting);

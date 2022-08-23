@@ -15,31 +15,22 @@ enum class ModelName {
     //models are rendered top->bottom
     NO_MODEL,
     SHIP_STANDARD,
-    ROCK,
     CRATE,
+    ROCK,
     WATER,
     SKYBOX,
+    TEST_OBJECT,
     POSTPROCESSING,
-    TEST_OBJECT
-};
-
-enum class ShaderReference {
-    NO_SHADER,
-    STANDARD_SHADER,
-    WATER_SHADER,
-    SKYBOX_SHADER,
-    POSTPROCESSING_SHADER,
-    TESTING_SHADER
 };
 
 
 struct Entity {
+    // entity position
+    glm::vec3 Position;
     // entity scaling
     glm::vec3 Scale;
     // entity rotation
     glm::vec3 Rotation;
-    // entity position
-    glm::vec3 Position;
     
 };
 

@@ -3,11 +3,10 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
 
+
 out VS_OUT {
-    vec3 Normal;
-    vec3 FragPos;
-    vec2 TexCoord;
-} vs_out; 
+    vec3 normal;
+} vs_out;
 
 
 uniform mat4 model;
@@ -69,11 +68,12 @@ void main()
     /* Speed      */ speed
     );
 
-    vs_out.FragPos = vec3(model * vec4(generateWaveSineSumImproved(sinFuncs), 1.0));
-    vs_out.Normal = generateWaveSineSumImprovedNormal(sinFuncs);  
-    vs_out.TexCoord = aTexCoord;
+    vec3 FragPos = vec3(model * vec4(generateWaveSineSumImproved(sinFuncs), 1.0));
+    gl_Position = view * vec4(FragPos, 1.0);
 
-    gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
+    mat3 normalMatrix = mat3(transpose(inverse(view * model)));
+    vs_out.normal = normalize(generateWaveSineSumImprovedNormal(sinFuncs));
+
 }
 
 // algorithms taken from

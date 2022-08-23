@@ -66,6 +66,108 @@ const unsigned int DataProvider::getPlaneIndiceSize()
     return planeIndices.size();
 }
 
+const std::vector<VertexData> DataProvider::generatePlaneVertices( glm::vec3 _v0, glm::vec3 _v1, glm::vec3 _v2, glm::vec3 _v3, unsigned int _div ) {
+    //  v3-----v2
+    //  |       |
+    //  |       |
+    //  v0-----v1
+    std::vector<VertexData> vertices;
+    float divFloat = float( _div );
+    glm::vec3 vec03 = (_v3 - _v0) / divFloat;
+    glm::vec3 vec12 = (_v2 - _v1) / divFloat;
+
+    for (int row = 0; row < _div + 1; row++) {
+        float rowFloat = float( row );
+        glm::vec3 start = _v0 + vec03 * rowFloat;
+        glm::vec3 end = _v1 + vec12 * rowFloat;
+        glm::vec3 lineDiv = (end - start) / divFloat;
+
+        for (int col = 0; col < _div + 1; col++) {
+            float colFloat = float( col );
+            glm::vec3 position = start + colFloat * lineDiv;
+            glm::vec3 normal = glm::cross( glm::normalize(vec03), glm::normalize((end - start)) );
+            glm::vec2 texCoords = glm::vec2( colFloat / _div, rowFloat / _div );
+
+            VertexData vertex;
+            vertex.Position = position;
+            vertex.Normal = normal;
+            vertex.TexCoords = texCoords;
+
+            vertices.push_back( vertex );
+        }
+    }
+
+    return vertices;
+}
+
+const std::vector<unsigned int> DataProvider::generatePlaneIndices(unsigned int _div ) {
+        //  v3-----v2
+        //  |       |
+        //  |       |
+        //  v0-----v1
+ 
+        // moving up a row equals index+div+1
+    std::vector<unsigned int> indices;
+
+    // only div-1 iterations, since there are no vertices to connect to at the end
+    for (int row = 0; row < _div; row++) {
+        for (int col = 0; col < _div; col++) {
+
+            unsigned int curIndex;
+            curIndex = row * (_div + 1) + col;
+
+            unsigned int otherIndex1, otherIndex2;
+            // first triangle
+            // 1--------2
+            // |       /
+            // |      /
+            // |     /
+            // |    /
+            // |   /
+            // |  /
+            // | /
+            // |/
+            // C
+
+            otherIndex1 = curIndex + _div + 1;
+            otherIndex2 = curIndex + _div + 2;
+            indices.push_back( curIndex );
+            indices.push_back( otherIndex1 );
+            indices.push_back( otherIndex2 );
+
+            // second triangle
+            //          1
+            //         /|
+            //        / |
+            //       /  |
+            //      /   |
+            //     /    |
+            //    /     |
+            //   /      |
+            //  /       |
+            // C--------2
+
+            otherIndex1 = curIndex + _div + 2;
+            otherIndex2 = curIndex + 1;
+            indices.push_back( curIndex );
+            indices.push_back( otherIndex1 );
+            indices.push_back( otherIndex2 );
+        }
+    }
+
+    //int count = 0;
+    //for (int i = 0; i < indices.size(); i = i + 3)         {
+    //    std::cout << "Vertex " + std::to_string(count) + ":\n";
+    //    std::cout << indices[i] << "\n";
+    //    std::cout << indices[i+1] << "\n";
+    //    std::cout << indices[i+2] << "\n";
+
+    //    count++;
+    //}
+
+    return indices;
+}
+
 const std::vector<float> DataProvider::getQuadVertices()
 {
     return std::vector<float>{

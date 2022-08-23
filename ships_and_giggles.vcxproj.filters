@@ -26,11 +26,35 @@
     <Filter Include="utils\textures">
       <UniqueIdentifier>{72e3a5fb-ec34-4d1c-aa47-83a90e6f6b94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shader\standard">
+      <UniqueIdentifier>{f79b3f9c-fb29-4dd1-9f67-4b1bd434c9cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\water">
+      <UniqueIdentifier>{5b28300b-74ee-4206-9ef8-65a7bdb1ff36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\test">
+      <UniqueIdentifier>{467ed2c0-b2cd-42d6-a7d1-c487bff55f24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\postprocessing">
+      <UniqueIdentifier>{8ae6c671-b708-4904-a32b-1a91f1afd269}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\skybox">
+      <UniqueIdentifier>{95eb5649-e470-40e3-9198-11dfa15ceff5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\debug">
+      <UniqueIdentifier>{8fd10401-0647-48b6-abe7-c51908e67a44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\debug\showVertices">
+      <UniqueIdentifier>{51c2e237-9fb3-410b-a528-c93ee4472872}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\debug\showNormals">
+      <UniqueIdentifier>{9642eac0-49b8-49bd-915c-8b3c12c4f7a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\debug\waterNormals">
+      <UniqueIdentifier>{6a842861-d85f-433b-a032-693456e69c86}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="models\model_data.cpp">
-      <Filter>models</Filter>
-    </ClCompile>
     <ClCompile Include="utils\renderer.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -99,6 +123,9 @@
     </ClCompile>
     <ClCompile Include="utils\framebuffer.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="models\model_data.cpp">
+      <Filter>models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -191,38 +218,71 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\fs.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\fsSingleColor.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\testFS.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\testVS.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\vs.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\waterFS.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\waterVS.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\skyboxVS.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="shader\skyboxFS.glsl">
-      <Filter>shader</Filter>
+    <None Include="shader\postprocessingFS.glsl">
+      <Filter>shader\postprocessing</Filter>
     </None>
     <None Include="shader\postprocessingVS.glsl">
-      <Filter>shader</Filter>
+      <Filter>shader\postprocessing</Filter>
     </None>
-    <None Include="shader\postprocessingFS.glsl">
-      <Filter>shader</Filter>
+    <None Include="shader\skyboxFS.glsl">
+      <Filter>shader\skybox</Filter>
+    </None>
+    <None Include="shader\skyboxVS.glsl">
+      <Filter>shader\skybox</Filter>
+    </None>
+    <None Include="shader\standardFS.glsl">
+      <Filter>shader\standard</Filter>
+    </None>
+    <None Include="shader\standardGS.glsl">
+      <Filter>shader\standard</Filter>
+    </None>
+    <None Include="shader\standardVS.glsl">
+      <Filter>shader\standard</Filter>
+    </None>
+    <None Include="shader\testFS.glsl">
+      <Filter>shader\test</Filter>
+    </None>
+    <None Include="shader\testGS.glsl">
+      <Filter>shader\test</Filter>
+    </None>
+    <None Include="shader\testVS.glsl">
+      <Filter>shader\test</Filter>
+    </None>
+    <None Include="shader\waterFS.glsl">
+      <Filter>shader\water</Filter>
+    </None>
+    <None Include="shader\waterGS.glsl">
+      <Filter>shader\water</Filter>
+    </None>
+    <None Include="shader\waterVS.glsl">
+      <Filter>shader\water</Filter>
+    </None>
+    <None Include="shader\showNormalsVS.glsl">
+      <Filter>shader\debug\showNormals</Filter>
+    </None>
+    <None Include="shader\showNormalsFS.glsl">
+      <Filter>shader\debug\showNormals</Filter>
+    </None>
+    <None Include="shader\showNormalsGS.glsl">
+      <Filter>shader\debug\showNormals</Filter>
+    </None>
+    <None Include="shader\showVerticesVS.glsl">
+      <Filter>shader\debug\showVertices</Filter>
+    </None>
+    <None Include="shader\showVerticesFS.glsl">
+      <Filter>shader\debug\showVertices</Filter>
+    </None>
+    <None Include="shader\showVerticesGS.glsl">
+      <Filter>shader\debug\showVertices</Filter>
+    </None>
+    <None Include="shader\waterNormalsFS.glsl">
+      <Filter>shader\debug\waterNormals</Filter>
+    </None>
+    <None Include="shader\waterNormalsGS.glsl">
+      <Filter>shader\debug\waterNormals</Filter>
+    </None>
+    <None Include="shader\waterNormalsVS.glsl">
+      <Filter>shader\debug\waterNormals</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

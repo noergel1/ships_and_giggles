@@ -1,82 +1,50 @@
 #version 430 core
 out vec4 FragColor;
 
-in vec3 Normal;  
-in vec3 FragPos; 
-in vec2 TexCoord;
+in GS_OUT {
+    vec3 Normal;
+    vec3 FragPos;
+    vec2 TexCoord;
+} fs_in;
 
-
-
-struct Material {
-    sampler2D diffuse;
-    sampler2D specular;
-    float shininess;
-
-    sampler2D emission;
-}; 
-
-uniform Material material1;
 
 
 // Directional Light
-struct DirLight {
-    vec3 direction;
-  
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};  
-uniform DirLight dirLight;
-
-// Point Lights
-struct PointLight {    
-    vec3 position;
-    
-    float constant;
-    float linear;
-    float quadratic;  
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};  
-#define NR_POINT_LIGHTS 4  
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+layout (std140, binding = 2) uniform dirLight
+{
+    vec3 dirDirection;
+    vec3 dirAmbient;
+    vec3 dirDiffuse;
+    vec3 dirSpecular;
+};
 
 
-// Spotlight
-struct SpotLight {
-    vec3  position;
-    vec3  direction;
-    float innerCutOff;
-    float outerCutOff;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-
-    float constant;
-    float linear;
-    float quadratic;
-}; 
-uniform SpotLight spotLight;
+struct sinParams{
+        float amplitude;
+        vec2 direction;
+        float wavelength;
+        float frequency;
+        float speed;
+};
+const unsigned int sineCount = 2;
 
 // camera position
 uniform vec3 viewPos;
 
 // Calculation Functions
-vec3 CalcDirLight(DirLight light);
-vec3 CalcPointLight(PointLight light);  
-vec3 CalcSpotLight(SpotLight light);
+vec3 CalcDirLight();
+vec3 generateWaveSineSumImprovedNormal(sinParams _params[sineCount]);
 
-    vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(-FragPos);
-    vec3 viewDir = normalize(viewPos-FragPos);
+    vec3 norm = normalize(fs_in.Normal);
+    vec3 lightDir = normalize(-fs_in.FragPos);
+    vec3 viewDir = normalize(viewPos-fs_in.FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 
-    vec3 texColorAmbient = vec3(texture(material1.diffuse, TexCoord));
-    vec3 texColorDiffuse = vec3(texture(material1.diffuse, TexCoord));
-    vec3 texColorSpecular = vec3(texture(material1.specular, TexCoord));
+    float shininess = 16.0f;
+    vec3 texColorAmbient = vec3(0.0f, 0.1f, 0.5f);
+    vec3 texColorDiffuse = vec3(0.0f, 0.0f, 1.0f);
+    vec3 texColorSpecular = vec3(1.0f, 1.0f, 1.0f);
+
 
 
 void main()
@@ -84,88 +52,42 @@ void main()
 
 
 
-    vec3 result = vec3(0.0f, 0.0f, 1.0f);
+    vec3 result = vec3(0.0f, 0.0f, 0.0f);
+    result += CalcDirLight();
     FragColor = vec4(result, 1.0f);
 }
 
-vec3 CalcDirLight(DirLight light)
+vec3 CalcDirLight()
 {
-    vec3 lightDir = normalize(-light.direction);
+    vec3 lightDir = normalize(-dirDirection);
     // diffuse shading
     float diff = max(dot(norm, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material1.shininess);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     // combine results
-    vec3 ambient  = light.ambient  * texColorAmbient;
-    vec3 diffuse  = light.diffuse  * diff * texColorDiffuse;
-    vec3 specular = light.specular * spec * texColorSpecular;
+    vec3 ambient  = dirAmbient  * texColorAmbient;
+    vec3 diffuse  = dirDiffuse  * diff * texColorDiffuse;
+    vec3 specular = dirSpecular * spec * texColorSpecular;
     return (ambient + diffuse + specular);
 }  
-
-vec3 CalcPointLight(PointLight light)
-{
-    vec3 lightDir = normalize(light.position - FragPos);
-    // diffuse shading
-    float diff = max(dot(norm, lightDir), 0.0);
-    // specular shading
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material1.shininess);
-    // attenuation
-    float distance    = length(light.position - FragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + 
-  			     light.quadratic * (distance * distance));    
-    // combine results
-    vec3 ambient  = light.ambient  * texColorAmbient;
-    vec3 diffuse  = light.diffuse  * diff * diff * texColorDiffuse;
-    vec3 specular = light.specular * spec * spec * texColorSpecular;
-    ambient  *= attenuation;
-    diffuse  *= attenuation;
-    specular *= attenuation;
-    return (ambient + diffuse + specular);
-} 
-
-
-vec3 CalcSpotLight(SpotLight light)
-{
-
-
-
-    vec3 viewDir = normalize(-FragPos);
-    vec3 reflectDir = reflect(light.direction, norm);
-    vec3 lightDir = normalize(light.position - FragPos);
-
-     
-
-    
-    // ambient
-    vec3 ambient = light.ambient * texColorAmbient;
-    
-    // diffuse 
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * texColorDiffuse;  
-    
-    // specular
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material1.shininess);
-    vec3 specular = light.specular * spec * texColorSpecular;  
-    
-    // spotlight (soft edges)
-    float theta     = dot(lightDir, normalize(-light.direction));
-    float epsilon   = light.innerCutOff - light.outerCutOff;
-    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-    diffuse  *= intensity;
-    specular *= intensity;
-    
-    // attenuation
-    float distance    = length(light.position - FragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-    ambient  *= attenuation; 
-    diffuse   *= attenuation;
-    specular *= attenuation;   
-        
-    vec3 result = ambient + diffuse + specular;
-
-
-
-    return result;
-}
+//vec3 generateWaveSineSumImprovedNormal(sinParams _params[sineCount])
+//{
+//        vec2 pos = vec2(aPos.x, aPos.z);
+//        vec3 normal = vec3(0.0f, 1.0f, 0.0f);
+//
+//        for(int i=0; i<sineCount; i++)
+//        {
+//            sinParams curParams = _params[i];
+//            normal.x += sineExponent * curParams.direction.x * curParams.frequency * curParams.amplitude * 
+//                        pow((sin(dot(curParams.direction, pos) * curParams.frequency + curTime * curParams.speed)+1)/2, sineExponent-1)
+//                        * cos(dot(curParams.direction, pos) * curParams.frequency + curTime * curParams.speed);
+//
+//            normal.z += sineExponent * curParams.direction.y * curParams.frequency * curParams.amplitude * 
+//                        pow((sin(dot(curParams.direction, pos) * curParams.frequency + curTime * curParams.speed)+1)/2, sineExponent-1)
+//                        * cos(dot(curParams.direction, pos) * curParams.frequency + curTime * curParams.speed);
+//        }
+//
+//        return vec3(-normal.x, normal.y, -normal.z);
+//
+//}

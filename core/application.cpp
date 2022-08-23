@@ -98,14 +98,17 @@ bool Application::setupModels()
     shipVao = createVao(shipVertices, shipIndices);
 
     // plane model
-    std::vector<VertexData> planeVertices;
-    std::vector<unsigned int> planeIndices;
+    unsigned int divisions = 100;
+    glm::vec3 v0 = glm::vec3( -0.5f, 0.0f, -0.5f );
+    glm::vec3 v1 = glm::vec3( 0.5f, 0.0f, -0.5f );
+    glm::vec3 v2 = glm::vec3( 0.5f, 0.0f, 0.5f );
+    glm::vec3 v3 = glm::vec3( -0.5f, 0.0f, 0.5f );
+    std::vector<VertexData> planeVertices = DataProvider::generatePlaneVertices( v0, v1, v2, v3, divisions );
+    std::vector<unsigned int> planeIndices = DataProvider::generatePlaneIndices( divisions );
     std::vector<Texture*> planeTextures;
 
-    planeVertices = DataProvider::getPlaneVertices();
-    planeIndices = DataProvider::getPlaneIndices();
-
     unsigned int planeVao = createVao(planeVertices, planeIndices);
+
 
     // skybox textures
     std::vector<const char*> skyboxPaths =
@@ -170,7 +173,7 @@ bool Application::setupModels()
         ModelName::CRATE,
         cubeVao,
         cubeIndices.size(),
-        ShaderReference::STANDARD_SHADER,
+        "standard",
         standardCrateTextures,
         16.0f
     );
@@ -179,7 +182,7 @@ bool Application::setupModels()
         ModelName::SHIP_STANDARD,
         shipVao,
         shipIndices.size(),
-        ShaderReference::STANDARD_SHADER,
+        "standard",
         shipTextures,
         16.0f
     );
@@ -188,8 +191,8 @@ bool Application::setupModels()
         ModelName::WATER,
         planeVao,
         planeIndices.size(),
-        ShaderReference::STANDARD_SHADER,
-        planeTextures,
+        "water",
+        standardCrateTextures,
         16.0f
     );
 
@@ -197,16 +200,7 @@ bool Application::setupModels()
         ModelName::SKYBOX,
         cubeVao,
         cubeIndices.size(),
-        ShaderReference::SKYBOX_SHADER,
-        skyboxTextures,
-        16.0f
-    );
-
-    m_renderer->AddNewModel(
-        ModelName::SKYBOX,
-        cubeVao,
-        cubeIndices.size(),
-        ShaderReference::SKYBOX_SHADER,
+        "skybox",
         skyboxTextures,
         16.0f
     );
@@ -215,7 +209,7 @@ bool Application::setupModels()
         ModelName::TEST_OBJECT,
         cubeVao,
         cubeIndices.size(),
-        ShaderReference::TESTING_SHADER,
+        "test",
         standardCrateTextures,
         16.0f
     );
@@ -227,7 +221,7 @@ bool Application::setupModels()
             ModelName::POSTPROCESSING,
             quadVao,
             quadIndices.size(),
-            ShaderReference::POSTPROCESSING_SHADER,
+            "postprocessing",
             quadTextures,
             0.0f
         );
@@ -238,30 +232,31 @@ bool Application::setupModels()
 
 bool Application::setupGamestate()
 {
+    generateUniformBuffers();
     setupModels();
 
     // generate objects
     addCrate(
         // position
-        glm::vec3(1.0f, 0.0f, 0.0f), 
+        glm::vec3(3.0f, 0.0f, 0.0f), 
         //scale
         glm::vec3(1.0f), 
         //rotation
         glm::vec3(0.0f, 0.0f, 0.0f)
     );
 
-    addCrate(
-        // position
-        glm::vec3(1.0f, 0.0f, 0.0f),
-        //scale
-        glm::vec3(3.0f, 1.0f, 1.0f),
-        //rotation
-        glm::vec3(1.0f, 1.0f, 1.0f)
-    );
+    //addCrate(
+    //    // position
+    //    glm::vec3(5.0f, 0.0f, 0.0f),
+    //    //scale
+    //    glm::vec3(3.0f, 1.0f, 1.0f),
+    //    //rotation
+    //    glm::vec3(1.0f, 1.0f, 1.0f)
+    //);
 
     addShip(
         // position
-        glm::vec3(-1.0f, 0.0f, 0.0f),
+        glm::vec3(-4.0f, 0.0f, 0.0f),
         //scale
         glm::vec3(0.5f),
         //rotation
@@ -279,40 +274,76 @@ bool Application::setupGamestate()
 
     addWater(
         // position
-        glm::vec3(-1.0f, 0.0f, 0.0f),
+        glm::vec3( 0.0f, -2.0f, -15.0f ),
         //scale
-        glm::vec3(1.0f),
+        glm::vec3( 20.0f ),
         //rotation
-        glm::vec3(0.0f, 0.0f, 0.0f)
+        glm::vec3( 0.0f, 45.0f, 0.0f )
     );
 
-    //skybox
+
+
+
+
+    //test object
     addEntity(
-        //scale
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        //rotation
-        glm::vec3(0.0f),
         // position
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        //modelname
-        ModelName::SKYBOX
-    );
-
-        //skybox
-    addEntity(
+        glm::vec3( 3.0f, 0.0f, 2.0f ),
         //scale
         glm::vec3( 1.0f, 1.0f, 1.0f ),
         //rotation
         glm::vec3( 0.0f ),
-        // position
-        glm::vec3( 3.0f, 0.0f, 2.0f ),
         //modelname
         ModelName::TEST_OBJECT
     );
 
+        //skybox
+    addEntity(
+        // position
+        glm::vec3( 0.0f, 0.0f, 0.0f ),
+        //scale
+        glm::vec3( 1.0f ),
+        //rotation
+        glm::vec3( 0.0f ),
+        //modelname
+        ModelName::SKYBOX
+    );
 
     return true;
 }
+
+bool Application::generateUniformBuffers() {
+    // set uniform buffer object slots
+
+    // uniform buffer for view and projection matrix
+    glGenBuffers( 1, &viewProjectionBuffer );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, viewProjectionBuffer );
+    glBufferData( GL_UNIFORM_BUFFER, 2 * sizeof( glm::mat4 ), NULL, GL_STATIC_DRAW );
+    glBindBufferRange( GL_UNIFORM_BUFFER, 0, viewProjectionBuffer, 0, 2 * sizeof( glm::mat4 ) );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+    // uniform buffer for time
+    glGenBuffers( 1, &timeBuffer );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, timeBuffer );
+    glBufferData( GL_UNIFORM_BUFFER, sizeof(float), NULL, GL_STATIC_DRAW );
+
+    glBindBufferRange( GL_UNIFORM_BUFFER, 1, timeBuffer, 0, sizeof( float ) );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+    // uniform buffer for directional light
+    glGenBuffers( 1, &dirLightBuffer );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, dirLightBuffer );
+    glBufferData( GL_UNIFORM_BUFFER, 4*16, NULL, GL_STATIC_DRAW);
+    glBindBufferRange( GL_UNIFORM_BUFFER, 2, dirLightBuffer, 0, 4 * sizeof( glm::vec4 ) );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+    return false;
+}
+
 
 bool Application::runApplication()
 {
@@ -338,6 +369,7 @@ bool Application::runApplication()
     //glCullFace(GL_FRONT);
 
 
+
     while (!glfwWindowShouldClose(m_window))
     {
 
@@ -353,7 +385,12 @@ bool Application::runApplication()
         // -----
         processInput(m_window);
 
-        // render
+        // update gamestate
+        // ----------------
+        updateGamestate();
+
+
+        // clear
         // ------
         glClearColor(0.5f, 0.5f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -394,6 +431,39 @@ bool Application::runApplication()
     }
 
     stopApplication();
+
+    return true;
+}
+
+bool Application::updateGamestate() {
+    // update matrices
+    glm::mat4 view = m_camera->GetViewMatrix();
+    glm::mat4 projection = glm::perspective( glm::radians( m_camera->Zoom ), (float)m_settings.SCR_WIDTH / (float)m_settings.SCR_HEIGHT, 0.1f, 100.0f );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, viewProjectionBuffer );
+    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::mat4 ), glm::value_ptr( projection ) );
+    glBufferSubData( GL_UNIFORM_BUFFER, sizeof( glm::mat4 ), sizeof( glm::mat4 ), glm::value_ptr( view ) );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, timeBuffer );
+    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( float ), &lastFrame );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+        // uniform buffer for directional light
+    glBindBuffer( GL_UNIFORM_BUFFER, dirLightBuffer );
+
+    //set the directional light here, because it doesn't need to be updated every frame
+    glm::vec3 lightDirection = glm::vec3( 0.1f, -1.0f, 0.1f );
+    glm::vec3 ambientColor = glm::vec3( 0.2f );
+    glm::vec3 diffuseColor = glm::vec3( 0.2f );
+    glm::vec3 specularColor = glm::vec3( 1.0f );
+
+    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::vec3 ), glm::value_ptr( lightDirection ) );
+    glBufferSubData( GL_UNIFORM_BUFFER, sizeof( glm::vec4 ), sizeof( glm::vec3 ), glm::value_ptr( ambientColor ) );
+    glBufferSubData( GL_UNIFORM_BUFFER, 2 * sizeof( glm::vec4 ), sizeof( glm::vec3 ), glm::value_ptr( diffuseColor ) );
+    glBufferSubData( GL_UNIFORM_BUFFER, 3 * sizeof( glm::vec4 ), sizeof( glm::vec3 ), glm::value_ptr( specularColor ) );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
 
     return true;
 }
@@ -492,16 +562,16 @@ void Application::process_scroll(GLFWwindow* _window, double _xoffset, double _y
 
 
 
-bool Application::addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _position, ModelName _modelName)
+bool Application::addEntity( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation, ModelName _modelName)
 {
 
     Entity newEntity = {
+        // position
+        _position,
         //scale
         _scale,
         //rotation
         _rotation,
-        // position
-        _position
     };
 
 
@@ -512,27 +582,28 @@ bool Application::addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _po
 
 bool Application::addRock(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, ModelName::ROCK);
+    addEntity( _position, _scale, _rotation, ModelName::ROCK);
     return true;
 }
 
 bool Application::addCrate(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, ModelName::CRATE);
+    addEntity( _position, _scale, _rotation, ModelName::CRATE);
     return true;
 }
 
 bool Application::addShip(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, ModelName::SHIP_STANDARD);
+    addEntity( _position, _scale, _rotation, ModelName::SHIP_STANDARD);
     return true;
 }
 
 bool Application::addWater(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
 {
-    addEntity(_scale, _rotation, _position, ModelName::WATER);
+    addEntity( _position, _scale, _rotation, ModelName::WATER);
     return true;
 }
+
 
 
 

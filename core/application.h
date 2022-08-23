@@ -32,11 +32,11 @@ public:
 	Application(GameSettings _settings);
 
 	bool setupWindow(unsigned int _width, unsigned int _height);
-	bool setupGamestate();
+
 	bool runApplication();
 	bool stopApplication();
 
-	void enablePolygonMode();
+
 
 	void processInput(GLFWwindow* _window);
 	void process_resize(GLFWwindow* _window, int _width, int _height);
@@ -50,40 +50,64 @@ public:
 
 private: 
 	// game settings
+	// -------------
 	GameSettings m_settings;
 
 	// window
+	// -------------
 	GLFWwindow* m_window;
 
+	// execution
+	// -------------
+	bool setupGamestate();
+	bool generateUniformBuffers();
+	bool updateGamestate();
+
+	// gamestate
+	// -------------
+	Entity* m_player;										// pointer to the player entity
+	std::map<ModelName, std::vector<Entity> > m_entities;	// vector containing all entities in the game
+	unsigned int viewProjectionBuffer;
+	unsigned int timeBuffer;
+	unsigned int dirLightBuffer;
+
+
+
+	// debugging
+	// -------------
+	void enablePolygonMode();
 
 	// timing
-
+	// -------------
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
 
 	// renderer instance
+	// -------------
 	Renderer* m_renderer;
 
 	// debugger instance - starts in SetupApplication()
+	// -------------
 	glDebugger* m_debugger;
 
 	// camera instance
+	// -------------
 	Camera* m_camera;
 	float lastX = (float)m_settings.SCR_WIDTH / 2.0;
 	float lastY = (float)m_settings.SCR_HEIGHT / 2.0;
 	bool firstMouse = true;
 
 	// controls
+	// -------------
 	double lastCursorToggle = 0.0f;				// notes time tab was pressed the last time
 	const double cursorToggleDelay = 1.0f;		// the delay between toggling cursor
 	bool cursorEnabled = false;
 
-	// entities hold scale, rotation and position
-	Entity* m_player;										// pointer to the player entity
-	std::map<ModelName, std::vector<Entity> > m_entities;				// vector containing all entities in the game
+
 
 	// entity management
-	bool addEntity(glm::vec3 _scale, glm::vec3 _rotation, glm::vec3 _position, ModelName _modelName);
+	// -------------
+	bool addEntity( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation, ModelName _modelName);
 
 	bool addRock (glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 	bool addCrate(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
