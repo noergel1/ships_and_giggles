@@ -50,7 +50,7 @@
     <Filter Include="shader\debug\showNormals">
       <UniqueIdentifier>{9642eac0-49b8-49bd-915c-8b3c12c4f7a5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shader\debug\waterNormals">
+    <Filter Include="shader\debug\showNormals\waterNormals">
       <UniqueIdentifier>{6a842861-d85f-433b-a032-693456e69c86}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -276,13 +276,13 @@
       <Filter>shader\debug\showVertices</Filter>
     </None>
     <None Include="shader\waterNormalsFS.glsl">
-      <Filter>shader\debug\waterNormals</Filter>
+      <Filter>shader\debug\showNormals\waterNormals</Filter>
     </None>
     <None Include="shader\waterNormalsGS.glsl">
-      <Filter>shader\debug\waterNormals</Filter>
+      <Filter>shader\debug\showNormals\waterNormals</Filter>
     </None>
     <None Include="shader\waterNormalsVS.glsl">
-      <Filter>shader\debug\waterNormals</Filter>
+      <Filter>shader\debug\showNormals\waterNormals</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

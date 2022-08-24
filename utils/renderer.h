@@ -17,16 +17,7 @@
 
 #include "../models/model_data.h"
 
-const unsigned int REFLECTION_WIDTH = 320;
-const unsigned int REFLECTION_HEIGHT = 180;
-const unsigned int REFRACTION_WIDTH = 1280;
-const unsigned int REFRACTION_HEIGHT = 720;
 
-struct RenderVariables {
-	Framebuffer framebuffer_postprocessing;
-	Framebuffer framebuffer_waterReflection;
-	Framebuffer framebuffer_waterRefraction;
-};
 
 class Renderer {
 
@@ -35,12 +26,25 @@ public:
 	Renderer(Camera* _camera, GameSettings _settings);
 	bool shutdownRenderer();
 
-	bool Draw(std::map<ModelName, std::vector<Entity>> _entities);
+
+	void renderScene( std::map<ModelName, std::vector<Entity>> _entities );
+	void renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::vector<ModelName> _exclude );
+	void renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::string _shaderName);
+	void renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::string _shaderName, std::vector<ModelName> _exclude );
+
+	void renderEntities(ModelName _modelName, std::vector<Entity> _entities);
+	void renderEntities(ModelName _modelName, std::vector<Entity> _entities, std::string _shaderName );
+
 
 	bool AddNewModel( ModelName _modelName, const unsigned int _vao, const unsigned int _indiceCount, const std::string _shader, const std::vector<Texture*> _textures, const float _shininess );
 	bool AddNewModel( ModelName _modelName, ModelData* _modelData );
 
+	unsigned int getShaderID( std::string _shaderName );
+	const ModelData* getModelData( ModelName _modelName );
+	bool BindVao(unsigned int _vao);
+
 private:
+	void modelRender( Entity _entity, unsigned int _shader, unsigned int _indiceCount );
 
 	Camera* m_camera;
 	GameSettings m_settings;
@@ -53,22 +57,11 @@ private:
 
 
 	bool SetupShaders();
-	bool SetUniforms();
-	bool SetRenderVariables();
 
-	bool BindVao(unsigned int _vao);
 
-	// render functions
-	RenderVariables m_renderVariables;
 
-	void preRenderScene(std::map<ModelName, std::vector<Entity>> _entities);
-	void renderScene(std::map<ModelName, std::vector<Entity>> _entities);
-	void renderScene(std::map<ModelName, std::vector<Entity>> _entities, ModelName _exclude);
-	void postRenderScene(std::map<ModelName, std::vector<Entity>> _entities);
 
-	void modelPreRender(ModelName _modelname, const  ModelData* _modelData);
-	void modelRender( Entity _entity, ModelName _modelName, unsigned int _shader, std::vector<Texture*> _textures, unsigned int _indiceCount );
-	void modelPostRender(ModelName _modelname, const  ModelData* _modelData);
+
 
 
 };

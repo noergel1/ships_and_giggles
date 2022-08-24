@@ -5,19 +5,9 @@
 		:m_camera(_camera)
 		,m_settings(_settings)
 
-		// using a struct for framebuffer, so they don't have to be created each frame
-		,m_renderVariables({
-			/*framebuffer_postprocessing:  */	Framebuffer(_settings.SCR_WIDTH, _settings.SCR_HEIGHT),
-			
-			/*framebuffer_waterReflection: */	Framebuffer(REFLECTION_WIDTH, REFLECTION_HEIGHT ),
-			/*framebuffer_waterRefraction: */	Framebuffer( REFRACTION_WIDTH, REFRACTION_HEIGHT ),
 
-
-		})
 	{
 		SetupShaders();
-		SetUniforms();
-		SetRenderVariables();
 	}
 
 	// creates the shaders and puts the key/value pairs into the shader map
@@ -87,80 +77,7 @@
 		return true;
 	}
 
-	bool Renderer::SetUniforms() {
 
-		//standard shader
-		unsigned int standardShader = m_shaders["standard"];
-		Shader::useShader( standardShader );
-		// camera position for light calculation
-		Shader::setVec3( standardShader, "viewPos", m_camera->Position );
-
-		// set material sampler slots
-		Shader::setInt( standardShader, "material1.diffuse", 0 );
-		Shader::setInt( standardShader, "material1.specular", 1 );
-		Shader::setFloat( standardShader, "material1.shininess", 16.0f );
-
-		Shader::useShader( 0 );
-
-				//standard shader
-		unsigned int waterShader = m_shaders["water"];
-		Shader::useShader( waterShader );
-// camera position for light calculation
-		Shader::setVec3( waterShader, "viewPos", m_camera->Position );
-		Shader::useShader( 0 );
-
-		return false;
-	}
-
-	bool Renderer::SetRenderVariables() {
-		//postprocessing
-		m_renderVariables.framebuffer_postprocessing.createDepthStencilRenderbufferAttachement();
-
-		// water reflection
-		m_renderVariables.framebuffer_waterReflection.createDepthRenderbufferAttachement();
-
-		// water refraction
-		m_renderVariables.framebuffer_waterRefraction.createDepthTextureAttachement();
-
-		return false;
-	}
-
-	bool Renderer::Draw(std::map<ModelName, std::vector<Entity>> _entities)
-	{
-		preRenderScene(_entities);
-		renderScene(_entities);
-		postRenderScene(_entities);
-
-		return true;
-	}
-
-
-
-	void Renderer::preRenderScene(std::map<ModelName, std::vector<Entity>> _entities)
-	{
-		// render on texture framebuffer if postprocessing is enabled
-		if (m_models[ModelName::POSTPROCESSING])
-		{
-			m_renderVariables.framebuffer_postprocessing.bind();
-			// make sure to clear the framebuffer's content
-
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			//m_renderVariables.framebuffer_postprocessing.unbind();
-		}
-
-		// enable testing
-		glEnable( GL_DEPTH_TEST );
-		glEnable( GL_STENCIL_TEST );
-		glEnable( GL_CULL_FACE );
-
-		// reset depth test
-		glDepthFunc( GL_LESS );
-		glDepthMask( GL_TRUE );
-
-		// reset face culling
-		glFrontFace( GL_CCW );
-		glCullFace( GL_BACK );
-	}
 
 	void Renderer::renderScene(std::map<ModelName, std::vector<Entity>> _entities)
 	{
@@ -180,24 +97,29 @@
 			const unsigned int indiceCount = modelData->m_indiceCount;
 
 			//render
-			modelPreRender(modelName, modelData);
+			// set the corresponding textures
+			for (auto texture : modelData->m_textures) {
+				texture->use();
+			}
 
 			for (auto const& entity : entities) {
 				// render function executed for every entity
-				modelRender(entity, modelName, modelShader, modelTextures, indiceCount);
+				modelRender(entity, modelShader, indiceCount);
 			}
-
-			modelPostRender(modelName, modelData);
 		}
+
+		Shader::useShader( 0 );
 	}
 
-	void Renderer::renderScene( std::map<ModelName, std::vector<Entity>> _entities, ModelName _exclude ) {
+	void Renderer::renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::vector<ModelName> _exclude ) {
 				// go through all key/value pairs in the _entities map
 		for (auto const& _entityVector : _entities) {
 
 			const ModelName modelName = _entityVector.first;
 
-			if (modelName == _exclude) continue;
+			if (std::find( _exclude.begin(), _exclude.end(), modelName ) != _exclude.end()) {
+				continue;
+			}
 
 			const ModelData* modelData = m_models[modelName];
 			std::vector<Entity> entities = _entityVector.second;
@@ -210,125 +132,169 @@
 			std::vector<Texture*> modelTextures = modelData->m_textures;
 			const unsigned int indiceCount = modelData->m_indiceCount;
 
-			//render
-			modelPreRender( modelName, modelData );
+			// render
+			//----------
+
+			// activate shader
+			Shader::useShader( modelShader );
+
+			// set the corresponding textures
+			for (auto texture : modelData->m_textures) {
+				texture->use();
+			}
 
 			for (auto const& entity : entities) {
 				// render function executed for every entity
-				modelRender( entity, modelName, modelShader, modelTextures, indiceCount );
+				modelRender( entity, modelShader, indiceCount );
 			}
-
-			modelPostRender( modelName, modelData );
 		}
+
+		Shader::useShader( 0 );
 	}
 
-	void Renderer::postRenderScene(std::map<ModelName, std::vector<Entity>> _entities)
-	{
-		if (m_settings.SHOW_NORMALS) {
-			for (auto const& _entityVector : _entities) {
+	void Renderer::renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::string _shaderName ) {
+		const unsigned int modelShader = m_shaders[_shaderName];
 
-				const ModelName modelName = _entityVector.first;
-				const ModelData* modelData = m_models[modelName];
+				// go through all key/value pairs in the _entities map
+		for (auto const& _entityVector : _entities) {
 
-				if (modelName == ModelName::SKYBOX) continue;
+			const ModelName modelName = _entityVector.first;
 
-				std::vector<Entity> entities = _entityVector.second;
+			const ModelData* modelData = m_models[modelName];
+			std::vector<Entity> entities = _entityVector.second;
 
-				// bind vao
-				BindVao( modelData->m_VAO );
+			// bind vao
+			BindVao( modelData->m_VAO );
 
-				// get data
-				const unsigned int modelShader = modelName == ModelName::WATER ? m_shaders["waterNormals"] : m_shaders["showNormals"];
-				std::vector<Texture*> modelTextures = modelData->m_textures;
-				const unsigned int indiceCount = modelData->m_indiceCount;
+			// get data
 
-				Shader::useShader( modelShader );
-				for (auto const& entity : entities) {
-					// render function executed for every entity
-					modelRender( entity, modelName, modelShader, modelTextures, indiceCount);
-				}
+			std::vector<Texture*> modelTextures = modelData->m_textures;
+			const unsigned int indiceCount = modelData->m_indiceCount;
+
+			// render
+			//----------
+
+			// activate shader
+			Shader::useShader( modelShader );
+
+			// set the corresponding textures
+			for (auto texture : modelData->m_textures) {
+				texture->use();
+			}
+
+			for (auto const& entity : entities) {
+				// render function executed for every entity
+				modelRender( entity, modelShader, indiceCount );
 			}
 		}
 
-		if (m_settings.SHOW_VERTICES) {
-			for (auto const& _entityVector : _entities) {
-
-				const ModelName modelName = _entityVector.first;
-				const ModelData* modelData = m_models[modelName];
-
-				if (modelName == ModelName::SKYBOX) continue;
-
-				std::vector<Entity> entities = _entityVector.second;
-
-				// bind vao
-				BindVao( modelData->m_VAO );
-
-				// get data
-				const unsigned int modelShader = m_shaders["showVertices"];
-				std::vector<Texture*> modelTextures = modelData->m_textures;
-				const unsigned int indiceCount = modelData->m_indiceCount;
-
-				Shader::useShader( modelShader );
-				for (auto const& entity : entities) {
-					// render function executed for every entity
-					modelRender( entity, modelName, modelShader, modelTextures, indiceCount );
-				}
-			}
-		}
-
-		// postprocessing
-		if (m_models[ModelName::POSTPROCESSING])
-		{
-			const ModelData* postprocessingModel = m_models[ModelName::POSTPROCESSING];
-			const unsigned int postprocessingShader = m_shaders[postprocessingModel->m_shader];
-			const std::vector<float> kernel = m_settings.POSTPROCESSING_KERNEL;
-
-			Shader::useShader( postprocessingShader );
-			Shader::setInt( postprocessingShader, "screenTexture", 0);
-			for (int i = 0; i < 9; i++) 				{
-				std::string curKernel = "kernel[" + std::to_string(i) + "]";
-				Shader::setFloat( postprocessingShader, curKernel, kernel[i]);
-			}
-
-			//// bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
-
-			BindVao(postprocessingModel->m_VAO);
-			m_renderVariables.framebuffer_postprocessing.bindTexture();	// use the color attachment texture as the texture of the quad plane
-			glDrawElements(GL_TRIANGLES, postprocessingModel->m_indiceCount, GL_UNSIGNED_INT, 0);
-
-			//unbind shader
-			Shader::useShader(0);
-
-		}
+		Shader::useShader( 0 );
 	}
 
-	// pre & post render functions
-	void Renderer::modelPreRender(ModelName _modelname, const  ModelData* _modelData)
-	{
-		// set shader
-		const unsigned int shader = m_shaders[_modelData->m_shader];
-		Shader::useShader(shader);
+	void Renderer::renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::string _shaderName, std::vector<ModelName> _exclude ) {
 
-		// set shader variables depending on the model
-		switch (_modelname)
-		{
-		case ModelName::SKYBOX:
-			//change depth function to LEQUAL, so the skybox doesn't z-fight with the clearcolor
-			glDepthFunc(GL_LEQUAL);
-			// change face culling to cull outer instead of inner faces
-			glCullFace(GL_FRONT);
-			break;
+		const unsigned int modelShader = m_shaders[_shaderName];
+
+						// go through all key/value pairs in the _entities map
+		for (auto const& _entityVector : _entities) {
+
+			const ModelName modelName = _entityVector.first;
+
+			if (std::find( _exclude.begin(), _exclude.end(), modelName ) != _exclude.end()) {
+				continue;
+			}
+
+			const ModelData* modelData = m_models[modelName];
+			std::vector<Entity> entities = _entityVector.second;
+
+			// bind vao
+			BindVao( modelData->m_VAO );
+
+			// get data
+			std::vector<Texture*> modelTextures = modelData->m_textures;
+			const unsigned int indiceCount = modelData->m_indiceCount;
+
+			// render
+			//----------
+
+			// activate shader
+			Shader::useShader( modelShader );
+
+			// set the corresponding textures
+			for (auto texture : modelData->m_textures) {
+				texture->use();
+			}
+
+			for (auto const& entity : entities) {
+				// render function executed for every entity
+				modelRender( entity, modelShader, indiceCount );
+			}
 		}
+
+		Shader::useShader( 0 );
+	}
+
+	void Renderer::renderEntities( ModelName _modelName, std::vector<Entity> _entities ) {
+			const ModelData* modelData = m_models[_modelName];
+
+			// bind vao
+			BindVao( modelData->m_VAO );
+
+			// get data
+			const unsigned int modelShader = m_shaders[modelData->m_shader];
+			std::vector<Texture*> modelTextures = modelData->m_textures;
+			const unsigned int indiceCount = modelData->m_indiceCount;
+
+			// render
+			//----------
+
+			// activate shader
+			Shader::useShader( modelShader );
+
+			// set the corresponding textures
+			for (auto texture : modelData->m_textures) {
+				texture->use();
+			}
+
+			for (auto const& entity : _entities) {
+				// render function executed for every entity
+				modelRender( entity, modelShader, indiceCount );
+			}
+
+			Shader::useShader( 0 );
+	}
+
+	void Renderer::renderEntities( ModelName _modelName, std::vector<Entity> _entities, std::string _shaderName ) {
+		const ModelData* modelData = m_models[_modelName];
+
+		// bind vao
+		BindVao( modelData->m_VAO );
+
+		// get data
+		const unsigned int modelShader = m_shaders[_shaderName];
+		std::vector<Texture*> modelTextures = modelData->m_textures;
+		const unsigned int indiceCount = modelData->m_indiceCount;
+
+		// render
+		//----------
+
+		// activate shader
+		Shader::useShader( modelShader );
 
 		// set the corresponding textures
-		for (auto texture : _modelData->m_textures) {
+		for (auto texture : modelData->m_textures) {
 			texture->use();
 		}
+
+		for (auto const& entity : _entities) {
+			// render function executed for every entity
+			modelRender( entity, modelShader, indiceCount );
+		}
+
+		Shader::useShader( 0 );
 	}
 
-	void Renderer::modelRender( Entity _entity, ModelName _modelName, unsigned int _shader, std::vector<Texture*> _textures, unsigned int _indiceCount )
+	void Renderer::modelRender( Entity _entity, unsigned int _shader, unsigned int _indiceCount )
 	{
 
 		// set model matrix
@@ -355,24 +321,6 @@
 		glDrawElements(GL_TRIANGLES, _indiceCount, GL_UNSIGNED_INT, 0);
 	}
 
-	void Renderer::modelPostRender(ModelName _modelname, const ModelData* _modelData)
-	{
-		const unsigned int shader = m_shaders[_modelData->m_shader];
-
-		// RESET
-		// enable testing
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_STENCIL_TEST);
-		glEnable(GL_CULL_FACE);
-
-		// reset depth test
-		glDepthFunc(GL_LESS);
-		glDepthMask(GL_TRUE);
-
-		// reset face culling
-		glFrontFace(GL_CCW);
-		glCullFace(GL_BACK);
-	}
 
 	bool Renderer::shutdownRenderer()
 	{
@@ -445,4 +393,12 @@
 	bool Renderer::AddNewModel( ModelName _modelName, ModelData* _modelData ) {
 		m_models.insert( std::pair<ModelName, const ModelData*>( _modelName, _modelData ) );
 		return true;
+	}
+
+	unsigned int Renderer::getShaderID( std::string _shaderName ) {
+		return m_shaders[_shaderName];
+	}
+
+	const ModelData* Renderer::getModelData( ModelName _modelName ) {
+		return m_models[_modelName];
 	}

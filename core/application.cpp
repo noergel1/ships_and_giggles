@@ -17,6 +17,14 @@ Application::Application(GameSettings _settings)
         return;
     }
 
+                // using a struct for framebuffer, so they don't have to be created each frame
+    m_renderVariables = new RenderVariables( {
+        /*framebuffer_postprocessing:  */	Framebuffer( _settings.SCR_WIDTH, _settings.SCR_HEIGHT ),
+
+        /*framebuffer_waterReflection: */	Framebuffer( REFLECTION_WIDTH, REFLECTION_HEIGHT ),
+        /*framebuffer_waterRefraction: */	Framebuffer( REFRACTION_WIDTH, REFRACTION_HEIGHT ),
+                                             } );
+
     m_renderer = new Renderer(m_camera, m_settings);
 }
 
@@ -161,7 +169,7 @@ bool Application::setupModels()
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 
     // texture 
-    std::vector<Texture*> quadTextures = { new Texture_2D(m_settings.SCR_WIDTH, m_settings.SCR_HEIGHT, TextureType::DIFFUSE, 0) };
+    std::vector<Texture*> quadTextures = { &m_renderVariables->framebuffer_postprocessing.m_texture };
 
 
 
@@ -281,10 +289,6 @@ bool Application::setupGamestate()
         glm::vec3( 0.0f, 45.0f, 0.0f )
     );
 
-
-
-
-
     //test object
     addEntity(
         // position
@@ -368,7 +372,8 @@ bool Application::runApplication()
     glFrontFace(GL_CCW);
     //glCullFace(GL_FRONT);
 
-
+    SetUniforms();
+    SetRenderVariables();
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -390,10 +395,10 @@ bool Application::runApplication()
         updateGamestate();
 
 
-        // clear
-        // ------
-        glClearColor(0.5f, 0.5f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        // reset everything
+        // ---------------
+        clearBufferBits();
+        resetTesting();
 
 
         // imgui
@@ -407,7 +412,7 @@ bool Application::runApplication()
 #endif // !NDEBUG
 
         // render the scene
-        m_renderer->Draw(m_entities);
+        renderFrame();
 
 
         // imgui
@@ -466,6 +471,176 @@ bool Application::updateGamestate() {
 
 
     return true;
+}
+
+bool Application::renderFramebuffers() {
+    // render reflection
+    // --------------
+    m_renderVariables->framebuffer_waterReflection.bind();
+    clearBufferBits();
+    // render scene
+    m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+
+
+    // render skybox
+    //change depth function to LEQUAL, so the skybox doesn't z-fight with the clearcolor
+    glDepthFunc( GL_LEQUAL );
+    // change face culling to cull outer instead of inner faces
+    glCullFace( GL_FRONT );
+    m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
+    resetTesting();
+    m_renderVariables->framebuffer_waterReflection.unbind();
+
+
+    // render refraction
+    // --------------
+    m_renderVariables->framebuffer_waterRefraction.bind();
+    clearBufferBits();
+    // render scene
+    m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+
+
+    // render skybox
+    //change depth function to LEQUAL, so the skybox doesn't z-fight with the clearcolor
+    glDepthFunc( GL_LEQUAL );
+    // change face culling to cull outer instead of inner faces
+    glCullFace( GL_FRONT );
+    m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
+
+    m_renderVariables->framebuffer_waterRefraction.unbind();
+
+
+    return false;
+}
+
+bool Application::renderFrame() {
+
+    //pre render scene
+    renderFramebuffers();
+
+    // render on texture framebuffer if postprocessing is enabled
+    if (!m_settings.POSTPROCESSING_KERNEL.empty()) {
+        m_renderVariables->framebuffer_postprocessing.bind();
+
+        // make sure to clear the framebuffer's content
+        clearBufferBits();
+    }
+
+
+    // render scene
+    // --------------
+    m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX} );
+
+
+    // render skybox
+    // --------------
+    //change depth function to LEQUAL, so the skybox doesn't z-fight with the clearcolor
+    glDepthFunc( GL_LEQUAL );
+    // change face culling to cull outer instead of inner faces
+    glCullFace( GL_FRONT );
+    m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
+    resetTesting();
+
+    // render debugging options
+    // --------------
+    if (m_settings.SHOW_NORMALS) {
+        m_renderer->renderScene( m_entities, "showNormals", std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+        m_renderer->renderEntities( ModelName::WATER, m_entities[ModelName::WATER], "waterNormals");
+    }
+
+    if (m_settings.SHOW_VERTICES) {
+        m_renderer->renderScene( m_entities, "showVertices", std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+    }
+
+    // postprocessing
+    // --------------
+    if (!m_settings.POSTPROCESSING_KERNEL.empty()) {
+        const std::vector<float> kernel = m_settings.POSTPROCESSING_KERNEL;
+        const ModelData* postProcessingModel = m_renderer->getModelData( ModelName::POSTPROCESSING );
+        unsigned int postprocessingShader = m_renderer->getShaderID( "postprocessing" );
+        Shader::useShader( postprocessingShader );
+        Shader::setInt( postprocessingShader, "screenTexture", 0 );
+        for (int i = 0; i < 9; i++) {
+            std::string curKernel = "kernel[" + std::to_string( i ) + "]";
+            Shader::setFloat( postprocessingShader, curKernel, kernel[i] );
+        }
+
+        //// bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
+        glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+        glDisable( GL_DEPTH_TEST ); // disable depth test so screen-space quad isn't discarded due to depth test.
+
+        m_renderer->BindVao( postProcessingModel->m_VAO );
+
+        m_renderVariables->framebuffer_postprocessing.bindTexture(); // use the color attachment texture as the texture of the quad plane
+        glDrawElements( GL_TRIANGLES, postProcessingModel->m_indiceCount, GL_UNSIGNED_INT, 0 );
+
+        Shader::useShader( 0 );
+    }
+
+    return false;
+}
+
+bool Application::SetUniforms() {
+        //standard shader
+    unsigned int standardShader = m_renderer->getShaderID("standard");
+    Shader::useShader( standardShader );
+    // camera position for light calculation
+    Shader::setVec3( standardShader, "viewPos", m_camera->Position );
+
+    // set material sampler slots
+    Shader::setInt( standardShader, "material1.diffuse", 0 );
+    Shader::setInt( standardShader, "material1.specular", 1 );
+    Shader::setFloat( standardShader, "material1.shininess", 16.0f );
+
+    Shader::useShader( 0 );
+
+        //water shader
+    unsigned int waterShader = m_renderer->getShaderID("water");
+    Shader::useShader( waterShader );
+    // camera position for light calculation
+    Shader::setVec3( waterShader, "viewPos", m_camera->Position );
+    Shader::useShader( 0 );
+
+    //post processing
+    if (!m_settings.POSTPROCESSING_KERNEL.empty())         {
+        unsigned int postprocessingShader = m_renderer->getShaderID( "postprocessing" );
+        const std::vector<float> kernel = m_settings.POSTPROCESSING_KERNEL;
+        Shader::useShader( postprocessingShader );
+        Shader::setInt( postprocessingShader, "screenTexture", 0 );
+        for (int i = 0; i < 9; i++) {
+            std::string curKernel = "kernel[" + std::to_string( i ) + "]";
+            Shader::setFloat( postprocessingShader, curKernel, kernel[i] );
+        }
+        Shader::useShader( 0 );
+    }
+
+
+    return false;
+}
+
+bool Application::SetRenderVariables() {
+    //postprocessing
+    m_renderVariables->framebuffer_postprocessing.bind();
+    resetTesting();
+    clearBufferBits();
+    m_renderVariables->framebuffer_postprocessing.createDepthStencilRenderbufferAttachement();
+    m_renderVariables->framebuffer_postprocessing.unbind();
+
+    // water reflection
+    m_renderVariables->framebuffer_waterReflection.bind();
+    m_renderVariables->framebuffer_waterReflection.createDepthRenderbufferAttachement();
+    resetTesting();
+    clearBufferBits();
+    m_renderVariables->framebuffer_waterReflection.unbind();
+
+    // water refraction
+    m_renderVariables->framebuffer_waterRefraction.bind();
+    m_renderVariables->framebuffer_waterRefraction.createDepthTextureAttachement();
+    resetTesting();
+    clearBufferBits();
+    m_renderVariables->framebuffer_waterRefraction.unbind();
+
+    return false;
 }
 
 bool Application::stopApplication()
@@ -602,6 +777,30 @@ bool Application::addWater(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rot
 {
     addEntity( _position, _scale, _rotation, ModelName::WATER);
     return true;
+}
+
+bool Application::clearBufferBits() {
+    glClearColor( 1.0f, 0.0f, 0.0f, 1.0f );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+
+    return false;
+}
+
+bool Application::resetTesting() {
+    // enable testing
+    glEnable( GL_DEPTH_TEST );
+    glEnable( GL_STENCIL_TEST );
+    glEnable( GL_CULL_FACE );
+
+    // reset depth test
+    glDepthFunc( GL_LESS );
+    glDepthMask( GL_TRUE );
+
+    // reset face culling
+    glFrontFace( GL_CCW );
+    glCullFace( GL_BACK );
+
+    return false;
 }
 
 

@@ -26,17 +26,20 @@
 
 
 
+struct RenderVariables {
+	Framebuffer framebuffer_postprocessing;
+	Framebuffer framebuffer_waterReflection;
+	Framebuffer framebuffer_waterRefraction;
+};
+
 class Application {
 
 public:
 	Application(GameSettings _settings);
 
-	bool setupWindow(unsigned int _width, unsigned int _height);
 
 	bool runApplication();
 	bool stopApplication();
-
-
 
 	void processInput(GLFWwindow* _window);
 	void process_resize(GLFWwindow* _window, int _width, int _height);
@@ -46,22 +49,38 @@ public:
 	GLFWwindow* getWindow() { return m_window; }
 
 
-
-
 private: 
 	// game settings
 	// -------------
 	GameSettings m_settings;
+	const unsigned int REFLECTION_WIDTH = 320;
+	const unsigned int REFLECTION_HEIGHT = 180;
+	const unsigned int REFRACTION_WIDTH = 1280;
+	const unsigned int REFRACTION_HEIGHT = 720;
+
+	// render functions
+	// -------------
+	RenderVariables* m_renderVariables;
 
 	// window
 	// -------------
 	GLFWwindow* m_window;
 
+	// preparation
+	// -------------
+	bool setupWindow(unsigned int _width, unsigned int _height);
+	bool setupGamestate();
+	bool setupModels();
+	bool generateUniformBuffers();
+	bool SetRenderVariables();
+	bool SetUniforms();
+
+
 	// execution
 	// -------------
-	bool setupGamestate();
-	bool generateUniformBuffers();
 	bool updateGamestate();
+	bool renderFramebuffers();
+	bool renderFrame();
 
 	// gamestate
 	// -------------
@@ -114,8 +133,8 @@ private:
 	bool addShip (glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 	bool addWater(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 
-
-
-	bool setupModels();
+	// utility
+	bool clearBufferBits();
+	bool resetTesting();
 };
 
