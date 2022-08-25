@@ -26,8 +26,6 @@ public:
 	void bind();
 	void unbind();
 
-	void bindTexture();
-	void unbindTexture();
 
 	void deleteBuffer();
 

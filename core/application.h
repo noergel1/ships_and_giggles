@@ -53,10 +53,7 @@ private:
 	// game settings
 	// -------------
 	GameSettings m_settings;
-	const unsigned int REFLECTION_WIDTH = 320;
-	const unsigned int REFLECTION_HEIGHT = 180;
-	const unsigned int REFRACTION_WIDTH = 1280;
-	const unsigned int REFRACTION_HEIGHT = 720;
+
 
 	// render functions
 	// -------------
@@ -81,6 +78,7 @@ private:
 	bool updateGamestate();
 	bool renderFramebuffers();
 	bool renderFrame();
+	bool renderWater();
 
 	// gamestate
 	// -------------
@@ -89,8 +87,14 @@ private:
 	unsigned int viewProjectionBuffer;
 	unsigned int timeBuffer;
 	unsigned int dirLightBuffer;
+	unsigned int clippingPlaneBuffer;
 
-
+	// water variables
+	const unsigned int REFLECTION_WIDTH = m_settings.SCR_WIDTH;
+	const unsigned int REFLECTION_HEIGHT = m_settings.SCR_HEIGHT;
+	const unsigned int REFRACTION_WIDTH = m_settings.SCR_WIDTH;
+	const unsigned int REFRACTION_HEIGHT = m_settings.SCR_HEIGHT;
+	const float waterHeight = -2.0f;
 
 	// debugging
 	// -------------
@@ -136,5 +140,6 @@ private:
 	// utility
 	bool clearBufferBits();
 	bool resetTesting();
+	bool setClippingPlane( glm::vec4 _clippingPlane );
 };
 

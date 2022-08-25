@@ -7,6 +7,7 @@ out VS_OUT {
     vec3 Normal;
     vec3 FragPos;
     vec2 TexCoord;
+    vec4 ClipSpace;
 } vs_out; 
 
 
@@ -72,6 +73,12 @@ void main()
     vs_out.FragPos = vec3(model * vec4(generateWaveSineSumImproved(sinFuncs), 1.0));
     vs_out.Normal = generateWaveSineSumImprovedNormal(sinFuncs);  
     vs_out.TexCoord = aTexCoord;
+    vs_out.ClipSpace = projection * view * model * vec4(generateWaveSineSumImproved(sinFuncs), 1.0);
+
+//        vs_out.FragPos = vec3(model * vec4(aPos, 1.0f));
+//    vs_out.Normal = aNormal;  
+//    vs_out.TexCoord = aTexCoord;
+//    vs_out.ClipSpace = projection * view * vec4(vs_out.FragPos, 1.0);
 
     gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
 }

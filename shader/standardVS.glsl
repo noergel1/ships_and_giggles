@@ -10,12 +10,16 @@ layout (std140, binding = 0) uniform Matrices
     mat4 view;
 };
 
+layout (std140, binding = 3) uniform ClippingPlane
+{
+    vec4 clippingPlane;
+};
+
 out VS_OUT {
     vec3 Normal;
     vec3 FragPos;
     vec2 TexCoord;
 } vs_out;  
-
 
 
 void main()
@@ -24,5 +28,6 @@ void main()
     vs_out.Normal = mat3(transpose(inverse(model))) * aNormal;  
     vs_out.TexCoord = aTexCoord;
 
+    gl_ClipDistance[0] = dot(model * vec4(aPos, 1.0), clippingPlane);
     gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
 }

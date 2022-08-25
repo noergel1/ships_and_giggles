@@ -1,7 +1,7 @@
 #include "framebuffer.h"
 
 Framebuffer::Framebuffer(int _width, int _height)
-    : m_texture(Texture_2D(_width, _height, TextureType::DIFFUSE, 0))
+    : m_texture(Texture_2D(_width, _height, TextureType::RGB))
     , m_width(_width)
     ,m_height(_height)
 {
@@ -34,16 +34,6 @@ void Framebuffer::unbind()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::bindTexture()
-{
-    m_texture.use();
-}
-
-void Framebuffer::unbindTexture()
-{
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
 void Framebuffer::deleteBuffer()
 {
     unsigned int textureID = m_texture.getID();
@@ -55,7 +45,7 @@ void Framebuffer::deleteBuffer()
 void Framebuffer::createColorTextureAttachement( unsigned int _slot ) {
     glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferID );
 
-    Texture_2D depthTexure = Texture_2D( m_width, m_height, TextureType::DIFFUSE, 0 );
+    Texture_2D depthTexure = Texture_2D( m_width, m_height, TextureType::RGB );
     glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + _slot, GL_TEXTURE_2D, depthTexure.getID(), 0 );
 
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -64,8 +54,8 @@ void Framebuffer::createColorTextureAttachement( unsigned int _slot ) {
 void Framebuffer::createDepthTextureAttachement(  ) {
     glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferID );
 
-    Texture_2D depthTexure = Texture_2D( m_width, m_height, TextureType::DIFFUSE, 0 );
-    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexure.getID(), 0 );
+    Texture_2D depthTexture = Texture_2D( m_width, m_height, TextureType::DEPTH );
+    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture.getID(), 0 );
 
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
@@ -73,20 +63,20 @@ void Framebuffer::createDepthTextureAttachement(  ) {
 void Framebuffer::createStencilTextureAttachement(  ) {
     glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferID );
 
-    Texture_2D stencilTexure = Texture_2D( m_width, m_height, TextureType::DIFFUSE, 0 );
+    Texture_2D stencilTexure = Texture_2D( m_width, m_height, TextureType::STENCIL );
     glFramebufferTexture2D( GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, stencilTexure.getID(), 0);
 
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
-void Framebuffer::createDepthStencilTextureAttachement(  ) {
-    glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferID );
-
-    Texture_2D depthStencilTexure = Texture_2D( m_width, m_height, TextureType::DIFFUSE, 0 );
-    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilTexure.getID(), 0 );
-
-    glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-}
+//void Framebuffer::createDepthStencilTextureAttachement(  ) {
+//    glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferID );
+//
+//    Texture_2D depthStencilTexure = Texture_2D( m_width, m_height, TextureType::DIFFUSE, 0 );
+//    glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilTexure.getID(), 0 );
+//
+//    glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+//}
 
 void Framebuffer::createDepthRenderbufferAttachement(  ) {
     glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferID );

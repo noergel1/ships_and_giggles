@@ -8,6 +8,11 @@ layout (std140, binding = 1) uniform Time
     float curTime;
 };
 
+layout (std140, binding = 3) uniform ClippingPlane
+{
+    vec4 clippingPlane;
+};
+
 in VS_OUT {
     vec3 Normal;
     vec3 FragPos;
@@ -22,17 +27,20 @@ out GS_OUT {
 
 void main() {   
     gl_Position = gl_in[0].gl_Position;
-    gs_out.FragPos = gs_in[0].Normal;
+    gl_ClipDistance[0] = gl_in[0].gl_ClipDistance[0];
+    gs_out.FragPos = gs_in[0].FragPos;
     gs_out.Normal = gs_in[0].Normal;
     gs_out.TexCoord = gs_in[0].TexCoord;
     EmitVertex();
     gl_Position = gl_in[1].gl_Position;
-    gs_out.FragPos = gs_in[1].Normal;
+    gl_ClipDistance[0] = gl_in[1].gl_ClipDistance[0];
+    gs_out.FragPos = gs_in[1].FragPos;
     gs_out.Normal = gs_in[1].Normal;
     gs_out.TexCoord = gs_in[1].TexCoord;
     EmitVertex();
     gl_Position = gl_in[2].gl_Position;
-    gs_out.FragPos = gs_in[2].Normal;
+    gl_ClipDistance[0] = gl_in[2].gl_ClipDistance[0];
+    gs_out.FragPos = gs_in[2].FragPos;
     gs_out.Normal = gs_in[2].Normal;
     gs_out.TexCoord = gs_in[2].TexCoord;
     EmitVertex();

@@ -8,7 +8,7 @@ public:
 	Texture_CubeMap(std::vector<const char*> _filepaths, bool _transparency);
 
 	// use/activate the texture
-	void use();
+	void use(unsigned int _place = 0);
 
 protected:
 	// the texture ID

@@ -2,9 +2,7 @@
 
 #include "../utils/stb_image.h"
 
-Texture_2D::Texture_2D(const char* _filepath, bool _transparency, TextureType _textureType, unsigned int _place)
-	:m_place(_place)
-	,m_textureType(_textureType)
+Texture_2D::Texture_2D(const char* _filepath, bool _transparency)
 {
 	glGenTextures(1, &m_ID);
 	glBindTexture(GL_TEXTURE_2D, m_ID);
@@ -35,6 +33,8 @@ Texture_2D::Texture_2D(const char* _filepath, bool _transparency, TextureType _t
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+				//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 			}
 
 			glGenerateMipmap(GL_TEXTURE_2D);
@@ -50,15 +50,41 @@ Texture_2D::Texture_2D(const char* _filepath, bool _transparency, TextureType _t
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture_2D::Texture_2D(unsigned int _width, unsigned int _height, TextureType _textureType, unsigned int _place)
-	:m_place(_place)
-	,m_textureType(_textureType)
+Texture_2D::Texture_2D(unsigned int _width, unsigned int _height, TextureType _textureType)
 {
+	int colorType = 0;
+	int dataType = 0;
+	int dataFormat = 0;
+	switch (_textureType) {
+		case TextureType::RGB:
+		{
+			colorType = GL_RGB;
+			dataFormat = GL_RGB;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+		}
+		case TextureType::RGBA:
+		{
+			colorType = GL_RGBA;
+			dataFormat = GL_RGBA;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+		}
+		case TextureType::DEPTH:
+		{
+			colorType = GL_DEPTH_COMPONENT;
+			dataFormat = GL_DEPTH_COMPONENT32;
+			dataType = GL_UNSIGNED_SHORT;
+			break;
+		}
+	}
+
+
 	glGenTextures(1, &m_ID);
 	glBindTexture(GL_TEXTURE_2D, m_ID);
 
 	// NULL as data
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, dataFormat, _width, _height, 0, colorType, dataType, NULL);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -68,9 +94,9 @@ Texture_2D::Texture_2D(unsigned int _width, unsigned int _height, TextureType _t
 }
 
 // use/activate the texture
-void Texture_2D::use()
+void Texture_2D::use(unsigned int _place)
 {
-	glActiveTexture(GL_TEXTURE0 + m_place);
+	glActiveTexture(GL_TEXTURE0 + _place);
 	glBindTexture(GL_TEXTURE_2D, m_ID);
 }
 

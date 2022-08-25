@@ -1,13 +1,21 @@
 #version 430 core
-out vec4 FragColor;
-
 in GS_OUT {
     vec3 Normal;
     vec3 FragPos;
     vec2 TexCoord;
+    vec4 ClipSpace;
 } fs_in;
 
+uniform sampler2D reflectionTexture;
+uniform sampler2D refractionTexture;
+uniform sampler2D dudvTexture;
+const float waveStrength = 0.01f;
+const float waveSpeed = 0.01f;
 
+layout (std140, binding = 1) uniform Time
+{
+    float curTime;
+};
 
 // Directional Light
 layout (std140, binding = 2) uniform dirLight
@@ -49,12 +57,29 @@ vec3 generateWaveSineSumImprovedNormal(sinParams _params[sineCount]);
 
 void main()
 {
+    float moveFactor = (curTime * waveSpeed);
+    moveFactor = moveFactor - floor(moveFactor);
 
+    vec2 ndc = fs_in.ClipSpace.xy / fs_in.ClipSpace.w; 
+    ndc = (ndc + 1.0)/2.0;
+    vec2 reflectTexCoords = vec2(ndc.x, 1.0f-ndc.y);
+    vec2 refractTexCoords = vec2(ndc.x, ndc.y);
 
+    vec2 distortion1 = texture(dudvTexture, vec2(fs_in.TexCoord.x + moveFactor, fs_in.TexCoord.y)).rg * 2.0f - 1.0f;
+    vec2 distortion2 = texture(dudvTexture, vec2(1.0f - fs_in.TexCoord.x + moveFactor, fs_in.TexCoord.y + moveFactor)).rg * 2.0f - 1.0f;
+    vec2 totalDistortion = (distortion1 + distortion2) / 2;
 
-    vec3 result = vec3(0.0f, 0.0f, 0.0f);
+    reflectTexCoords += (totalDistortion*waveStrength);
+    reflectTexCoords = clamp(reflectTexCoords, 0.001, 0.999);
+    refractTexCoords += (totalDistortion*waveStrength);
+    refractTexCoords = clamp(refractTexCoords, 0.001, 0.999);
+
+    vec3 result = (vec3(texture(reflectionTexture, reflectTexCoords)) + vec3(texture(refractionTexture, refractTexCoords))) / 2.0f;
+    result = mix(result, vec3(0.0f, 0.3f, 0.5f), 0.2f);
     result += CalcDirLight();
-    FragColor = vec4(result, 1.0f);
+    //result = distortion1;
+    gl_FragColor = vec4(result, 1.0f);
+    //gl_FragColor = distortion1;
 }
 
 vec3 CalcDirLight()

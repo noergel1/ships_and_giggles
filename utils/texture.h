@@ -8,15 +8,20 @@
 
 
 enum class TextureType {
-	DIFFUSE,
-	SPECULAR,
-	NORMAL,
-	CUBEMAP_FACE
+	RGB,
+	RGBA,
+	DEPTH,
+	STENCIL
+};
+
+enum class ClampMethod {
+	CLAMP_TO_EDGE,
+	REPEAT
 };
 
 class Texture {
 
 public:
 	// use/activate the texture
-	virtual void use() = 0;
+	virtual void use(unsigned int _place) = 0;
 };

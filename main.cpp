@@ -23,7 +23,7 @@ int main(void)
         /* Screen Width: */             800,//px
         /* Screen Height: */            600,//px                           
         /* Camera Mode: */              Camera_Mode::FREE_FLOAT,
-        /* Postprocessing: */           DataProvider::getBlurKernel(),
+        /* Postprocessing: */           DataProvider::noPostProcessing(),
         /* Polygon Mode: */             DISABLE,
         /* Show Normals: */             DISABLE,
         /* Show Vertices: */            DISABLE,

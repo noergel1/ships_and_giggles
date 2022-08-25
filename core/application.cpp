@@ -90,8 +90,8 @@ bool Application::setupModels()
     // cube model
     std::vector<VertexData> cubeVertices = DataProvider::getCubeVertices();
     std::vector<unsigned int> cubeIndices = DataProvider::getCubeIndices();
-    std::vector<Texture*> standardCrateTextures = { new Texture_2D("ressources/crate/crate.png", false, TextureType::DIFFUSE, 0),
-                                                    new Texture_2D("ressources/crate/crate_specular.png", false, TextureType::SPECULAR, 1) };
+    std::vector<Texture*> standardCrateTextures = { new Texture_2D("ressources/crate/crate.png", false),
+                                                    new Texture_2D("ressources/crate/crate_specular.png", false) };
 
     cubeVao = createVao(cubeVertices, cubeIndices);
 
@@ -172,6 +172,9 @@ bool Application::setupModels()
     std::vector<Texture*> quadTextures = { &m_renderVariables->framebuffer_postprocessing.m_texture };
 
 
+    // water
+    
+    std::vector<Texture*> waterTextures = std::vector<Texture*>( { &m_renderVariables->framebuffer_waterReflection.m_texture, &m_renderVariables->framebuffer_waterRefraction.m_texture, new Texture_2D( "ressources/water/water_dudv.jpg", false )});
 
     ////////////////////////////////////////////////////////////////
     // CREATE MODELDATAS INSIDE RENDERER                         //
@@ -200,7 +203,7 @@ bool Application::setupModels()
         planeVao,
         planeIndices.size(),
         "water",
-        standardCrateTextures,
+        waterTextures,
         16.0f
     );
 
@@ -282,7 +285,7 @@ bool Application::setupGamestate()
 
     addWater(
         // position
-        glm::vec3( 0.0f, -2.0f, -15.0f ),
+        glm::vec3( 0.0f, waterHeight, -15.0f ),
         //scale
         glm::vec3( 20.0f ),
         //rotation
@@ -343,6 +346,16 @@ bool Application::generateUniformBuffers() {
     glBindBuffer( GL_UNIFORM_BUFFER, dirLightBuffer );
     glBufferData( GL_UNIFORM_BUFFER, 4*16, NULL, GL_STATIC_DRAW);
     glBindBufferRange( GL_UNIFORM_BUFFER, 2, dirLightBuffer, 0, 4 * sizeof( glm::vec4 ) );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+    // uniform buffer for clipping plane
+    glEnable( GL_CLIP_DISTANCE0 );
+    glGenBuffers( 1, &clippingPlaneBuffer );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, clippingPlaneBuffer );
+    glBufferData( GL_UNIFORM_BUFFER, sizeof( glm::vec4 ), NULL, GL_STATIC_DRAW);
+    glBindBufferRange( GL_UNIFORM_BUFFER, 3, clippingPlaneBuffer, 0, sizeof( glm::vec4 ) );
+    setClippingPlane( glm::vec4( 0.0f, 0.0f, 0.0f, 0.0f ) );
     glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 
     return false;
@@ -469,7 +482,6 @@ bool Application::updateGamestate() {
     glBufferSubData( GL_UNIFORM_BUFFER, 3 * sizeof( glm::vec4 ), sizeof( glm::vec3 ), glm::value_ptr( specularColor ) );
     glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 
-
     return true;
 }
 
@@ -478,6 +490,7 @@ bool Application::renderFramebuffers() {
     // --------------
     m_renderVariables->framebuffer_waterReflection.bind();
     clearBufferBits();
+    setClippingPlane( glm::vec4( 0.0f, 1.0f, 0.0f, waterHeight ) );
     // render scene
     m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
 
@@ -496,6 +509,7 @@ bool Application::renderFramebuffers() {
     // --------------
     m_renderVariables->framebuffer_waterRefraction.bind();
     clearBufferBits();
+    setClippingPlane( glm::vec4( 0.0f, -1.0f, 0.0f, waterHeight ) );
     // render scene
     m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
 
@@ -506,9 +520,10 @@ bool Application::renderFramebuffers() {
     // change face culling to cull outer instead of inner faces
     glCullFace( GL_FRONT );
     m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
-
+    resetTesting();
     m_renderVariables->framebuffer_waterRefraction.unbind();
 
+    setClippingPlane( glm::vec4( 0.0f ) );
 
     return false;
 }
@@ -526,10 +541,9 @@ bool Application::renderFrame() {
         clearBufferBits();
     }
 
-
     // render scene
     // --------------
-    m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX} );
+    m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
 
 
     // render skybox
@@ -540,6 +554,8 @@ bool Application::renderFrame() {
     glCullFace( GL_FRONT );
     m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
     resetTesting();
+
+    renderWater();
 
     // render debugging options
     // --------------
@@ -571,11 +587,17 @@ bool Application::renderFrame() {
 
         m_renderer->BindVao( postProcessingModel->m_VAO );
 
-        m_renderVariables->framebuffer_postprocessing.bindTexture(); // use the color attachment texture as the texture of the quad plane
+        m_renderVariables->framebuffer_postprocessing.m_texture.use(0); // use the color attachment texture as the texture of the quad plane
         glDrawElements( GL_TRIANGLES, postProcessingModel->m_indiceCount, GL_UNSIGNED_INT, 0 );
 
         Shader::useShader( 0 );
     }
+
+    return false;
+}
+
+bool Application::renderWater() {
+    m_renderer->renderEntities( ModelName::WATER, m_entities[ModelName::WATER] );
 
     return false;
 }
@@ -597,8 +619,10 @@ bool Application::SetUniforms() {
         //water shader
     unsigned int waterShader = m_renderer->getShaderID("water");
     Shader::useShader( waterShader );
-    // camera position for light calculation
     Shader::setVec3( waterShader, "viewPos", m_camera->Position );
+    Shader::setInt( waterShader, "reflectionTexture", 0 );
+    Shader::setInt( waterShader, "refractionTexture", 1 );
+    Shader::setInt( waterShader, "dudvTexture", 2 );
     Shader::useShader( 0 );
 
     //post processing
@@ -800,6 +824,13 @@ bool Application::resetTesting() {
     glFrontFace( GL_CCW );
     glCullFace( GL_BACK );
 
+    return false;
+}
+
+bool Application::setClippingPlane( glm::vec4 _clippingPlane ) {
+    glBindBuffer( GL_UNIFORM_BUFFER, clippingPlaneBuffer );
+    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::vec4 ), glm::value_ptr( _clippingPlane ) );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
     return false;
 }
 

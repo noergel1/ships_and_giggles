@@ -98,8 +98,9 @@
 
 			//render
 			// set the corresponding textures
-			for (auto texture : modelData->m_textures) {
-				texture->use();
+			for (int i = 0; i < modelData->m_textures.size(); i++) {
+				Texture* curTexture = modelData->m_textures[i];
+				curTexture->use(i);
 			}
 
 			for (auto const& entity : entities) {
@@ -139,8 +140,9 @@
 			Shader::useShader( modelShader );
 
 			// set the corresponding textures
-			for (auto texture : modelData->m_textures) {
-				texture->use();
+			for (int i = 0; i < modelData->m_textures.size(); i++) {
+				Texture* curTexture = modelData->m_textures[i];
+				curTexture->use( i );
 			}
 
 			for (auto const& entity : entities) {
@@ -178,8 +180,9 @@
 			Shader::useShader( modelShader );
 
 			// set the corresponding textures
-			for (auto texture : modelData->m_textures) {
-				texture->use();
+			for (int i = 0; i < modelData->m_textures.size(); i++) {
+				Texture* curTexture = modelData->m_textures[i];
+				curTexture->use( i );
 			}
 
 			for (auto const& entity : entities) {
@@ -221,8 +224,9 @@
 			Shader::useShader( modelShader );
 
 			// set the corresponding textures
-			for (auto texture : modelData->m_textures) {
-				texture->use();
+			for (int i = 0; i < modelData->m_textures.size(); i++) {
+				Texture* curTexture = modelData->m_textures[i];
+				curTexture->use( i );
 			}
 
 			for (auto const& entity : entities) {
@@ -252,8 +256,9 @@
 			Shader::useShader( modelShader );
 
 			// set the corresponding textures
-			for (auto texture : modelData->m_textures) {
-				texture->use();
+			for (int i = 0; i < modelData->m_textures.size(); i++) {
+				Texture* curTexture = modelData->m_textures[i];
+				curTexture->use( i );
 			}
 
 			for (auto const& entity : _entities) {
@@ -282,8 +287,9 @@
 		Shader::useShader( modelShader );
 
 		// set the corresponding textures
-		for (auto texture : modelData->m_textures) {
-			texture->use();
+		for (int i = 0; i < modelData->m_textures.size(); i++) {
+			Texture* curTexture = modelData->m_textures[i];
+			curTexture->use( i );
 		}
 
 		for (auto const& entity : _entities) {

@@ -43,7 +43,7 @@ Texture_CubeMap::Texture_CubeMap(std::vector<const char*> _filepaths, bool _tran
 }
 
 // use/activate the texture
-void Texture_CubeMap::use()
+void Texture_CubeMap::use(unsigned int _place)
 {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_ID);
 }
