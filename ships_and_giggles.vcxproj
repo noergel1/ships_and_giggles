@@ -148,6 +148,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="models\model_data.cpp" />
+    <ClCompile Include="utils\benchmark.cpp" />
     <ClCompile Include="utils\camera.cpp" />
     <ClCompile Include="utils\camera_freefloat.cpp" />
     <ClCompile Include="utils\camera_isometric.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="core\application.h" />
     <ClInclude Include="core\gamesettings.h" />
     <ClInclude Include="models\model_data.h" />
+    <ClInclude Include="utils\benchmark.h" />
     <ClInclude Include="utils\camera.h" />
     <ClInclude Include="utils\camera_freefloat.h" />
     <ClInclude Include="utils\camera_isometric.h" />

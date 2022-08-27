@@ -71,6 +71,7 @@ private:
 	bool generateUniformBuffers();
 	bool SetRenderVariables();
 	bool SetUniforms();
+	bool updateCameraMatrices();
 
 
 	// execution
@@ -88,13 +89,14 @@ private:
 	unsigned int timeBuffer;
 	unsigned int dirLightBuffer;
 	unsigned int clippingPlaneBuffer;
+	unsigned int cameraBuffer;
 
 	// water variables
 	const unsigned int REFLECTION_WIDTH = m_settings.SCR_WIDTH;
 	const unsigned int REFLECTION_HEIGHT = m_settings.SCR_HEIGHT;
 	const unsigned int REFRACTION_WIDTH = m_settings.SCR_WIDTH;
 	const unsigned int REFRACTION_HEIGHT = m_settings.SCR_HEIGHT;
-	const float waterHeight = -2.0f;
+	const float waterHeight = 0.0f;
 
 	// debugging
 	// -------------

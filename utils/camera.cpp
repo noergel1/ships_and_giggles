@@ -10,3 +10,7 @@ Camera::Camera()
 	,Zoom(45.0f)
 {
 }
+
+void Camera::invertPitch() {
+	Pitch = -Pitch;
+}

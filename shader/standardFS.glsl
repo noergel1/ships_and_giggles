@@ -71,7 +71,10 @@ uniform Material material1;
 //uniform SpotLight spotLight;
 
 // camera position
-uniform vec3 viewPos;
+layout (std140, binding = 4) uniform Camera
+{
+    vec3 cameraPosition;
+};
 
 // Calculation Functions
 vec3 CalcDirLight();
@@ -80,7 +83,7 @@ vec3 CalcDirLight();
 
 vec3 norm = normalize(fs_in.Normal);
 vec3 lightDir = normalize(-fs_in.FragPos);
-vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+vec3 viewDir = normalize(cameraPosition - fs_in.FragPos);
 vec3 reflectDir = reflect(-lightDir, norm);
 
 vec3 texColorAmbient = vec3(texture(material1.diffuse, fs_in.TexCoord));

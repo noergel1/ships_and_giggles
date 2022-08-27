@@ -106,7 +106,7 @@ bool Application::setupModels()
     shipVao = createVao(shipVertices, shipIndices);
 
     // plane model
-    unsigned int divisions = 100;
+    unsigned int divisions = 500;
     glm::vec3 v0 = glm::vec3( -0.5f, 0.0f, -0.5f );
     glm::vec3 v1 = glm::vec3( 0.5f, 0.0f, -0.5f );
     glm::vec3 v2 = glm::vec3( 0.5f, 0.0f, 0.5f );
@@ -204,7 +204,7 @@ bool Application::setupModels()
         planeIndices.size(),
         "water",
         waterTextures,
-        16.0f
+        32.0f
     );
 
     m_renderer->AddNewModel(
@@ -285,24 +285,24 @@ bool Application::setupGamestate()
 
     addWater(
         // position
-        glm::vec3( 0.0f, waterHeight, -15.0f ),
+        glm::vec3( 0.0f, waterHeight, 0.0f ),
         //scale
-        glm::vec3( 20.0f ),
+        glm::vec3( 50.0f ),
         //rotation
         glm::vec3( 0.0f, 45.0f, 0.0f )
     );
 
     //test object
-    addEntity(
-        // position
-        glm::vec3( 3.0f, 0.0f, 2.0f ),
-        //scale
-        glm::vec3( 1.0f, 1.0f, 1.0f ),
-        //rotation
-        glm::vec3( 0.0f ),
-        //modelname
-        ModelName::TEST_OBJECT
-    );
+    //addEntity(
+    //    // position
+    //    glm::vec3( 3.0f, 0.0f, 2.0f ),
+    //    //scale
+    //    glm::vec3( 1.0f, 1.0f, 1.0f ),
+    //    //rotation
+    //    glm::vec3( 0.0f ),
+    //    //modelname
+    //    ModelName::TEST_OBJECT
+    //);
 
         //skybox
     addEntity(
@@ -356,6 +356,15 @@ bool Application::generateUniformBuffers() {
     glBufferData( GL_UNIFORM_BUFFER, sizeof( glm::vec4 ), NULL, GL_STATIC_DRAW);
     glBindBufferRange( GL_UNIFORM_BUFFER, 3, clippingPlaneBuffer, 0, sizeof( glm::vec4 ) );
     setClippingPlane( glm::vec4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+    // uniform buffer for camera
+    glEnable( GL_CLIP_DISTANCE0 );
+    glGenBuffers( 1, &cameraBuffer );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, cameraBuffer );
+    glBufferData( GL_UNIFORM_BUFFER, sizeof( glm::vec4 ), NULL, GL_STATIC_DRAW );
+    glBindBufferRange( GL_UNIFORM_BUFFER, 4, cameraBuffer, 0, sizeof( glm::vec3 ) );
     glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 
     return false;
@@ -454,14 +463,7 @@ bool Application::runApplication()
 }
 
 bool Application::updateGamestate() {
-    // update matrices
-    glm::mat4 view = m_camera->GetViewMatrix();
-    glm::mat4 projection = glm::perspective( glm::radians( m_camera->Zoom ), (float)m_settings.SCR_WIDTH / (float)m_settings.SCR_HEIGHT, 0.1f, 100.0f );
-
-    glBindBuffer( GL_UNIFORM_BUFFER, viewProjectionBuffer );
-    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::mat4 ), glm::value_ptr( projection ) );
-    glBufferSubData( GL_UNIFORM_BUFFER, sizeof( glm::mat4 ), sizeof( glm::mat4 ), glm::value_ptr( view ) );
-    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+    updateCameraMatrices();
 
     glBindBuffer( GL_UNIFORM_BUFFER, timeBuffer );
     glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( float ), &lastFrame );
@@ -482,6 +484,23 @@ bool Application::updateGamestate() {
     glBufferSubData( GL_UNIFORM_BUFFER, 3 * sizeof( glm::vec4 ), sizeof( glm::vec3 ), glm::value_ptr( specularColor ) );
     glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 
+    // set the camera position
+    glBindBuffer( GL_UNIFORM_BUFFER, cameraBuffer );
+    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::vec3 ), &m_camera->Position );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+
+    return true;
+}
+
+bool Application::updateCameraMatrices() {
+        // update matrices
+    glm::mat4 view = m_camera->GetViewMatrix();
+    glm::mat4 projection = glm::perspective( glm::radians( m_camera->Zoom ), (float)m_settings.SCR_WIDTH / (float)m_settings.SCR_HEIGHT, 0.1f, 100.0f );
+
+    glBindBuffer( GL_UNIFORM_BUFFER, viewProjectionBuffer );
+    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::mat4 ), glm::value_ptr( projection ) );
+    glBufferSubData( GL_UNIFORM_BUFFER, sizeof( glm::mat4 ), sizeof( glm::mat4 ), glm::value_ptr( view ) );
+    glBindBuffer( GL_UNIFORM_BUFFER, 0 );
     return true;
 }
 
@@ -490,7 +509,12 @@ bool Application::renderFramebuffers() {
     // --------------
     m_renderVariables->framebuffer_waterReflection.bind();
     clearBufferBits();
-    setClippingPlane( glm::vec4( 0.0f, 1.0f, 0.0f, waterHeight ) );
+    float distance = 2 * (m_camera->Position.y - waterHeight);
+    m_camera->Position.y -= distance;
+    m_camera->invertPitch();
+    updateCameraMatrices();
+    setClippingPlane( glm::vec4( 0.0f, 1.0f, 0.0f, -waterHeight ) );
+    //setClippingPlane( glm::vec4( 0.0f ) );
     // render scene
     m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
 
@@ -503,6 +527,9 @@ bool Application::renderFramebuffers() {
     m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
     resetTesting();
     m_renderVariables->framebuffer_waterReflection.unbind();
+    m_camera->Position.y += distance;
+    m_camera->invertPitch();
+    updateCameraMatrices();
 
 
     // render refraction
@@ -510,6 +537,7 @@ bool Application::renderFramebuffers() {
     m_renderVariables->framebuffer_waterRefraction.bind();
     clearBufferBits();
     setClippingPlane( glm::vec4( 0.0f, -1.0f, 0.0f, waterHeight ) );
+    //setClippingPlane( glm::vec4( 0.0f ) );
     // render scene
     m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
 
@@ -604,10 +632,9 @@ bool Application::renderWater() {
 
 bool Application::SetUniforms() {
         //standard shader
+        // --------------
     unsigned int standardShader = m_renderer->getShaderID("standard");
     Shader::useShader( standardShader );
-    // camera position for light calculation
-    Shader::setVec3( standardShader, "viewPos", m_camera->Position );
 
     // set material sampler slots
     Shader::setInt( standardShader, "material1.diffuse", 0 );
@@ -616,7 +643,8 @@ bool Application::SetUniforms() {
 
     Shader::useShader( 0 );
 
-        //water shader
+    //water shader
+    // --------------
     unsigned int waterShader = m_renderer->getShaderID("water");
     Shader::useShader( waterShader );
     Shader::setVec3( waterShader, "viewPos", m_camera->Position );
@@ -626,6 +654,7 @@ bool Application::SetUniforms() {
     Shader::useShader( 0 );
 
     //post processing
+    // --------------
     if (!m_settings.POSTPROCESSING_KERNEL.empty())         {
         unsigned int postprocessingShader = m_renderer->getShaderID( "postprocessing" );
         const std::vector<float> kernel = m_settings.POSTPROCESSING_KERNEL;
@@ -706,6 +735,20 @@ void Application::processInput(GLFWwindow* _window)
 
     if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS)
         m_camera->ProcessKeyboard(RIGHT, deltaTime);
+
+    if (glfwGetKey( _window, GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS)
+        m_camera->Accelerated = true;
+
+    if (glfwGetKey( _window, GLFW_KEY_F ) == GLFW_PRESS) {
+        m_camera->invertPitch();
+        float distance = 2 * (m_camera->Position.y - waterHeight);
+        m_camera->Position.y -= distance;
+        updateCameraMatrices();
+    }
+
+
+    if (glfwGetKey( _window, GLFW_KEY_LEFT_SHIFT ) == GLFW_RELEASE)
+        m_camera->Accelerated = false;
 
     if (glfwGetKey(_window, GLFW_KEY_TAB) == GLFW_PRESS && (lastFrame - lastCursorToggle) >= cursorToggleDelay)
     {

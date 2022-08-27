@@ -34,6 +34,11 @@ public:
     glm::vec3 Right;
     glm::vec3 WorldUp;
     float Zoom;
+    bool Accelerated = false;
+
+    // euler Angles
+    float Yaw;
+    float Pitch;
 
     Camera();
 
@@ -48,6 +53,9 @@ public:
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     virtual void ProcessMouseScroll(float yoffset) = 0;
+
+    // inverts pitch for rendering water reflection
+    void invertPitch();
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles

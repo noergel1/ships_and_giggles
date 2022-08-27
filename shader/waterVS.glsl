@@ -8,6 +8,7 @@ out VS_OUT {
     vec3 FragPos;
     vec2 TexCoord;
     vec4 ClipSpace;
+    vec3 vecToCamera;
 } vs_out; 
 
 
@@ -23,13 +24,18 @@ layout (std140, binding = 1) uniform Time
     float curTime;
 };
 
-    struct sinParams{
-        float amplitude;
-        vec2 direction;
-        float wavelength;
-        float frequency;
-        float speed;
-    };
+struct sinParams{
+    float amplitude;
+    vec2 direction;
+    float wavelength;
+    float frequency;
+    float speed;
+};
+
+layout (std140, binding = 4) uniform Camera
+{
+    vec3 cameraPosition;
+};
 
     const unsigned int sineCount = 2;
     const unsigned int sineExponent = 5;
@@ -41,11 +47,11 @@ vec3 generateWaveSineSumImprovedNormal(sinParams _params[sineCount]);
 
 void main()
 {
-    float amplitude = 0.05f;
+    float amplitude = 0.01f;
     vec2 direction = vec2(0.5f, 0.5f);
-    float wavelength = 0.1f;
+    float wavelength = 0.08f;
     float frequency = 2/wavelength;
-    float speed = 0.05f * frequency;
+    float speed = 0.01f * frequency;
 
     sinParams sinFuncs[sineCount];
     sinFuncs[0] = sinParams(
@@ -56,11 +62,11 @@ void main()
     /* Speed      */ speed
     );
 
-    amplitude   = 0.07f;
+    amplitude   = 0.01f;
     direction   = vec2(0.75f, 0.25f);
     wavelength  = 0.07f;
     frequency   = 2/wavelength;
-    speed       = 0.02f * frequency;
+    speed       = 0.012f * frequency;
 
     sinFuncs[1] = sinParams(
     /* Amplitude  */ amplitude,
@@ -70,17 +76,16 @@ void main()
     /* Speed      */ speed
     );
 
-    vs_out.FragPos = vec3(model * vec4(generateWaveSineSumImproved(sinFuncs), 1.0));
+    vec3 vertexPos = generateWaveSineSumImproved(sinFuncs);
+    vertexPos = aPos;
+
+    vs_out.FragPos = vec3(model * vec4(vertexPos, 1.0));
     vs_out.Normal = generateWaveSineSumImprovedNormal(sinFuncs);  
     vs_out.TexCoord = aTexCoord;
-    vs_out.ClipSpace = projection * view * model * vec4(generateWaveSineSumImproved(sinFuncs), 1.0);
+    vs_out.ClipSpace = projection * view * vec4(vs_out.FragPos, 1.0);
+    vs_out.vecToCamera = cameraPosition - vs_out.FragPos;
 
-//        vs_out.FragPos = vec3(model * vec4(aPos, 1.0f));
-//    vs_out.Normal = aNormal;  
-//    vs_out.TexCoord = aTexCoord;
-//    vs_out.ClipSpace = projection * view * vec4(vs_out.FragPos, 1.0);
-
-    gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
+    gl_Position = vs_out.ClipSpace;
 }
 
 // algorithms taken from

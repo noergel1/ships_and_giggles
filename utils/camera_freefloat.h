@@ -7,6 +7,7 @@
 const float YAW_FREEFLOAT = -90.0f;
 const float PITCH_FREEFLOAT = 0.0f;
 const float SPEED_FREEFLOAT = 2.5f;
+const float ACCELERATION_FACTOR = 3.0f;
 const float SENSITIVITY_FREEFLOAT = 0.1f;
 
 
@@ -14,11 +15,6 @@ const float SENSITIVITY_FREEFLOAT = 0.1f;
 class Camera_FreeFloat : public Camera
 {
 public:
-
-
-    // euler Angles
-    float Yaw;
-    float Pitch;
     // camera options
     float MovementSpeed;
     float MouseSensitivity;

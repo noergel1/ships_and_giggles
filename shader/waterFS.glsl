@@ -4,6 +4,7 @@ in GS_OUT {
     vec3 FragPos;
     vec2 TexCoord;
     vec4 ClipSpace;
+    vec3 vecToCamera;
 } fs_in;
 
 uniform sampler2D reflectionTexture;
@@ -41,6 +42,7 @@ uniform vec3 viewPos;
 
 // Calculation Functions
 vec3 CalcDirLight();
+vec3 CalcReflectionRefraction();
 vec3 generateWaveSineSumImprovedNormal(sinParams _params[sineCount]);
 
     vec3 norm = normalize(fs_in.Normal);
@@ -48,7 +50,7 @@ vec3 generateWaveSineSumImprovedNormal(sinParams _params[sineCount]);
     vec3 viewDir = normalize(viewPos-fs_in.FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 
-    float shininess = 16.0f;
+    float shininess = 128.0f;
     vec3 texColorAmbient = vec3(0.0f, 0.1f, 0.5f);
     vec3 texColorDiffuse = vec3(0.0f, 0.0f, 1.0f);
     vec3 texColorSpecular = vec3(1.0f, 1.0f, 1.0f);
@@ -57,11 +59,23 @@ vec3 generateWaveSineSumImprovedNormal(sinParams _params[sineCount]);
 
 void main()
 {
+    vec3 result = CalcReflectionRefraction();
+    result += CalcDirLight();
+    gl_FragColor = vec4(result, 1.0f);
+}
+
+vec3 CalcReflectionRefraction()
+{
+    vec3 result = vec3(0.0f, 0.0f, 0.0f);
+    vec3 viewVector = normalize(fs_in.vecToCamera);
+    float reflectiveRatio = dot(viewVector, fs_in.Normal);
+
     float moveFactor = (curTime * waveSpeed);
     moveFactor = moveFactor - floor(moveFactor);
 
     vec2 ndc = fs_in.ClipSpace.xy / fs_in.ClipSpace.w; 
-    ndc = (ndc + 1.0)/2.0;
+    //ndc = (ndc + 1.0)/2.0;
+    ndc = (ndc/2.0f)+0.5f;
     vec2 reflectTexCoords = vec2(ndc.x, 1.0f-ndc.y);
     vec2 refractTexCoords = vec2(ndc.x, ndc.y);
 
@@ -74,12 +88,10 @@ void main()
     refractTexCoords += (totalDistortion*waveStrength);
     refractTexCoords = clamp(refractTexCoords, 0.001, 0.999);
 
-    vec3 result = (vec3(texture(reflectionTexture, reflectTexCoords)) + vec3(texture(refractionTexture, refractTexCoords))) / 2.0f;
+    result = mix(texture(reflectionTexture, reflectTexCoords).xyz, texture(refractionTexture, refractTexCoords).xyz, reflectiveRatio);
     result = mix(result, vec3(0.0f, 0.3f, 0.5f), 0.2f);
-    result += CalcDirLight();
-    //result = distortion1;
-    gl_FragColor = vec4(result, 1.0f);
-    //gl_FragColor = distortion1;
+
+    return result;
 }
 
 vec3 CalcDirLight()

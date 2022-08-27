@@ -28,6 +28,7 @@ void main()
     vs_out.Normal = mat3(transpose(inverse(model))) * aNormal;  
     vs_out.TexCoord = aTexCoord;
 
-    gl_ClipDistance[0] = dot(model * vec4(aPos, 1.0), clippingPlane);
+    //gl_ClipDistance[0] = dot(inverse(model) * vec4(aPos, 1.0), clippingPlane);
+    gl_ClipDistance[0] = dot(model * vec4(aPos, 1.0f), clippingPlane);
     gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
 }

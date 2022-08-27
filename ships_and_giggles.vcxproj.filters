@@ -127,6 +127,9 @@
     <ClCompile Include="models\model_data.cpp">
       <Filter>models</Filter>
     </ClCompile>
+    <ClCompile Include="utils\benchmark.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="models\model_data.h">
@@ -215,6 +218,9 @@
     </ClInclude>
     <ClInclude Include="core\gamesettings.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\benchmark.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
