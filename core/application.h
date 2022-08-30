@@ -11,10 +11,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "gamelogic.h"
+
 #include "../utils/shader.h"
-#include "../utils/camera.h"
 #include "../utils/camera_freefloat.h"
-#include "../utils/camera.h"
+#include "../utils/camera_isometric.h"
 #include "../utils/texture_2d.h"
 #include "../utils/texture_cubemap.h"
 #include "../utils/debug.h"
@@ -47,12 +48,14 @@ public:
 	void process_scroll(GLFWwindow* _window, double _xoffset, double _yoffset);
 
 	GLFWwindow* getWindow() { return m_window; }
+	GameLogic* getGameLogic() { return m_gameLogic;  }
 
 
 private: 
 	// game settings
 	// -------------
 	GameSettings m_settings;
+	GameLogic* m_gameLogic;
 
 
 	// render functions
@@ -66,7 +69,6 @@ private:
 	// preparation
 	// -------------
 	bool setupWindow(unsigned int _width, unsigned int _height);
-	bool setupGamestate();
 	bool setupModels();
 	bool generateUniformBuffers();
 	bool SetRenderVariables();
@@ -76,15 +78,13 @@ private:
 
 	// execution
 	// -------------
-	bool updateGamestate();
+	bool updateUniforms();
 	bool renderFramebuffers();
 	bool renderFrame();
 	bool renderWater();
 
 	// gamestate
 	// -------------
-	Entity* m_player;										// pointer to the player entity
-	std::map<ModelName, std::vector<Entity> > m_entities;	// vector containing all entities in the game
 	unsigned int viewProjectionBuffer;
 	unsigned int timeBuffer;
 	unsigned int dirLightBuffer;
@@ -96,7 +96,6 @@ private:
 	const unsigned int REFLECTION_HEIGHT = m_settings.SCR_HEIGHT;
 	const unsigned int REFRACTION_WIDTH = m_settings.SCR_WIDTH;
 	const unsigned int REFRACTION_HEIGHT = m_settings.SCR_HEIGHT;
-	const float waterHeight = 0.0f;
 
 	// debugging
 	// -------------
@@ -127,17 +126,6 @@ private:
 	double lastCursorToggle = 0.0f;				// notes time tab was pressed the last time
 	const double cursorToggleDelay = 1.0f;		// the delay between toggling cursor
 	bool cursorEnabled = false;
-
-
-
-	// entity management
-	// -------------
-	bool addEntity( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation, ModelName _modelName);
-
-	bool addRock (glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
-	bool addCrate(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
-	bool addShip (glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
-	bool addWater(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3 _rotation = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// utility
 	bool clearBufferBits();

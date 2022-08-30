@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="core\application.cpp" />
+    <ClCompile Include="core\gamelogic.cpp" />
     <ClCompile Include="gl.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\application.h" />
+    <ClInclude Include="core\gamelogic.h" />
     <ClInclude Include="core\gamesettings.h" />
     <ClInclude Include="models\model_data.h" />
     <ClInclude Include="utils\benchmark.h" />

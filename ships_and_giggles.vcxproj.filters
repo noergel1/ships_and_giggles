@@ -130,6 +130,9 @@
     <ClCompile Include="utils\benchmark.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="core\gamelogic.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="models\model_data.h">
@@ -221,6 +224,9 @@
     </ClInclude>
     <ClInclude Include="utils\benchmark.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gamelogic.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

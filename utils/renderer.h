@@ -23,17 +23,17 @@ class Renderer {
 
 public:
 
-	Renderer(Camera* _camera, GameSettings _settings);
+	Renderer(GameSettings _settings);
 	bool shutdownRenderer();
 
 
-	void renderScene( std::map<ModelName, std::vector<Entity>> _entities );
-	void renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::vector<ModelName> _exclude );
-	void renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::string _shaderName);
-	void renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::string _shaderName, std::vector<ModelName> _exclude );
+	void renderScene( const std::map<ModelName, std::vector<Entity*>> _entities );
+	void renderScene( const std::map<ModelName, std::vector<Entity*>> _entities, std::vector<ModelName> _exclude );
+	void renderScene( const std::map<ModelName, std::vector<Entity*>> _entities, std::string _shaderName);
+	void renderScene( const std::map<ModelName, std::vector<Entity*>> _entities, std::string _shaderName, std::vector<ModelName> _exclude );
 
-	void renderEntities(ModelName _modelName, std::vector<Entity> _entities);
-	void renderEntities(ModelName _modelName, std::vector<Entity> _entities, std::string _shaderName );
+	void renderEntities(ModelName _modelName, const std::vector<Entity*> _entities);
+	void renderEntities(ModelName _modelName, const std::vector<Entity*> _entities, std::string _shaderName );
 
 
 	bool AddNewModel( ModelName _modelName, const unsigned int _vao, const unsigned int _indiceCount, const std::string _shader, const std::vector<Texture*> _textures, const float _shininess );
@@ -44,9 +44,8 @@ public:
 	bool BindVao(unsigned int _vao);
 
 private:
-	void modelRender( Entity _entity, unsigned int _shader, unsigned int _indiceCount );
+	void modelRender( const Entity* _entity, unsigned int _shader, unsigned int _indiceCount );
 
-	Camera* m_camera;
 	GameSettings m_settings;
 
 	// model data holds VAO and shader references, aswell as diffuse/specular maps and shininess

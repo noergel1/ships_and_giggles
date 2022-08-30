@@ -1,11 +1,8 @@
 #include "renderer.h"
 
 
-	Renderer::Renderer(Camera* _camera, GameSettings _settings)
-		:m_camera(_camera)
-		,m_settings(_settings)
-
-
+	Renderer::Renderer(GameSettings _settings)
+		:m_settings(_settings)
 	{
 		SetupShaders();
 	}
@@ -79,14 +76,14 @@
 
 
 
-	void Renderer::renderScene(std::map<ModelName, std::vector<Entity>> _entities)
+	void Renderer::renderScene(const std::map<ModelName, std::vector<Entity*>> _entities)
 	{
 		// go through all key/value pairs in the _entities map
 		for (auto const& _entityVector : _entities) {
 
 			const ModelName modelName = _entityVector.first;
 			const ModelData* modelData = m_models[modelName];
-			std::vector<Entity> entities = _entityVector.second;
+			std::vector<Entity*> entities = _entityVector.second;
 
 			// bind vao
 			BindVao(modelData->m_VAO);
@@ -112,7 +109,7 @@
 		Shader::useShader( 0 );
 	}
 
-	void Renderer::renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::vector<ModelName> _exclude ) {
+	void Renderer::renderScene( const std::map<ModelName, std::vector<Entity*>> _entities, std::vector<ModelName> _exclude ) {
 				// go through all key/value pairs in the _entities map
 		for (auto const& _entityVector : _entities) {
 
@@ -123,7 +120,7 @@
 			}
 
 			const ModelData* modelData = m_models[modelName];
-			std::vector<Entity> entities = _entityVector.second;
+			std::vector<Entity*> entities = _entityVector.second;
 
 			// bind vao
 			BindVao( modelData->m_VAO );
@@ -154,7 +151,7 @@
 		Shader::useShader( 0 );
 	}
 
-	void Renderer::renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::string _shaderName ) {
+	void Renderer::renderScene( const std::map<ModelName, std::vector<Entity*>> _entities, std::string _shaderName ) {
 		const unsigned int modelShader = m_shaders[_shaderName];
 
 				// go through all key/value pairs in the _entities map
@@ -163,7 +160,7 @@
 			const ModelName modelName = _entityVector.first;
 
 			const ModelData* modelData = m_models[modelName];
-			std::vector<Entity> entities = _entityVector.second;
+			std::vector<Entity*> entities = _entityVector.second;
 
 			// bind vao
 			BindVao( modelData->m_VAO );
@@ -194,7 +191,7 @@
 		Shader::useShader( 0 );
 	}
 
-	void Renderer::renderScene( std::map<ModelName, std::vector<Entity>> _entities, std::string _shaderName, std::vector<ModelName> _exclude ) {
+	void Renderer::renderScene( const std::map<ModelName, std::vector<Entity*>> _entities, std::string _shaderName, std::vector<ModelName> _exclude ) {
 
 		const unsigned int modelShader = m_shaders[_shaderName];
 
@@ -208,7 +205,7 @@
 			}
 
 			const ModelData* modelData = m_models[modelName];
-			std::vector<Entity> entities = _entityVector.second;
+			std::vector<Entity*> entities = _entityVector.second;
 
 			// bind vao
 			BindVao( modelData->m_VAO );
@@ -238,7 +235,7 @@
 		Shader::useShader( 0 );
 	}
 
-	void Renderer::renderEntities( ModelName _modelName, std::vector<Entity> _entities ) {
+	void Renderer::renderEntities( ModelName _modelName, const std::vector<Entity*> _entities ) {
 			const ModelData* modelData = m_models[_modelName];
 
 			// bind vao
@@ -269,7 +266,7 @@
 			Shader::useShader( 0 );
 	}
 
-	void Renderer::renderEntities( ModelName _modelName, std::vector<Entity> _entities, std::string _shaderName ) {
+	void Renderer::renderEntities( ModelName _modelName, const std::vector<Entity*> _entities, std::string _shaderName ) {
 		const ModelData* modelData = m_models[_modelName];
 
 		// bind vao
@@ -300,7 +297,7 @@
 		Shader::useShader( 0 );
 	}
 
-	void Renderer::modelRender( Entity _entity, unsigned int _shader, unsigned int _indiceCount )
+	void Renderer::modelRender( const Entity* _entity, unsigned int _shader, unsigned int _indiceCount )
 	{
 
 		// set model matrix
@@ -308,15 +305,15 @@
 
 
 						//translate
-		model = glm::translate( model, _entity.Position );
+		model = glm::translate( model, _entity->Position );
 
 				// rotate
-		model = glm::rotate( model, glm::radians( _entity.Rotation.x ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _entity.Rotation.y ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _entity.Rotation.z ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+		model = glm::rotate( model, glm::radians( _entity->Rotation.x ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
+		model = glm::rotate( model, glm::radians( _entity->Rotation.y ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+		model = glm::rotate( model, glm::radians( _entity->Rotation.z ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
 
 						//scale
-		model = glm::scale( model, _entity.Scale );
+		model = glm::scale( model, _entity->Scale );
 
 
 

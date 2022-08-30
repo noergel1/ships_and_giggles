@@ -10,6 +10,14 @@
 #include <map>
 
 
+// defines possible inputs of player
+enum PlayerAction {
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT
+};
+
 // A list of all models in the game
 enum class ModelName {
     //models are rendered top->bottom

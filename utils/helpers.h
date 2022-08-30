@@ -12,8 +12,10 @@
 #include <numeric>
 
 float degreeToRadians(float _angle);
-
 float radiansToDegree(float _angle);
+
+float getAngleBetweenVectorsDeg( glm::vec3 _vec1, glm::vec3 _vec2 );
+float getAngleBetweenVectorsRad( glm::vec3 _vec1, glm::vec3 _vec2 );
 
 unsigned int createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices);
 unsigned int createVao(const std::vector<VertexData>& _vertices);

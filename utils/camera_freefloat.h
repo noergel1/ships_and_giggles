@@ -25,11 +25,11 @@ public:
     // constructor with scalar values
     Camera_FreeFloat(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
-    // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    glm::mat4 GetViewMatrix();
+    // calculates the front vector from the Camera's (updated) Euler Angles
+    void updateCameraVectors();
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime);
+    void ProcessKeyboard(PlayerAction direction, float deltaTime);
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
@@ -37,7 +37,11 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset);
 
+    void invertPitch();
+
 private:
-    // calculates the front vector from the Camera's (updated) Euler Angles
-    void updateCameraVectors();
+
+    // euler Angles
+    float Yaw;
+    float Pitch;
 };

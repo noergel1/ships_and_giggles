@@ -26,15 +26,21 @@ Camera_FreeFloat::Camera_FreeFloat(float posX, float posY, float posZ, float upX
     updateCameraVectors();
 }
 
-// returns the view matrix calculated using Euler Angles and the LookAt Matrix
-glm::mat4 Camera_FreeFloat::GetViewMatrix()
-{
-    updateCameraVectors();
-    return glm::lookAt(Position, Position + Front, Up);
+// calculates the front vector from the Camera's (updated) Euler Angles
+void Camera_FreeFloat::updateCameraVectors() {
+    // calculate the new Front vector
+    glm::vec3 front;
+    front.x = cos( glm::radians( Yaw ) ) * cos( glm::radians( Pitch ) );
+    front.y = sin( glm::radians( Pitch ) );
+    front.z = sin( glm::radians( Yaw ) ) * cos( glm::radians( Pitch ) );
+    Front = glm::normalize( front );
+    // also re-calculate the Right and Up vector
+    Right = glm::normalize( glm::cross( Front, WorldUp ) );  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    Up = glm::normalize( glm::cross( Right, Front ) );
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera_FreeFloat::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+void Camera_FreeFloat::ProcessKeyboard(PlayerAction direction, float deltaTime)
 {
     float velocity = Accelerated==true  ? MovementSpeed * deltaTime * ACCELERATION_FACTOR 
                                         : MovementSpeed * deltaTime;
@@ -81,16 +87,6 @@ void Camera_FreeFloat::ProcessMouseScroll(float yoffset)
         Zoom = 45.0f;
 }
 
-// calculates the front vector from the Camera's (updated) Euler Angles
-void Camera_FreeFloat::updateCameraVectors()
-{
-    // calculate the new Front vector
-    glm::vec3 front;
-    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    Front = glm::normalize(front);
-    // also re-calculate the Right and Up vector
-    Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-    Up = glm::normalize(glm::cross(Right, Front));
+void Camera_FreeFloat::invertPitch() {
+    Pitch = -Pitch;
 }

@@ -7,15 +7,6 @@ Application::Application(GameSettings _settings)
 {
 
     setupWindow(m_settings.SCR_WIDTH, m_settings.SCR_HEIGHT);
-    
-    if (m_settings.CAM_MODE == Camera_Mode::FREE_FLOAT)
-    {
-        m_camera = new Camera_FreeFloat(glm::vec3(0.0f, 0.0f, 3.0f));
-    }
-    else if (m_settings.CAM_MODE == ISOMETRIC)
-    {
-        return;
-    }
 
                 // using a struct for framebuffer, so they don't have to be created each frame
     m_renderVariables = new RenderVariables( {
@@ -25,7 +16,7 @@ Application::Application(GameSettings _settings)
         /*framebuffer_waterRefraction: */	Framebuffer( REFRACTION_WIDTH, REFRACTION_HEIGHT ),
                                              } );
 
-    m_renderer = new Renderer(m_camera, m_settings);
+    m_renderer = new Renderer(m_settings);
 }
 
 bool Application::setupWindow(unsigned int _width, unsigned int _height)
@@ -241,83 +232,6 @@ bool Application::setupModels()
     return false;
 }
 
-bool Application::setupGamestate()
-{
-    generateUniformBuffers();
-    setupModels();
-
-    // generate objects
-    addCrate(
-        // position
-        glm::vec3(3.0f, 0.0f, 0.0f), 
-        //scale
-        glm::vec3(1.0f), 
-        //rotation
-        glm::vec3(0.0f, 0.0f, 0.0f)
-    );
-
-    //addCrate(
-    //    // position
-    //    glm::vec3(5.0f, 0.0f, 0.0f),
-    //    //scale
-    //    glm::vec3(3.0f, 1.0f, 1.0f),
-    //    //rotation
-    //    glm::vec3(1.0f, 1.0f, 1.0f)
-    //);
-
-    addShip(
-        // position
-        glm::vec3(-4.0f, 0.0f, 0.0f),
-        //scale
-        glm::vec3(0.5f),
-        //rotation
-        glm::vec3(0.0f, 0.0f, 0.0f)
-    );
-
-    addCrate(
-        // position
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        //scale
-        glm::vec3(1.0f),
-        //rotation
-        glm::vec3(45.0f, 1.0f, 1.0f)
-    );
-
-    addWater(
-        // position
-        glm::vec3( 0.0f, waterHeight, 0.0f ),
-        //scale
-        glm::vec3( 50.0f ),
-        //rotation
-        glm::vec3( 0.0f, 45.0f, 0.0f )
-    );
-
-    //test object
-    //addEntity(
-    //    // position
-    //    glm::vec3( 3.0f, 0.0f, 2.0f ),
-    //    //scale
-    //    glm::vec3( 1.0f, 1.0f, 1.0f ),
-    //    //rotation
-    //    glm::vec3( 0.0f ),
-    //    //modelname
-    //    ModelName::TEST_OBJECT
-    //);
-
-        //skybox
-    addEntity(
-        // position
-        glm::vec3( 0.0f, 0.0f, 0.0f ),
-        //scale
-        glm::vec3( 1.0f ),
-        //rotation
-        glm::vec3( 0.0f ),
-        //modelname
-        ModelName::SKYBOX
-    );
-
-    return true;
-}
 
 bool Application::generateUniformBuffers() {
     // set uniform buffer object slots
@@ -385,7 +299,11 @@ bool Application::runApplication()
 
 #endif // !NDEBUG
 
-    setupGamestate();
+    generateUniformBuffers();
+    setupModels();
+    m_gameLogic = new GameLogic( m_settings );
+    m_camera = m_gameLogic->getCamera();
+    m_gameLogic->setupGame();
 
     // enable testing
     glEnable(GL_DEPTH_TEST);
@@ -399,8 +317,6 @@ bool Application::runApplication()
 
     while (!glfwWindowShouldClose(m_window))
     {
-
-
         // per-frame time logic
         // --------------------
         float currentFrame = glfwGetTime();
@@ -414,7 +330,7 @@ bool Application::runApplication()
 
         // update gamestate
         // ----------------
-        updateGamestate();
+        updateUniforms();
 
 
         // reset everything
@@ -462,7 +378,7 @@ bool Application::runApplication()
     return true;
 }
 
-bool Application::updateGamestate() {
+bool Application::updateUniforms() {
     updateCameraMatrices();
 
     glBindBuffer( GL_UNIFORM_BUFFER, timeBuffer );
@@ -486,7 +402,8 @@ bool Application::updateGamestate() {
 
     // set the camera position
     glBindBuffer( GL_UNIFORM_BUFFER, cameraBuffer );
-    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::vec3 ), &m_camera->Position );
+    glm::vec3 cameraPos = m_camera->getPosition();
+    glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::vec3 ), &cameraPos );
     glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 
     return true;
@@ -495,7 +412,7 @@ bool Application::updateGamestate() {
 bool Application::updateCameraMatrices() {
         // update matrices
     glm::mat4 view = m_camera->GetViewMatrix();
-    glm::mat4 projection = glm::perspective( glm::radians( m_camera->Zoom ), (float)m_settings.SCR_WIDTH / (float)m_settings.SCR_HEIGHT, 0.1f, 100.0f );
+    glm::mat4 projection = glm::perspective( glm::radians( m_camera->getZoom() ), (float)m_settings.SCR_WIDTH / (float)m_settings.SCR_HEIGHT, 0.1f, 100.0f );
 
     glBindBuffer( GL_UNIFORM_BUFFER, viewProjectionBuffer );
     glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::mat4 ), glm::value_ptr( projection ) );
@@ -505,18 +422,21 @@ bool Application::updateCameraMatrices() {
 }
 
 bool Application::renderFramebuffers() {
+    const std::map<ModelName, std::vector<Entity*>> entities = m_gameLogic->getEntities();
+
     // render reflection
     // --------------
     m_renderVariables->framebuffer_waterReflection.bind();
     clearBufferBits();
-    float distance = 2 * (m_camera->Position.y - waterHeight);
-    m_camera->Position.y -= distance;
+    glm::vec3 cameraPos = m_camera->getPosition();
+    float distance = 2 * (cameraPos.y - waterHeight);
+    m_camera->setPosition( glm::vec3(cameraPos.x, m_camera->getPosition().y - distance, cameraPos.z) );
     m_camera->invertPitch();
     updateCameraMatrices();
-    setClippingPlane( glm::vec4( 0.0f, 1.0f, 0.0f, -waterHeight ) );
+    setClippingPlane( glm::vec4( 0.0f, 1.0f, 0.0f, waterHeight ) );
     //setClippingPlane( glm::vec4( 0.0f ) );
     // render scene
-    m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+    m_renderer->renderScene( entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
 
 
     // render skybox
@@ -524,10 +444,10 @@ bool Application::renderFramebuffers() {
     glDepthFunc( GL_LEQUAL );
     // change face culling to cull outer instead of inner faces
     glCullFace( GL_FRONT );
-    m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
+    m_renderer->renderEntities( ModelName::SKYBOX, entities.at(ModelName::SKYBOX) );
     resetTesting();
     m_renderVariables->framebuffer_waterReflection.unbind();
-    m_camera->Position.y += distance;
+    m_camera->setPosition( glm::vec3( cameraPos.x, m_camera->getPosition().y + distance, cameraPos.z ) );
     m_camera->invertPitch();
     updateCameraMatrices();
 
@@ -539,7 +459,7 @@ bool Application::renderFramebuffers() {
     setClippingPlane( glm::vec4( 0.0f, -1.0f, 0.0f, waterHeight ) );
     //setClippingPlane( glm::vec4( 0.0f ) );
     // render scene
-    m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+    m_renderer->renderScene( entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
 
 
     // render skybox
@@ -547,7 +467,7 @@ bool Application::renderFramebuffers() {
     glDepthFunc( GL_LEQUAL );
     // change face culling to cull outer instead of inner faces
     glCullFace( GL_FRONT );
-    m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
+    m_renderer->renderEntities( ModelName::SKYBOX, entities.at(ModelName::SKYBOX) );
     resetTesting();
     m_renderVariables->framebuffer_waterRefraction.unbind();
 
@@ -557,6 +477,7 @@ bool Application::renderFramebuffers() {
 }
 
 bool Application::renderFrame() {
+    const std::map<ModelName, std::vector<Entity*>> entities = m_gameLogic->getEntities();
 
     //pre render scene
     renderFramebuffers();
@@ -571,7 +492,7 @@ bool Application::renderFrame() {
 
     // render scene
     // --------------
-    m_renderer->renderScene( m_entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+    m_renderer->renderScene( entities, std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
 
 
     // render skybox
@@ -580,20 +501,20 @@ bool Application::renderFrame() {
     glDepthFunc( GL_LEQUAL );
     // change face culling to cull outer instead of inner faces
     glCullFace( GL_FRONT );
-    m_renderer->renderEntities( ModelName::SKYBOX, m_entities[ModelName::SKYBOX] );
+    m_renderer->renderEntities( ModelName::SKYBOX, entities.at(ModelName::SKYBOX) );
     resetTesting();
 
-    renderWater();
+    m_renderer->renderEntities( ModelName::WATER, entities.at(ModelName::WATER));
 
     // render debugging options
     // --------------
     if (m_settings.SHOW_NORMALS) {
-        m_renderer->renderScene( m_entities, "showNormals", std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
-        m_renderer->renderEntities( ModelName::WATER, m_entities[ModelName::WATER], "waterNormals");
+        m_renderer->renderScene( entities, "showNormals", std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+        m_renderer->renderEntities( ModelName::WATER, entities.at(ModelName::WATER), "waterNormals");
     }
 
     if (m_settings.SHOW_VERTICES) {
-        m_renderer->renderScene( m_entities, "showVertices", std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+        m_renderer->renderScene( entities, "showVertices", std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
     }
 
     // postprocessing
@@ -625,7 +546,7 @@ bool Application::renderFrame() {
 }
 
 bool Application::renderWater() {
-    m_renderer->renderEntities( ModelName::WATER, m_entities[ModelName::WATER] );
+
 
     return false;
 }
@@ -647,7 +568,7 @@ bool Application::SetUniforms() {
     // --------------
     unsigned int waterShader = m_renderer->getShaderID("water");
     Shader::useShader( waterShader );
-    Shader::setVec3( waterShader, "viewPos", m_camera->Position );
+    Shader::setVec3( waterShader, "viewPos", m_camera->getPosition() );
     Shader::setInt( waterShader, "reflectionTexture", 0 );
     Shader::setInt( waterShader, "refractionTexture", 1 );
     Shader::setInt( waterShader, "dudvTexture", 2 );
@@ -724,28 +645,20 @@ void Application::processInput(GLFWwindow* _window)
     if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(m_window, true);
 
-    if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS)
-        m_camera->ProcessKeyboard(FORWARD, deltaTime);
-
-    if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS)
-        m_camera->ProcessKeyboard(BACKWARD, deltaTime);
-
     if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS)
-        m_camera->ProcessKeyboard(LEFT, deltaTime);
+        m_gameLogic->processKeyboard(LEFT, deltaTime);
 
     if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS)
-        m_camera->ProcessKeyboard(RIGHT, deltaTime);
+        m_gameLogic->processKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS)
+        m_gameLogic->processKeyboard(FORWARD, deltaTime);
+
+    if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS)
+        m_gameLogic->processKeyboard(BACKWARD, deltaTime);
+
 
     if (glfwGetKey( _window, GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS)
         m_camera->Accelerated = true;
-
-    if (glfwGetKey( _window, GLFW_KEY_F ) == GLFW_PRESS) {
-        m_camera->invertPitch();
-        float distance = 2 * (m_camera->Position.y - waterHeight);
-        m_camera->Position.y -= distance;
-        updateCameraMatrices();
-    }
-
 
     if (glfwGetKey( _window, GLFW_KEY_LEFT_SHIFT ) == GLFW_RELEASE)
         m_camera->Accelerated = false;
@@ -800,50 +713,6 @@ void Application::process_mouse(GLFWwindow* _window, double _xpos, double _ypos)
 void Application::process_scroll(GLFWwindow* _window, double _xoffset, double _yoffset)
 {
     m_camera->ProcessMouseScroll(_yoffset);
-}
-
-
-
-bool Application::addEntity( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation, ModelName _modelName)
-{
-
-    Entity newEntity = {
-        // position
-        _position,
-        //scale
-        _scale,
-        //rotation
-        _rotation,
-    };
-
-
-    m_entities[_modelName].push_back(newEntity);
-
-    return true;
-}
-
-bool Application::addRock(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
-{
-    addEntity( _position, _scale, _rotation, ModelName::ROCK);
-    return true;
-}
-
-bool Application::addCrate(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
-{
-    addEntity( _position, _scale, _rotation, ModelName::CRATE);
-    return true;
-}
-
-bool Application::addShip(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
-{
-    addEntity( _position, _scale, _rotation, ModelName::SHIP_STANDARD);
-    return true;
-}
-
-bool Application::addWater(glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation)
-{
-    addEntity( _position, _scale, _rotation, ModelName::WATER);
-    return true;
 }
 
 bool Application::clearBufferBits() {
