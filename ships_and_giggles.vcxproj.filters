@@ -118,9 +118,6 @@
     <ClCompile Include="utils\framebuffer.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="utils\renderbuffer.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="utils\framebuffer.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -214,9 +211,6 @@
       <Filter>utils\textures</Filter>
     </ClInclude>
     <ClInclude Include="utils\framebuffer.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\renderbuffer.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="core\gamesettings.h">

@@ -104,9 +104,21 @@ bool Application::setupModels()
     glm::vec3 v3 = glm::vec3( -0.5f, 0.0f, 0.5f );
     std::vector<VertexData> planeVertices = DataProvider::generatePlaneVertices( v0, v1, v2, v3, divisions );
     std::vector<unsigned int> planeIndices = DataProvider::generatePlaneIndices( divisions );
-    std::vector<Texture*> planeTextures;
-
     unsigned int planeVao = createVao(planeVertices, planeIndices);
+
+    std::vector<Texture*> waterTextures = std::vector<Texture*>( { &m_renderVariables->framebuffer_waterReflection.m_texture, &m_renderVariables->framebuffer_waterRefraction.m_texture, new Texture_2D( "ressources/water/water_dudv.jpg", false ) } );
+
+
+
+    // sphere model
+    unsigned int sectorCount = 20;
+    unsigned int stackCount = 20;
+    float sphereRadius = 0.02f;
+    std::vector<VertexData> sphereVertices = DataProvider::generateSphereVertices( sectorCount, stackCount, sphereRadius );
+    std::vector<unsigned int> sphereIndices = DataProvider::generateSphereIndices( sectorCount, stackCount );
+    std::vector<Texture*> cannonballTextures = std::vector<Texture*>( { new Texture_2D( "ressources/cannonball/cannonball_diffuse.jpg", false ), new Texture_2D( "ressources/cannonball/cannonball_specular.png", false ) } );
+
+    unsigned int sphereVao = createVao( sphereVertices, sphereIndices );
 
 
     // skybox textures
@@ -163,9 +175,6 @@ bool Application::setupModels()
     std::vector<Texture*> quadTextures = { &m_renderVariables->framebuffer_postprocessing.m_texture };
 
 
-    // water
-    
-    std::vector<Texture*> waterTextures = std::vector<Texture*>( { &m_renderVariables->framebuffer_waterReflection.m_texture, &m_renderVariables->framebuffer_waterRefraction.m_texture, new Texture_2D( "ressources/water/water_dudv.jpg", false )});
 
     ////////////////////////////////////////////////////////////////
     // CREATE MODELDATAS INSIDE RENDERER                         //
@@ -204,6 +213,15 @@ bool Application::setupModels()
         cubeIndices.size(),
         "skybox",
         skyboxTextures,
+        16.0f
+    );
+
+    m_renderer->AddNewModel(
+        ModelName::CANNONBALL,
+        sphereVao,
+        sphereIndices.size(),
+        "standard",
+        cannonballTextures,
         16.0f
     );
 
@@ -305,12 +323,7 @@ bool Application::runApplication()
     m_camera = m_gameLogic->getCamera();
     m_gameLogic->setupGame();
 
-    // enable testing
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CCW);
-    //glCullFace(GL_FRONT);
+
 
     SetUniforms();
     SetRenderVariables();
@@ -330,6 +343,7 @@ bool Application::runApplication()
 
         // update gamestate
         // ----------------
+        m_gameLogic->tick( deltaTime );
         updateUniforms();
 
 
@@ -545,12 +559,6 @@ bool Application::renderFrame() {
     return false;
 }
 
-bool Application::renderWater() {
-
-
-    return false;
-}
-
 bool Application::SetUniforms() {
         //standard shader
         // --------------
@@ -655,6 +663,9 @@ void Application::processInput(GLFWwindow* _window)
 
     if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS)
         m_gameLogic->processKeyboard(BACKWARD, deltaTime);
+
+    if (glfwGetKey(_window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        m_gameLogic->processKeyboard(SHOOT, deltaTime);
 
 
     if (glfwGetKey( _window, GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS)

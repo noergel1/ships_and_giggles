@@ -18,6 +18,21 @@ float getAngleBetweenVectorsRad( glm::vec3 _vec1, glm::vec3 _vec2 ) {
 	return 	radiansToDegree(atan2( glm::length( glm::cross( _vec1, _vec2 ) ), glm::dot( _vec1, _vec2 ) ));
 }
 
+glm::vec3 rotatePointAroundCenter( glm::vec3 _point, glm::vec3 _center, glm::mat4 _rotationMat ) {
+	glm::mat4x4 translate = glm::translate( 
+							glm::mat4(1.0f), 
+							glm::vec3( _center.x, _center.y, _center.z ) );
+  glm::mat4x4 invTranslate = glm::inverse( translate );
+
+  // The idea:
+  // 1) Translate the object to the center
+  // 2) Make the rotation
+  // 3) Translate the object back to its original location
+
+  glm::mat4x4 transform = translate * _rotationMat * invTranslate;
+
+  return glm::vec3(transform * glm::vec4(_point, 1.0f));
+}
 
 unsigned int createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices)
 {

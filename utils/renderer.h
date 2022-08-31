@@ -13,7 +13,6 @@
 #include "simple_model_loader.h"
 #include "helpers.h"
 #include "framebuffer.h"
-#include "renderbuffer.h"
 
 #include "../models/model_data.h"
 

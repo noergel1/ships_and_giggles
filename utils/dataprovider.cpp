@@ -36,36 +36,6 @@ std::vector<float> DataProvider::getEdgeDetectionKernel()
     };
 };
 
-
-const std::vector<VertexData> DataProvider::planeVertices = {
-    // positions                        // normals                      // texture Coords
-    {glm::vec3(-0.5f, 0.0f, -0.5f),    glm::vec3(0.0f, 1.0f, 0.0f),   glm::vec2(0.0f, 0.0f)},
-    {glm::vec3(0.5f, 0.0f,  0.5f),    glm::vec3(0.0f, 1.0f, 0.0f),   glm::vec2(1.0f,  1.0f)},
-    {glm::vec3(0.5f, 0.0f, -0.5f),    glm::vec3(0.0f, 1.0f, 0.0f),   glm::vec2(1.0f, 0.0f)},
-    {glm::vec3(0.5f, 0.0f,  0.5f),    glm::vec3(0.0f, 1.0f, 0.0f),   glm::vec2(1.0f,  1.0f)},
-    {glm::vec3(-0.5f, 0.0f, -0.5f),    glm::vec3(0.0f, 1.0f, 0.0f),   glm::vec2(0.0f, 0.0f)},
-    {glm::vec3(-0.5f, 0.0f,  0.5f),    glm::vec3(0.0f, 1.0f, 0.0f),   glm::vec2(0.0f,  1.0f)},
-};
-const std::vector<unsigned int> DataProvider::planeIndices = {
-    0,1,2,
-    3,4,5
-};
-
-const std::vector<VertexData> DataProvider::getPlaneVertices()
-{
-    return planeVertices;
-}
-
-const std::vector<unsigned int> DataProvider::getPlaneIndices()
-{
-    return planeIndices;
-}
-
-const unsigned int DataProvider::getPlaneIndiceSize()
-{
-    return planeIndices.size();
-}
-
 const std::vector<VertexData> DataProvider::generatePlaneVertices( glm::vec3 _v0, glm::vec3 _v1, glm::vec3 _v2, glm::vec3 _v3, unsigned int _div ) {
     // start benchmark
     std::string benchmarkTitle = std::string( "generatePlaneVertices(div=") + boost::lexical_cast<std::string>(_div) + ")";
@@ -177,6 +147,102 @@ const std::vector<unsigned int> DataProvider::generatePlaneIndices(unsigned int 
     //}
 
     benchmark.endBenchmark();
+
+    return indices;
+}
+
+const std::vector<VertexData> DataProvider::generateSphereVertices( unsigned int sectorCount, unsigned int stackCount, float radius ) {
+    std::vector<VertexData> vertices;
+
+    float x, y, z, xy;                              // vertex position
+    float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
+    float s, t;                                     // vertex texCoord
+
+    float sectorStep = 2 * M_PI / sectorCount;
+    float stackStep = M_PI / stackCount;
+    float sectorAngle, stackAngle;
+
+    for (int i = 0; i <= stackCount; ++i) {
+        stackAngle = M_PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
+        xy = radius * cosf( stackAngle );             // r * cos(u)
+        z = radius * sinf( stackAngle );              // r * sin(u)
+
+        // add (sectorCount+1) vertices per stack
+        // the first and last vertices have same position and normal, but different tex coords
+        for (int j = 0; j <= sectorCount; ++j) {
+            VertexData newVertex;
+
+            sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+
+            // vertex position (x, y, z)
+            x = xy * cosf( sectorAngle );             // r * cos(u) * cos(v)
+            y = xy * sinf( sectorAngle );             // r * cos(u) * sin(v)
+            newVertex.Position.x = x;
+            newVertex.Position.y = y;
+            newVertex.Position.z = z;
+
+            // normalized vertex normal (nx, ny, nz)
+            nx = x * lengthInv;
+            ny = y * lengthInv;
+            nz = z * lengthInv;
+            newVertex.Normal.x = nx;
+            newVertex.Normal.y = ny;
+            newVertex.Normal.z = nz;
+
+            // vertex tex coord (s, t) range between [0, 1]
+            s = (float)j / sectorCount;
+            t = (float)i / stackCount;
+            newVertex.TexCoords.x = s;
+            newVertex.TexCoords.y = t;
+
+            vertices.push_back( newVertex );
+        }
+    }
+
+    return vertices;
+}
+
+const std::vector<unsigned int> DataProvider::generateSphereIndices( unsigned int sectorCount, unsigned int stackCount ) {
+    std::vector<unsigned int> indices;
+
+    // generate CCW index list of sphere triangles
+    // k1--k1+1
+    // |  / |
+    // | /  |
+    // k2--k2+1
+    std::vector<unsigned int> lineIndices;
+    int k1, k2;
+    for (int i = 0; i < stackCount; ++i) {
+        k1 = i * (sectorCount + 1);     // beginning of current stack
+        k2 = k1 + sectorCount + 1;      // beginning of next stack
+
+        for (int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
+            // 2 triangles per sector excluding first and last stacks
+            // k1 => k2 => k1+1
+            if (i != 0) {
+                indices.push_back( k1 );
+                indices.push_back( k2 );
+                indices.push_back( k1 + 1 );
+            }
+
+            // k1+1 => k2 => k2+1
+            if (i != (stackCount - 1)) {
+                indices.push_back( k1 + 1 );
+                indices.push_back( k2 );
+                indices.push_back( k2 + 1 );
+            }
+
+            // store indices for lines
+            // vertical lines for all stacks, k1 => k2
+            lineIndices.push_back( k1 );
+            lineIndices.push_back( k2 );
+            if (i != 0)  // horizontal lines except 1st stack, k1 => k+1
+            {
+                lineIndices.push_back( k1 );
+                lineIndices.push_back( k1 + 1 );
+            }
+        }
+    }
 
     return indices;
 }

@@ -7,8 +7,8 @@
 // Default camera values
 const float SPEED_ISOMETRIC = 2.5f;
 const float SENSITIVITY_ISOMETRIC = 0.0005f;
-const float player_heightDiff = 5.0f;
-const float player_xzPlaneDiff = 10.0f;
+const float player_heightDiff = 1.5f;
+const float player_xzPlaneDiff = 3.0f;
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera_Isometric : public Camera
