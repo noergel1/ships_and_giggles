@@ -13,7 +13,7 @@ GameLogic::GameLogic( GameSettings _settings )
                 // position
             glm::vec3( 0.0f, 0.0f, 0.0f ),
             //scale
-            glm::vec3( 0.5f ),
+            glm::vec3( 0.1f ),
             //rotation
             glm::vec3( 0.0f, 0.0f, 0.0f )
         );
@@ -22,7 +22,8 @@ GameLogic::GameLogic( GameSettings _settings )
     }
 }
 
-void GameLogic::setPlayer( Entity* _player ) {
+void GameLogic::tick( float _deltaTime ) {
+    moveCannonballs( _deltaTime );
 }
 
 Entity* GameLogic::getPlayer() {
@@ -50,7 +51,7 @@ void GameLogic::setupGame() {
     );
 
     addShip(
-                    // position
+        // position
         glm::vec3( 4.0f, 0.0f, 0.0f ),
         //scale
         glm::vec3( 0.5f ),
@@ -59,12 +60,24 @@ void GameLogic::setupGame() {
     );
 
     addShip(
-                // position
+        // position
         glm::vec3( -4.0f, 0.0f, 0.0f ),
         //scale
         glm::vec3( 0.5f ),
         //rotation
         glm::vec3( 0.0f, 0.0f, 0.0f )
+    );
+
+    //cannonball
+    addEntity(
+        // position
+        glm::vec3( 0.0f, 2.0f, 0.0f ),
+        //scale
+        glm::vec3( 1.0f ),
+        //rotation
+        glm::vec3( 0.0f ),
+        //modelname
+        ModelName::CANNONBALL
     );
 
         //skybox
@@ -140,6 +153,48 @@ void GameLogic::processKeyboard( PlayerAction _action, float _deltaTime ) {
                 m_camera->updateCameraVectors();
                 break;
             }
+            case SHOOT:
+            {
+                glm::vec3 playerPosition = m_player->Position;
+                float playerRotation = m_player->Rotation.y;
+                glm::mat3 rotationMat = glm::rotate( glm::mat4( 1.0f ), glm::radians( playerRotation ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+
+                glm::vec3 vecToLeft = rotationMat *  glm::vec3(  1.0f, 0.0f, 0.0f );
+                glm::vec3 vecToRight = rotationMat * glm::vec3( -1.0f, 0.0f, 0.0f );
+
+                glm::vec3 posUpperRightBall = rotatePointAroundCenter( playerPosition+offsets_standardModel.horizontalOffset+offsets_standardModel.verticalOffset, playerPosition, rotationMat );
+                glm::vec3 posUpperLeftBall = rotatePointAroundCenter( playerPosition-offsets_standardModel.horizontalOffset+offsets_standardModel.verticalOffset, playerPosition, rotationMat );
+                glm::vec3 posLowerRightBall = rotatePointAroundCenter( playerPosition+offsets_standardModel.horizontalOffset-offsets_standardModel.verticalOffset, playerPosition, rotationMat );
+                glm::vec3 posLowerLeftBall = rotatePointAroundCenter( playerPosition-offsets_standardModel.horizontalOffset-offsets_standardModel.verticalOffset, playerPosition, rotationMat );
+                float heightOffset = offsets_standardModel.heightOffset;
+
+                //glm::vec3 posUpperLeftBall = glm::vec3( playerPosition.x - horizontalOffset.x, playerPosition.y + heightOffset, playerPosition.z + verticalOffset.z );
+                //glm::vec3 posUpperRightBall = glm::vec3( playerPosition.x + horizontalOffset.x, playerPosition.y + heightOffset, playerPosition.z + verticalOffset.z );
+                //glm::vec3 posLowerLeftBall = glm::vec3( playerPosition.x - horizontalOffset.x, playerPosition.y + heightOffset, playerPosition.z - verticalOffset.z );
+                //glm::vec3 posLowerRightBall = glm::vec3( playerPosition.x + horizontalOffset.x, playerPosition.y + heightOffset, playerPosition.z - verticalOffset.z );
+
+                player_Cannonballs.push_back( Cannonball{
+                    addCannonball( posUpperLeftBall ),
+                    vecToLeft
+                } );
+
+                player_Cannonballs.push_back( Cannonball{
+                    addCannonball( posLowerLeftBall ),
+                    vecToLeft
+                } );
+
+                player_Cannonballs.push_back( Cannonball{
+                    addCannonball( posUpperRightBall ),
+                    vecToRight
+                } );
+
+                player_Cannonballs.push_back( Cannonball{
+                    addCannonball( posLowerRightBall ),
+                    vecToRight
+                } );
+
+                break;
+            }
         }
     }
 
@@ -163,6 +218,15 @@ void GameLogic::turnPlayer( float _speed, float _deltaTime ) {
     m_player->Rotation.y += _speed * _deltaTime;
 }
 
+void GameLogic::moveCannonballs( float _deltaTime ) {
+    for (int i = 0; i < player_Cannonballs.size(); i++)         {
+        Entity* curEntity = player_Cannonballs[i].entity;
+        glm::vec3 curForwardVec = player_Cannonballs[i].direction;
+
+        curEntity->Position += curForwardVec * cannonballSpeed * _deltaTime;
+    }
+}
+
 Entity* GameLogic::addEntity( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation, ModelName _modelName ) {
 
     Entity* newEntity = new Entity {
@@ -181,6 +245,11 @@ Entity* GameLogic::addEntity( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _
 
 Entity* GameLogic::addRock( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation ) {
     Entity* entityPtr = addEntity( _position, _scale, _rotation, ModelName::ROCK );
+    return entityPtr;
+}
+
+Entity* GameLogic::addCannonball( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation ) {
+    Entity* entityPtr = addEntity( _position, _scale, _rotation, ModelName::CANNONBALL );
     return entityPtr;
 }
 

@@ -13,15 +13,22 @@
 const float waterHeight = 0.0f;
 
 struct CannonOffsets {
-	float verticalOffset;
-	float horizontalOffset;
+	glm::vec3 verticalOffset;
+	glm::vec3 horizontalOffset;
+	float heightOffset;
+};
+
+struct Cannonball {
+	Entity* entity;
+	glm::vec3 direction;
 };
 
 class GameLogic {
 public:
 	GameLogic( GameSettings _settings );
 
-	void setPlayer( Entity* _player );
+	void tick(float _deltaTime);
+
 	void setupGame();
 
 	Camera* getCamera();
@@ -41,14 +48,20 @@ private:
 private:
 	Entity* m_player;										// pointer to the player entity
 	const float playerMoveSpeed = 1.5f;
-	const float playerTurnSpeed = 15.0f;
+	const float playerTurnSpeed = 30.0f;
+
+	const float cannonballSpeed = 1.5f;
+	std::vector<Cannonball> player_Cannonballs;
 	CannonOffsets offsets_standardModel = {
-		0.5f,
-		0.5f
+		glm::vec3(0.0f, 0.0f, 0.18f),
+		glm::vec3(0.045f, 0.0f, 0.0f),
+		0.075f
 	};
 
 	void movePlayer( float _speed, float _deltaTime );
 	void turnPlayer( float _speed, float _deltaTime );
+
+	void moveCannonballs( float _deltaTime );
 
 private:
 	// gamestate management
@@ -60,6 +73,7 @@ private:
 	Entity* addEntity( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation, ModelName _modelName );
 
 	Entity* addRock( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );
+	Entity* addCannonball( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );
 	Entity* addCrate( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );
 	Entity* addShip( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );
 	Entity* addWater( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );

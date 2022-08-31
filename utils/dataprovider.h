@@ -8,23 +8,21 @@
 
 class DataProvider {
 public:
-    // functions return the vertices & indices defined in the corresponding .cpp
     static const std::vector<VertexData> getCubeVertices();
     static const std::vector<unsigned int> getCubeIndices();
     static const unsigned int getCubeIndiceSize();
 
-    // functions return the vertices & indices defined in the corresponding .cpp
-    static const std::vector<VertexData> getPlaneVertices();
-    static const std::vector<unsigned int> getPlaneIndices();
-    static const unsigned int getPlaneIndiceSize();
-
+    // procedural plane
     static const std::vector<VertexData> generatePlaneVertices( glm::vec3 _v0, glm::vec3 _v1, glm::vec3 _v2, glm::vec3 _v3, unsigned int _div );
     static const std::vector<unsigned int> generatePlaneIndices( unsigned int _div );
+
+    // procedural sphere
+    static const std::vector<VertexData> generateSphereVertices( unsigned int sectorCount, unsigned int stackCount, float radius );
+    static const std::vector<unsigned int> generateSphereIndices( unsigned int sectorCount, unsigned int stackCount );
 
     // vertices for a quad that fille the entire screen in Normalized Device Coordinates
     static const std::vector<float> getQuadVertices();
     static const std::vector<unsigned int> getQuadIndices();
-    static const unsigned int getQuadIndiceSize();
 
     static const std::string getShipObjPath();
 

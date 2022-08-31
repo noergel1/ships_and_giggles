@@ -15,7 +15,8 @@ enum PlayerAction {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    SHOOT
 };
 
 // A list of all models in the game
@@ -25,6 +26,7 @@ enum class ModelName {
     SHIP_STANDARD,
     CRATE,
     ROCK,
+    CANNONBALL,
     WATER,
     SKYBOX,
     TEST_OBJECT,

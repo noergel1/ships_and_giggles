@@ -81,7 +81,6 @@ private:
 	bool updateUniforms();
 	bool renderFramebuffers();
 	bool renderFrame();
-	bool renderWater();
 
 	// gamestate
 	// -------------

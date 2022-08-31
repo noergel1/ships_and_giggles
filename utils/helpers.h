@@ -17,5 +17,7 @@ float radiansToDegree(float _angle);
 float getAngleBetweenVectorsDeg( glm::vec3 _vec1, glm::vec3 _vec2 );
 float getAngleBetweenVectorsRad( glm::vec3 _vec1, glm::vec3 _vec2 );
 
+glm::vec3 rotatePointAroundCenter( glm::vec3 _point, glm::vec3 _center, glm::mat4 _rotationMat );
+
 unsigned int createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices);
 unsigned int createVao(const std::vector<VertexData>& _vertices);

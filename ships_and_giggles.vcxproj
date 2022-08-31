@@ -164,7 +164,6 @@
     <ClCompile Include="utils\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="utils\imgui\imgui_tables.cpp" />
     <ClCompile Include="utils\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="utils\renderbuffer.cpp" />
     <ClCompile Include="utils\renderer.cpp" />
     <ClCompile Include="utils\simple_model_loader.cpp" />
     <ClCompile Include="utils\texture_2d.cpp" />
@@ -193,7 +192,6 @@
     <ClInclude Include="utils\imgui\imstb_rectpack.h" />
     <ClInclude Include="utils\imgui\imstb_textedit.h" />
     <ClInclude Include="utils\imgui\imstb_truetype.h" />
-    <ClInclude Include="utils\renderbuffer.h" />
     <ClInclude Include="utils\renderer.h" />
     <ClInclude Include="utils\shader.h" />
     <ClInclude Include="utils\simple_model_loader.h" />
