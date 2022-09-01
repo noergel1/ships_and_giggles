@@ -27,6 +27,7 @@ int main(void)
         /* Polygon Mode: */             DISABLE,
         /* Show Normals: */             DISABLE,
         /* Show Vertices: */            DISABLE,
+        /* Show Colliders: */           ENABLE,
 
     };
 

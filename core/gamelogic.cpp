@@ -68,18 +68,6 @@ void GameLogic::setupGame() {
         glm::vec3( 0.0f, 0.0f, 0.0f )
     );
 
-    //cannonball
-    addEntity(
-        // position
-        glm::vec3( 0.0f, 2.0f, 0.0f ),
-        //scale
-        glm::vec3( 1.0f ),
-        //rotation
-        glm::vec3( 0.0f ),
-        //modelname
-        ModelName::CANNONBALL
-    );
-
         //skybox
     addEntity(
         // position
@@ -101,60 +89,94 @@ const std::map<ModelName, std::vector<Entity*>>& GameLogic::getEntities() const{
     return m_entities;
 }
 
+const std::map<ModelName, ModelCollider>& GameLogic::getColliders() const {
+    return m_modelColliders;
+}
+
 void GameLogic::processKeyboard( PlayerAction _action, float _deltaTime ) {
     
     if (m_settings.CAM_MODE == Camera_Mode::FREE_FLOAT) {
         switch (_action) {
-            case FORWARD:
+            case PlayerAction::FORWARD:
             {
-                m_camera->ProcessKeyboard( FORWARD, _deltaTime );
+                m_camera->ProcessKeyboard( PlayerAction::FORWARD, _deltaTime );
                 break;
             }
-            case BACKWARD:
+            case PlayerAction::BACKWARD:
             {
-                m_camera->ProcessKeyboard( BACKWARD, _deltaTime );
+                m_camera->ProcessKeyboard( PlayerAction::BACKWARD, _deltaTime );
                 break;
             }
-            case LEFT:
+            case PlayerAction::LEFT:
             {
-                m_camera->ProcessKeyboard( LEFT, _deltaTime );
+                m_camera->ProcessKeyboard( PlayerAction::LEFT, _deltaTime );
                 break;
             }
-            case RIGHT:
+            case PlayerAction::RIGHT:
             {
-                m_camera->ProcessKeyboard( RIGHT, _deltaTime );
+                m_camera->ProcessKeyboard( PlayerAction::RIGHT, _deltaTime );
                 break;
             }
         }
     }
     else {
         switch (_action) {
-            case FORWARD:
+            case PlayerAction::FORWARD:
             {
                 movePlayer( playerMoveSpeed, _deltaTime );
                 m_camera->updateCameraVectors();
                 break;
             }
-            case BACKWARD:
+            case PlayerAction::BACKWARD:
             {
                 movePlayer( -playerMoveSpeed, _deltaTime );
                 m_camera->updateCameraVectors();
                 break;
             }
-            case LEFT:
+            case PlayerAction::LEFT:
             {
                 turnPlayer( playerTurnSpeed, _deltaTime );
                 m_camera->updateCameraVectors();
                 break;
             }
-            case RIGHT:
+            case PlayerAction::RIGHT:
             {
                 turnPlayer( -playerTurnSpeed, _deltaTime );
                 m_camera->updateCameraVectors();
                 break;
             }
-            case SHOOT:
+            case PlayerAction::SHOOT:
             {
+                if (!playerCooldowns[PlayerAction::SHOOT].isOnCooldown())                     {
+                    playerShoot();
+                    playerCooldowns[PlayerAction::SHOOT].startCooldown();
+                }
+                break;
+            }
+        }
+    }
+
+}
+
+
+void GameLogic::movePlayer( float _speed, float _deltaTime ) {
+    float playerRotation = m_player->Rotation.y;
+    glm::vec3 initialForwardDir = glm::vec3( 0.0f, 0.0f, 1.0f );
+    glm::mat3 rotationMat = glm::rotate( glm::mat4(1.0f), glm::radians(playerRotation), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    glm::vec3 forwardVec = rotationMat * initialForwardDir;
+
+    m_player->Position += (glm::normalize(forwardVec) * _speed * _deltaTime);
+
+    m_camera->ProcessKeyboard( PlayerAction::FORWARD, _deltaTime );
+    m_camera->updateCameraVectors();
+}
+
+void GameLogic::turnPlayer( float _speed, float _deltaTime ) {
+    m_player->Rotation.y += _speed * _deltaTime;
+}
+
+void GameLogic::playerShoot() {
                 glm::vec3 playerPosition = m_player->Position;
                 float playerRotation = m_player->Rotation.y;
                 glm::mat3 rotationMat = glm::rotate( glm::mat4( 1.0f ), glm::radians( playerRotation ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
@@ -167,11 +189,6 @@ void GameLogic::processKeyboard( PlayerAction _action, float _deltaTime ) {
                 glm::vec3 posLowerRightBall = rotatePointAroundCenter( playerPosition+offsets_standardModel.horizontalOffset-offsets_standardModel.verticalOffset, playerPosition, rotationMat );
                 glm::vec3 posLowerLeftBall = rotatePointAroundCenter( playerPosition-offsets_standardModel.horizontalOffset-offsets_standardModel.verticalOffset, playerPosition, rotationMat );
                 float heightOffset = offsets_standardModel.heightOffset;
-
-                //glm::vec3 posUpperLeftBall = glm::vec3( playerPosition.x - horizontalOffset.x, playerPosition.y + heightOffset, playerPosition.z + verticalOffset.z );
-                //glm::vec3 posUpperRightBall = glm::vec3( playerPosition.x + horizontalOffset.x, playerPosition.y + heightOffset, playerPosition.z + verticalOffset.z );
-                //glm::vec3 posLowerLeftBall = glm::vec3( playerPosition.x - horizontalOffset.x, playerPosition.y + heightOffset, playerPosition.z - verticalOffset.z );
-                //glm::vec3 posLowerRightBall = glm::vec3( playerPosition.x + horizontalOffset.x, playerPosition.y + heightOffset, playerPosition.z - verticalOffset.z );
 
                 player_Cannonballs.push_back( Cannonball{
                     addCannonball( posUpperLeftBall ),
@@ -192,30 +209,6 @@ void GameLogic::processKeyboard( PlayerAction _action, float _deltaTime ) {
                     addCannonball( posLowerRightBall ),
                     vecToRight
                 } );
-
-                break;
-            }
-        }
-    }
-
-}
-
-
-void GameLogic::movePlayer( float _speed, float _deltaTime ) {
-    float playerRotation = m_player->Rotation.y;
-    glm::vec3 initialForwardDir = glm::vec3( 0.0f, 0.0f, 1.0f );
-    glm::mat3 rotationMat = glm::rotate( glm::mat4(1.0f), glm::radians(playerRotation), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    glm::vec3 forwardVec = rotationMat * initialForwardDir;
-
-    m_player->Position += (glm::normalize(forwardVec) * _speed * _deltaTime);
-
-    m_camera->ProcessKeyboard( FORWARD, _deltaTime );
-    m_camera->updateCameraVectors();
-}
-
-void GameLogic::turnPlayer( float _speed, float _deltaTime ) {
-    m_player->Rotation.y += _speed * _deltaTime;
 }
 
 void GameLogic::moveCannonballs( float _deltaTime ) {

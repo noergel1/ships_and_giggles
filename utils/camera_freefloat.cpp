@@ -45,13 +45,13 @@ void Camera_FreeFloat::ProcessKeyboard(PlayerAction direction, float deltaTime)
     float velocity = Accelerated==true  ? MovementSpeed * deltaTime * ACCELERATION_FACTOR 
                                         : MovementSpeed * deltaTime;
 
-    if (direction == FORWARD)
+    if (direction == PlayerAction::FORWARD)
         Position += Front * velocity;
-    if (direction == BACKWARD)
+    if (direction == PlayerAction::BACKWARD)
         Position -= Front * velocity;
-    if (direction == LEFT)
+    if (direction == PlayerAction::LEFT)
         Position -= Right * velocity;
-    if (direction == RIGHT)
+    if (direction == PlayerAction::RIGHT)
         Position += Right * velocity;
 }
 

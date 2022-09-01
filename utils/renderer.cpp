@@ -115,6 +115,7 @@
 
 			const ModelName modelName = _entityVector.first;
 
+			// skip the models which are to be excluded
 			if (std::find( _exclude.begin(), _exclude.end(), modelName ) != _exclude.end()) {
 				continue;
 			}
@@ -199,7 +200,8 @@
 		for (auto const& _entityVector : _entities) {
 
 			const ModelName modelName = _entityVector.first;
-
+			
+			// skip the models which are to be excluded
 			if (std::find( _exclude.begin(), _exclude.end(), modelName ) != _exclude.end()) {
 				continue;
 			}
@@ -293,6 +295,61 @@
 			// render function executed for every entity
 			modelRender( entity, modelShader, indiceCount );
 		}
+
+		Shader::useShader( 0 );
+	}
+
+	
+	void Renderer::renderColliders( const std::map<ModelName, std::vector<Entity*>> _entities, std::map<ModelName, ModelCollider> _modelColliders, std::vector<ModelName> _exclude ) {
+		const unsigned int modelShader = m_shaders["showColliders"];
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		// go through all key/value pairs in the _entities map
+		for (auto const& _entityVector : _entities) {
+
+			const ModelName modelName = _entityVector.first;
+
+			// skip the models which are to be excluded
+			if (std::find( _exclude.begin(), _exclude.end(), modelName ) != _exclude.end()) {
+				continue;
+			}
+
+			std::vector<Entity*> entities = _entityVector.second;
+
+			// skip if the model has no collider
+			if (_modelColliders.find(modelName) == _modelColliders.end()) continue;
+
+			ColliderType curColliderType = _modelColliders[modelName].colliderType;
+			ColliderData curCollider = m_colliders[curColliderType];
+			Entity colliderTransform = _modelColliders[modelName].diffToModel;
+
+			// bind vao
+			BindVao( curCollider.vao );
+
+			// get data
+			const unsigned int indiceCount = curCollider.indiceCount;
+
+
+			// render
+			//----------
+
+			// activate shader
+			Shader::useShader( modelShader );
+
+			for (auto const& entity : entities) {
+				Entity* colliderEntity = new Entity( {
+					entity->Position + colliderTransform.Position,
+					entity->Scale * colliderTransform.Scale,
+					entity->Rotation + colliderTransform.Rotation,
+					} );
+
+				// render function executed for every entity
+				modelRender( colliderEntity, modelShader, indiceCount );
+			}
+		}
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		Shader::useShader( 0 );
 	}
@@ -396,6 +453,15 @@
 	bool Renderer::AddNewModel( ModelName _modelName, ModelData* _modelData ) {
 		m_models.insert( std::pair<ModelName, const ModelData*>( _modelName, _modelData ) );
 		return true;
+	}
+
+	void Renderer::AddColliderVao( ColliderType _colliderType, unsigned int _vao, unsigned int _indiceCount ) {
+		ColliderData colliderData = ColliderData( {
+				_vao,
+				_indiceCount
+			} );
+
+		m_colliders[_colliderType] = colliderData;
 	}
 
 	unsigned int Renderer::getShaderID( std::string _shaderName ) {

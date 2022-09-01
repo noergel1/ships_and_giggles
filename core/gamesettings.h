@@ -20,6 +20,7 @@ struct GameSettings
 	bool ENABLE_POLYGONMODE;
 	bool SHOW_NORMALS;
 	bool SHOW_VERTICES;
+	bool SHOW_COLLIDERS;
 
 
 	// other options

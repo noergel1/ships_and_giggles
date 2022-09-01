@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include "../utils/definitions.h"
+#include "../utils/cooldown.h"
 #include "../utils/camera_freefloat.h"
 #include "../utils/camera_isometric.h"
 #include "gamesettings.h"
@@ -34,6 +35,7 @@ public:
 	Camera* getCamera();
 	Entity* getPlayer();
 	const std::map<ModelName, std::vector<Entity*>>& getEntities() const;
+	const std::map<ModelName, ModelCollider>& getColliders() const;
 
 	void processKeyboard( PlayerAction _action, float _deltaTime );
 
@@ -50,6 +52,16 @@ private:
 	const float playerMoveSpeed = 1.5f;
 	const float playerTurnSpeed = 30.0f;
 
+	std::map<PlayerAction, Cooldown> playerCooldowns = {
+		{PlayerAction::SHOOT, Cooldown( 0.5f )},
+	};
+
+	void movePlayer( float _speed, float _deltaTime );
+	void turnPlayer( float _speed, float _deltaTime );
+	void playerShoot();
+
+	//projectiles
+private:
 	const float cannonballSpeed = 1.5f;
 	std::vector<Cannonball> player_Cannonballs;
 	CannonOffsets offsets_standardModel = {
@@ -58,9 +70,7 @@ private:
 		0.075f
 	};
 
-	void movePlayer( float _speed, float _deltaTime );
-	void turnPlayer( float _speed, float _deltaTime );
-
+	
 	void moveCannonballs( float _deltaTime );
 
 private:
@@ -77,4 +87,41 @@ private:
 	Entity* addCrate( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );
 	Entity* addShip( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );
 	Entity* addWater( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );
+
+
+private: 
+	std::map<ModelName, ModelCollider> m_modelColliders = {
+		{ModelName::SHIP_STANDARD,	ModelCollider( {	ColliderType::CAPSULE,
+														Entity( {
+																	// position
+																	glm::vec3( 0.0f, 0.0f, 0.0f ),
+																	//scale
+																	glm::vec3( 5.5f ),
+																	//rotation
+																	glm::vec3( 0.0f, 0.0f, 0.0f ) } )
+																										} )},
+
+		{ModelName::CRATE,			ModelCollider( {	ColliderType::CUBE,
+														Entity( {
+																	// position
+																	glm::vec3( 0.0f, 0.0f, 0.0f ),
+																	//scale
+																	glm::vec3( 1.0f ),
+																	//rotation
+																	glm::vec3( 0.0f, 0.0f, 0.0f ) } )
+																										} )},
+
+		{ModelName::CANNONBALL,		ModelCollider( {	ColliderType::SPHERE,
+														Entity( {
+																	// position
+																	glm::vec3( 0.0f, 0.0f, 0.0f ),
+																	//scale
+																	glm::vec3( 1.0f ),
+																	//rotation
+																	glm::vec3( 0.0f, 0.0f, 0.0f ) } )
+																										} )},
+
+
+
+	};
 };

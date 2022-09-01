@@ -10,13 +10,35 @@
 #include <map>
 
 
+struct Entity {
+    // entity position
+    glm::vec3 Position;
+    // entity scaling
+    glm::vec3 Scale;
+    // entity rotation
+    glm::vec3 Rotation;
+    
+};
+
 // defines possible inputs of player
-enum PlayerAction {
+enum class PlayerAction {
     FORWARD,
     BACKWARD,
     LEFT,
     RIGHT,
     SHOOT
+};
+
+
+enum class ColliderType {
+    CAPSULE,
+    CUBE,
+    SPHERE
+};
+
+struct ModelCollider {
+    ColliderType colliderType;
+    Entity diffToModel;			// defines the deviation from the models entity
 };
 
 // A list of all models in the game
@@ -31,17 +53,6 @@ enum class ModelName {
     SKYBOX,
     TEST_OBJECT,
     POSTPROCESSING,
-};
-
-
-struct Entity {
-    // entity position
-    glm::vec3 Position;
-    // entity scaling
-    glm::vec3 Scale;
-    // entity rotation
-    glm::vec3 Rotation;
-    
 };
 
 struct VertexData {

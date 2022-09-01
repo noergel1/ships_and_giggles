@@ -175,6 +175,14 @@ bool Application::setupModels()
     std::vector<Texture*> quadTextures = { &m_renderVariables->framebuffer_postprocessing.m_texture };
 
 
+    ////////////////////////////////////////////////////////////////
+    // CREATE COLLIDER VAOS INSIDE RENDERER                      //
+    //////////////////////////////////////////////////////////////
+
+    m_renderer->AddColliderVao( ColliderType::SPHERE, sphereVao, sphereIndices.size() );
+    m_renderer->AddColliderVao( ColliderType::CUBE, cubeVao, cubeIndices.size() );
+    m_renderer->AddColliderVao( ColliderType::CAPSULE, cubeVao, cubeIndices.size() );
+
 
     ////////////////////////////////////////////////////////////////
     // CREATE MODELDATAS INSIDE RENDERER                         //
@@ -531,6 +539,10 @@ bool Application::renderFrame() {
         m_renderer->renderScene( entities, "showVertices", std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
     }
 
+    if (m_settings.SHOW_COLLIDERS) {
+        m_renderer->renderColliders( entities, m_gameLogic->getColliders(), std::vector<ModelName>{ModelName::SKYBOX, ModelName::WATER} );
+    };
+
     // postprocessing
     // --------------
     if (!m_settings.POSTPROCESSING_KERNEL.empty()) {
@@ -654,18 +666,18 @@ void Application::processInput(GLFWwindow* _window)
         glfwSetWindowShouldClose(m_window, true);
 
     if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS)
-        m_gameLogic->processKeyboard(LEFT, deltaTime);
+        m_gameLogic->processKeyboard(PlayerAction::LEFT, deltaTime);
 
     if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS)
-        m_gameLogic->processKeyboard(RIGHT, deltaTime);
+        m_gameLogic->processKeyboard(PlayerAction::RIGHT, deltaTime);
     if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS)
-        m_gameLogic->processKeyboard(FORWARD, deltaTime);
+        m_gameLogic->processKeyboard(PlayerAction::FORWARD, deltaTime);
 
     if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS)
-        m_gameLogic->processKeyboard(BACKWARD, deltaTime);
+        m_gameLogic->processKeyboard(PlayerAction::BACKWARD, deltaTime);
 
     if (glfwGetKey(_window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        m_gameLogic->processKeyboard(SHOOT, deltaTime);
+        m_gameLogic->processKeyboard(PlayerAction::SHOOT, deltaTime);
 
 
     if (glfwGetKey( _window, GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS)
