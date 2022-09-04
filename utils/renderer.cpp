@@ -338,18 +338,22 @@
 			Shader::useShader( modelShader );
 
 			for (auto const& entity : entities) {
-				Entity* colliderEntity = new Entity( {
+
+				// render function executed for every entity
+				//colliderRender( entity, &colliderTransform, modelShader, indiceCount );
+
+				glm::vec3 newScale = entity->Scale * colliderTransform.Scale;
+
+				Entity* newEntity = new Entity( {
 					entity->Position + colliderTransform.Position,
 					entity->Scale * colliderTransform.Scale,
 					entity->Rotation + colliderTransform.Rotation,
 					} );
-
-				// render function executed for every entity
-				modelRender( colliderEntity, modelShader, indiceCount );
+				modelRender( newEntity, modelShader, indiceCount );
 			}
 		}
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		if(!m_settings.ENABLE_POLYGONMODE) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		Shader::useShader( 0 );
 	}
@@ -381,6 +385,51 @@
 		glDrawElements(GL_TRIANGLES, _indiceCount, GL_UNSIGNED_INT, 0);
 	}
 
+	void Renderer::colliderRender( const Entity* _modelEntity, const Entity* _colliderEntity, unsigned int _shader, unsigned int _indiceCount ) {
+		// set model matrix
+		glm::mat4 model = glm::mat4( 1.0f );
+
+		// coolider transformations
+		///////////////////////////
+		
+
+
+
+
+
+
+
+		// model transformations
+		///////////////////////////
+		
+		//translate
+		model = glm::translate( model, _colliderEntity->Position );
+		//translate
+		model = glm::translate( model, _modelEntity->Position );
+
+		// rotate
+		model = glm::rotate( model, glm::radians( _colliderEntity->Rotation.x ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
+		model = glm::rotate( model, glm::radians( _colliderEntity->Rotation.y ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+		model = glm::rotate( model, glm::radians( _colliderEntity->Rotation.z ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+		// rotate
+		model = glm::rotate( model, glm::radians( _modelEntity->Rotation.x ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
+		model = glm::rotate( model, glm::radians( _modelEntity->Rotation.y ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+		model = glm::rotate( model, glm::radians( _modelEntity->Rotation.z ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+
+				//scale
+		model = glm::scale( model, _colliderEntity->Scale );
+						//scale
+		model = glm::scale( model, _modelEntity->Scale );
+
+
+
+		Shader::setMat4( _shader, "model", model );
+
+
+		// draw
+		glDrawElements(GL_TRIANGLES, _indiceCount, GL_UNSIGNED_INT, 0);
+
+	}
 
 	bool Renderer::shutdownRenderer()
 	{

@@ -24,6 +24,7 @@ GameLogic::GameLogic( GameSettings _settings )
 
 void GameLogic::tick( float _deltaTime ) {
     moveCannonballs( _deltaTime );
+
 }
 
 Entity* GameLogic::getPlayer() {
@@ -50,7 +51,7 @@ void GameLogic::setupGame() {
         glm::vec3( 0.0f, 45.0f, 0.0f )
     );
 
-    addShip(
+    testShip1 = addShip(
         // position
         glm::vec3( 4.0f, 0.0f, 0.0f ),
         //scale
@@ -59,7 +60,7 @@ void GameLogic::setupGame() {
         glm::vec3( 0.0f, 0.0f, 0.0f )
     );
 
-    addShip(
+    testShip2 = addShip(
         // position
         glm::vec3( -4.0f, 0.0f, 0.0f ),
         //scale
@@ -67,6 +68,18 @@ void GameLogic::setupGame() {
         //rotation
         glm::vec3( 0.0f, 0.0f, 0.0f )
     );
+
+    //        //skybox
+    //addEntity(
+    //    // position
+    //    glm::vec3( 0.0f, 1.0f, 0.0f ),
+    //    //scale
+    //    glm::vec3( 1.0f ),
+    //    //rotation
+    //    glm::vec3( 90.0f, 0.0f, 0.0f ),
+    //    //modelname
+    //    ModelName::TEST_OBJECT
+    //);
 
         //skybox
     addEntity(
@@ -191,22 +204,22 @@ void GameLogic::playerShoot() {
                 float heightOffset = offsets_standardModel.heightOffset;
 
                 player_Cannonballs.push_back( Cannonball{
-                    addCannonball( posUpperLeftBall ),
+                    addCannonball( posUpperLeftBall, glm::vec3(cannonballScale) ),
                     vecToLeft
                 } );
 
                 player_Cannonballs.push_back( Cannonball{
-                    addCannonball( posLowerLeftBall ),
+                    addCannonball( posLowerLeftBall, glm::vec3(cannonballScale) ),
                     vecToLeft
                 } );
 
                 player_Cannonballs.push_back( Cannonball{
-                    addCannonball( posUpperRightBall ),
+                    addCannonball( posUpperRightBall, glm::vec3(cannonballScale) ),
                     vecToRight
                 } );
 
                 player_Cannonballs.push_back( Cannonball{
-                    addCannonball( posLowerRightBall ),
+                    addCannonball( posLowerRightBall, glm::vec3(cannonballScale) ),
                     vecToRight
                 } );
 }
@@ -259,4 +272,40 @@ Entity* GameLogic::addShip( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _ro
 Entity* GameLogic::addWater( glm::vec3 _position, glm::vec3 _scale, glm::vec3 _rotation ) {
     Entity* entityPtr = addEntity( _position, _scale, _rotation, ModelName::WATER );
     return entityPtr;
+}
+
+// collider
+std::vector<VertexData> GameLogic::getShipColliderVertices() {
+        std::vector<VertexData> vertices = DataProvider::generateCapsuleVertices( 10, shipCapsuleLength, shipCapsuleRadius );
+        return vertices;
+};
+
+std::vector<unsigned int> GameLogic::getShipColliderIndices() {
+    return DataProvider::generateCapsuleIndices( 10 );
+};
+
+Collision GameLogic::checkCollision( ModelName _model1, Entity _entity1, ModelName _model2, Entity _entity2 ) {
+    Collision collision;
+
+
+    return collision;
+};
+
+void GameLogic::processCollisions() {
+
+};
+
+
+// debuggin
+void GameLogic::fillImGui() {
+    ImGui::Text( "" );
+    ImGui::Text( "Collision Testing" );
+    ImGui::Text( "Ship 1" );
+    ImGui::SliderFloat3( "Position1", &testShip1->Position.x, -5.0f, 5.0f);
+    ImGui::SliderFloat3( "Rotation1", &testShip1->Rotation.x, -180.0f, 180.0f);
+    ImGui::SliderFloat3( "Scale1", &testShip1->Scale.x, 0.1f, 5.0f);
+    ImGui::Text( "Ship 2" );
+    ImGui::SliderFloat3( "Position2", &testShip2->Position.x, -5.0f, 5.0f);
+    ImGui::SliderFloat3( "Rotation2", &testShip2->Rotation.x, -180.0f, 180.0f);
+    ImGui::SliderFloat3( "Scale2", &testShip2->Scale.x, 0.1f, 5.0f);
 }

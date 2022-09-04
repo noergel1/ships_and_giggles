@@ -17,8 +17,12 @@ public:
     static const std::vector<unsigned int> generatePlaneIndices( unsigned int _div );
 
     // procedural sphere
-    static const std::vector<VertexData> generateSphereVertices( unsigned int sectorCount, unsigned int stackCount, float radius );
-    static const std::vector<unsigned int> generateSphereIndices( unsigned int sectorCount, unsigned int stackCount );
+    static const std::vector<VertexData> generateSphereVertices( unsigned int _sectorCount, unsigned int _stackCount, float _radius );
+    static const std::vector<unsigned int> generateSphereIndices( unsigned int _sectorCount, unsigned int _stackCount );
+
+    // procedural capsule
+    static const std::vector<VertexData> generateCapsuleVertices( unsigned int _divisions, float _height, float _radius );
+    static const std::vector<unsigned int> generateCapsuleIndices( unsigned int _divisions );
 
     // vertices for a quad that fille the entire screen in Normalized Device Coordinates
     static const std::vector<float> getQuadVertices();

@@ -142,6 +142,9 @@
     <ClCompile Include="utils\cooldown.cpp">
       <Filter>utils\game</Filter>
     </ClCompile>
+    <ClCompile Include="utils\collision_detection.cpp">
+      <Filter>utils\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils\renderer.h">
@@ -235,6 +238,9 @@
       <Filter>utils\general</Filter>
     </ClInclude>
     <ClInclude Include="utils\cooldown.h">
+      <Filter>utils\game</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\collision_detection.h">
       <Filter>utils\game</Filter>
     </ClInclude>
   </ItemGroup>

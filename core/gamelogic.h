@@ -2,11 +2,15 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
+#include "../utils/imgui/imgui.h"
+
 #include "../utils/definitions.h"
 #include "../utils/cooldown.h"
 #include "../utils/camera_freefloat.h"
 #include "../utils/camera_isometric.h"
 #include "gamesettings.h"
+#include "../utils/dataprovider.h"
+#include "../utils/collision_detection.h"
 
 #include <map>
 #include <functional>
@@ -28,7 +32,7 @@ class GameLogic {
 public:
 	GameLogic( GameSettings _settings );
 
-	void tick(float _deltaTime);
+	void tick( float _deltaTime );
 
 	void setupGame();
 
@@ -62,15 +66,16 @@ private:
 
 	//projectiles
 private:
+	const float cannonballScale = 0.02f;
 	const float cannonballSpeed = 1.5f;
 	std::vector<Cannonball> player_Cannonballs;
 	CannonOffsets offsets_standardModel = {
-		glm::vec3(0.0f, 0.0f, 0.18f),
-		glm::vec3(0.045f, 0.0f, 0.0f),
+		glm::vec3( 0.0f, 0.0f, 0.18f ),
+		glm::vec3( 0.045f, 0.0f, 0.0f ),
 		0.075f
 	};
 
-	
+
 	void moveCannonballs( float _deltaTime );
 
 private:
@@ -89,39 +94,62 @@ private:
 	Entity* addWater( glm::vec3 _position, glm::vec3 _scale = glm::vec3( 1.0f, 1.0f, 1.0f ), glm::vec3 _rotation = glm::vec3( 0.0f, 0.0f, 0.0f ) );
 
 
-private: 
+// colliders
+public:
+	std::vector<VertexData> getShipColliderVertices();
+	std::vector<unsigned int> getShipColliderIndices();
+
+private:
+	Collision checkCollision( ModelName _model1, Entity _entity1, ModelName _model2, Entity _entity2 );
+	void processCollisions();
+
+
+	// ship collider
+	float shipCapsuleRadius = 1.1f;
+	float shipCapsuleLength = 6.3f;
+
 	std::map<ModelName, ModelCollider> m_modelColliders = {
-		{ModelName::SHIP_STANDARD,	ModelCollider( {	ColliderType::CAPSULE,
-														Entity( {
-																	// position
-																	glm::vec3( 0.0f, 0.0f, 0.0f ),
-																	//scale
-																	glm::vec3( 5.5f ),
-																	//rotation
-																	glm::vec3( 0.0f, 0.0f, 0.0f ) } )
-																										} )},
+						{ModelName::SHIP_STANDARD,	ModelCollider( {ColliderType::CAPSULE,
+																	Entity( {
+																			// position
+																			glm::vec3( 0.0f, 0.25f, -0.0f ),
+																			//scale
+																			glm::vec3( 1.0f ),
+																			//rotation
+																			glm::vec3( 90.0f, 0.0f, 0.0f ) } )
+																													} )},
 
-		{ModelName::CRATE,			ModelCollider( {	ColliderType::CUBE,
-														Entity( {
-																	// position
-																	glm::vec3( 0.0f, 0.0f, 0.0f ),
-																	//scale
-																	glm::vec3( 1.0f ),
-																	//rotation
-																	glm::vec3( 0.0f, 0.0f, 0.0f ) } )
-																										} )},
+						{ModelName::CRATE,			ModelCollider( {ColliderType::CUBE,
+																	Entity( {
+																				// position
+																				glm::vec3( 0.0f, 0.0f, 0.0f ),
+																				//scale
+																				glm::vec3( 1.0f ),
+																				//rotation
+																				glm::vec3( 0.0f, 0.0f, 0.0f ) } )
+																														} )},
 
-		{ModelName::CANNONBALL,		ModelCollider( {	ColliderType::SPHERE,
-														Entity( {
-																	// position
-																	glm::vec3( 0.0f, 0.0f, 0.0f ),
-																	//scale
-																	glm::vec3( 1.0f ),
-																	//rotation
-																	glm::vec3( 0.0f, 0.0f, 0.0f ) } )
-																										} )},
+						{ModelName::CANNONBALL,		ModelCollider( {ColliderType::SPHERE,
+																	Entity( {
+																				// position
+																				glm::vec3( 0.0f, 0.0f, 0.0f ),
+																				//scale
+																				glm::vec3( cannonballScale ),
+																				//rotation
+																				glm::vec3( 0.0f, 0.0f, 0.0f ) } )
+																													} )},
+
 
 
 
 	};
+
+//debugging
+public:
+	void fillImGui();
+
+private:
+	Entity* testShip1;
+	Entity* testShip2;
+	Entity* testCannonball1;
 };

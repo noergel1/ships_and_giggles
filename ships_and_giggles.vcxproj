@@ -152,6 +152,7 @@
     <ClCompile Include="utils\camera.cpp" />
     <ClCompile Include="utils\camera_freefloat.cpp" />
     <ClCompile Include="utils\camera_isometric.cpp" />
+    <ClCompile Include="utils\collision_detection.cpp" />
     <ClCompile Include="utils\cooldown.cpp" />
     <ClCompile Include="utils\dataprovider.cpp" />
     <ClCompile Include="utils\debug.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="utils\camera.h" />
     <ClInclude Include="utils\camera_freefloat.h" />
     <ClInclude Include="utils\camera_isometric.h" />
+    <ClInclude Include="utils\collision_detection.h" />
     <ClInclude Include="utils\cooldown.h" />
     <ClInclude Include="utils\dataprovider.h" />
     <ClInclude Include="utils\debug.h" />

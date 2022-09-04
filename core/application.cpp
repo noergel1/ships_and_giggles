@@ -113,12 +113,22 @@ bool Application::setupModels()
     // sphere model
     unsigned int sectorCount = 20;
     unsigned int stackCount = 20;
-    float sphereRadius = 0.02f;
+    float sphereRadius = 1.0f;
     std::vector<VertexData> sphereVertices = DataProvider::generateSphereVertices( sectorCount, stackCount, sphereRadius );
     std::vector<unsigned int> sphereIndices = DataProvider::generateSphereIndices( sectorCount, stackCount );
     std::vector<Texture*> cannonballTextures = std::vector<Texture*>( { new Texture_2D( "ressources/cannonball/cannonball_diffuse.jpg", false ), new Texture_2D( "ressources/cannonball/cannonball_specular.png", false ) } );
 
     unsigned int sphereVao = createVao( sphereVertices, sphereIndices );
+
+
+    // capsule model
+    unsigned int capsuleDivisions = 10;
+    float capsuleHeight = 1.0f;
+    float capsuleRadius = 1.0f;
+    std::vector<VertexData> capsuleVertices = m_gameLogic->getShipColliderVertices();
+    std::vector<unsigned int> capsuleIndices = m_gameLogic->getShipColliderIndices();
+
+    unsigned int capsuleVao = createVao( capsuleVertices, capsuleIndices );
 
 
     // skybox textures
@@ -181,7 +191,7 @@ bool Application::setupModels()
 
     m_renderer->AddColliderVao( ColliderType::SPHERE, sphereVao, sphereIndices.size() );
     m_renderer->AddColliderVao( ColliderType::CUBE, cubeVao, cubeIndices.size() );
-    m_renderer->AddColliderVao( ColliderType::CAPSULE, cubeVao, cubeIndices.size() );
+    m_renderer->AddColliderVao( ColliderType::CAPSULE, capsuleVao, capsuleIndices.size() );
 
 
     ////////////////////////////////////////////////////////////////
@@ -235,9 +245,9 @@ bool Application::setupModels()
 
     m_renderer->AddNewModel(
         ModelName::TEST_OBJECT,
-        cubeVao,
-        cubeIndices.size(),
-        "test",
+        capsuleVao,
+        capsuleIndices.size(),
+        "standard",
         standardCrateTextures,
         16.0f
     );
@@ -325,11 +335,11 @@ bool Application::runApplication()
 
 #endif // !NDEBUG
 
-    generateUniformBuffers();
-    setupModels();
     m_gameLogic = new GameLogic( m_settings );
     m_camera = m_gameLogic->getCamera();
     m_gameLogic->setupGame();
+    generateUniformBuffers();
+    setupModels();
 
 
 
@@ -375,19 +385,7 @@ bool Application::runApplication()
         renderFrame();
 
 
-        // imgui
-#ifndef NDEBUG
-        if (cursorEnabled == true)
-        {
-        ImGui::Begin("Hello imgui");
-        ImGui::Text("this is me");
-        ImGui::End();
-
-            ImGui::Render();
-            ImGui:ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        }
-#endif // !NDEBUG
-
+        fillImGui();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -635,6 +633,31 @@ bool Application::SetRenderVariables() {
     m_renderVariables->framebuffer_waterRefraction.unbind();
 
     return false;
+}
+
+void Application::fillImGui() {
+        // imgui
+#ifndef NDEBUG
+        if (cursorEnabled == true)
+        {
+        ImVec2 windowSize = ImVec2( 50.0f, 50.0f );
+        //ImGui::SetNextWindowSize( windowSize );
+
+        ImGui::Begin("Debugging");
+        ImGui::Text("Settings");
+        ImGui::Checkbox( "Show Colliders", &m_settings.SHOW_COLLIDERS );
+        ImGui::Checkbox( "Poligon Mode", &m_settings.ENABLE_POLYGONMODE );
+        ImGui::Checkbox( "Show Normals", &m_settings.SHOW_NORMALS );
+        ImGui::Checkbox( "Show Vertices", &m_settings.SHOW_VERTICES );
+
+        m_gameLogic->fillImGui();
+        ImGui::End();
+
+            ImGui::Render();
+            ImGui:ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
+#endif // !NDEBUG
+
 }
 
 bool Application::stopApplication()
