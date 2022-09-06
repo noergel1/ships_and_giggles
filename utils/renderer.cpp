@@ -115,6 +115,7 @@
 
 			const ModelName modelName = _entityVector.first;
 
+			// skip the models which are to be excluded
 			if (std::find( _exclude.begin(), _exclude.end(), modelName ) != _exclude.end()) {
 				continue;
 			}
@@ -199,7 +200,8 @@
 		for (auto const& _entityVector : _entities) {
 
 			const ModelName modelName = _entityVector.first;
-
+			
+			// skip the models which are to be excluded
 			if (std::find( _exclude.begin(), _exclude.end(), modelName ) != _exclude.end()) {
 				continue;
 			}
@@ -297,23 +299,77 @@
 		Shader::useShader( 0 );
 	}
 
+	
+	void Renderer::renderColliders( const std::map<ModelName, std::vector<Entity*>> _entities, std::map<ModelName, ModelCollider> _modelColliders, std::vector<ModelName> _exclude ) {
+		const unsigned int modelShader = m_shaders["showColliders"];
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		// go through all key/value pairs in the _entities map
+		for (auto const& _entityVector : _entities) {
+
+			const ModelName modelName = _entityVector.first;
+
+			// skip the models which are to be excluded
+			if (std::find( _exclude.begin(), _exclude.end(), modelName ) != _exclude.end()) {
+				continue;
+			}
+
+			std::vector<Entity*> entities = _entityVector.second;
+
+			// skip if the model has no collider
+			if (_modelColliders.find(modelName) == _modelColliders.end()) continue;
+
+			ColliderType curColliderType = _modelColliders[modelName].colliderType;
+			ColliderData curCollider = m_colliders[curColliderType];
+			Entity colliderTransform = _modelColliders[modelName].diffToModel;
+
+			// bind vao
+			BindVao( curCollider.vao );
+
+			// get data
+			const unsigned int indiceCount = curCollider.indiceCount;
+
+
+			// render
+			//----------
+
+			// activate shader
+			Shader::useShader( modelShader );
+
+			for (auto const& entity : entities) {
+
+				// render function executed for every entity
+				// collider matrix
+				glm::mat4 colliderMat = glm::mat4( 1.0f );
+
+
+								//translate
+				colliderMat = createSRTMat4( colliderTransform );
+
+
+				// model matrix
+				glm::mat4 modelMat = createSRTMat4( *entity );
+
+
+
+				Shader::setMat4( modelShader, "model", modelMat * colliderMat );
+
+
+				// draw
+				glDrawElements(GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0);
+			}
+		}
+
+		if(!m_settings.ENABLE_POLYGONMODE) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		Shader::useShader( 0 );
+	}
+
 	void Renderer::modelRender( const Entity* _entity, unsigned int _shader, unsigned int _indiceCount )
 	{
 
-		// set model matrix
-		glm::mat4 model = glm::mat4( 1.0f );
-
-
-						//translate
-		model = glm::translate( model, _entity->Position );
-
-				// rotate
-		model = glm::rotate( model, glm::radians( _entity->Rotation.x ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _entity->Rotation.y ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _entity->Rotation.z ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-
-						//scale
-		model = glm::scale( model, _entity->Scale );
+		glm::mat4 model = createSRTMat4( *_entity );
 
 
 
@@ -323,7 +379,6 @@
 		// draw
 		glDrawElements(GL_TRIANGLES, _indiceCount, GL_UNSIGNED_INT, 0);
 	}
-
 
 	bool Renderer::shutdownRenderer()
 	{
@@ -396,6 +451,15 @@
 	bool Renderer::AddNewModel( ModelName _modelName, ModelData* _modelData ) {
 		m_models.insert( std::pair<ModelName, const ModelData*>( _modelName, _modelData ) );
 		return true;
+	}
+
+	void Renderer::AddColliderVao( ColliderType _colliderType, unsigned int _vao, unsigned int _indiceCount ) {
+		ColliderData colliderData = ColliderData( {
+				_vao,
+				_indiceCount
+			} );
+
+		m_colliders[_colliderType] = colliderData;
 	}
 
 	unsigned int Renderer::getShaderID( std::string _shaderName ) {

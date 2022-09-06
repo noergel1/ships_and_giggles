@@ -10,8 +10,14 @@
 #include <map>
 
 
+struct Entity {
+    glm::vec3 Position;
+    glm::vec3 Scale;
+    glm::vec3 Rotation;
+};
+
 // defines possible inputs of player
-enum PlayerAction {
+enum class PlayerAction {
     FORWARD,
     BACKWARD,
     LEFT,
@@ -19,11 +25,25 @@ enum PlayerAction {
     SHOOT
 };
 
+
+enum class ColliderType {
+    CAPSULE,
+    CUBE,
+    SPHERE
+};
+
+struct ModelCollider {
+    ColliderType colliderType;
+    Entity diffToModel;			// defines the deviation from the models entity
+};
+
 // A list of all models in the game
 enum class ModelName {
     //models are rendered top->bottom
     NO_MODEL,
     SHIP_STANDARD,
+    CANNON,
+    WALL,
     CRATE,
     ROCK,
     CANNONBALL,
@@ -31,17 +51,6 @@ enum class ModelName {
     SKYBOX,
     TEST_OBJECT,
     POSTPROCESSING,
-};
-
-
-struct Entity {
-    // entity position
-    glm::vec3 Position;
-    // entity scaling
-    glm::vec3 Scale;
-    // entity rotation
-    glm::vec3 Rotation;
-    
 };
 
 struct VertexData {

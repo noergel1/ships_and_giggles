@@ -98,6 +98,7 @@ private:
 
 	// debugging
 	// -------------
+	void fillImGui();
 	void enablePolygonMode();
 
 	// timing

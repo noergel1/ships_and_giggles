@@ -20,6 +20,11 @@
 
 class Renderer {
 
+	struct ColliderData {
+		unsigned int vao;
+		unsigned int indiceCount;
+	};
+
 public:
 
 	Renderer(GameSettings _settings);
@@ -35,8 +40,13 @@ public:
 	void renderEntities(ModelName _modelName, const std::vector<Entity*> _entities, std::string _shaderName );
 
 
+	void renderColliders( const std::map<ModelName, std::vector<Entity*>> _entities, std::map<ModelName, ModelCollider> _modelColliders, std::vector<ModelName> _exclude );
+
+
 	bool AddNewModel( ModelName _modelName, const unsigned int _vao, const unsigned int _indiceCount, const std::string _shader, const std::vector<Texture*> _textures, const float _shininess );
 	bool AddNewModel( ModelName _modelName, ModelData* _modelData );
+
+	void AddColliderVao( ColliderType _colliderType, unsigned int _vao, unsigned int _indiceCount );
 
 	unsigned int getShaderID( std::string _shaderName );
 	const ModelData* getModelData( ModelName _modelName );
@@ -49,6 +59,9 @@ private:
 
 	// model data holds VAO and shader references, aswell as diffuse/specular maps and shininess
 	std::map<ModelName, const ModelData*> m_models;
+
+	// vaos for the different collider type
+	std::map<ColliderType, ColliderData> m_colliders;
 
 	// maps hold all shader and VAO references
 	std::map<const std::string, const unsigned int> m_shaders;		// map for shaders

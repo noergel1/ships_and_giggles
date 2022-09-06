@@ -151,25 +151,25 @@ const std::vector<unsigned int> DataProvider::generatePlaneIndices(unsigned int 
     return indices;
 }
 
-const std::vector<VertexData> DataProvider::generateSphereVertices( unsigned int sectorCount, unsigned int stackCount, float radius ) {
+const std::vector<VertexData> DataProvider::generateSphereVertices( unsigned int _sectorCount, unsigned int _stackCount, float _radius ) {
     std::vector<VertexData> vertices;
 
     float x, y, z, xy;                              // vertex position
-    float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
+    float nx, ny, nz, lengthInv = 1.0f / _radius;    // vertex normal
     float s, t;                                     // vertex texCoord
 
-    float sectorStep = 2 * M_PI / sectorCount;
-    float stackStep = M_PI / stackCount;
+    float sectorStep = 2 * M_PI / _sectorCount;
+    float stackStep = M_PI / _stackCount;
     float sectorAngle, stackAngle;
 
-    for (int i = 0; i <= stackCount; ++i) {
+    for (int i = 0; i <= _stackCount; ++i) {
         stackAngle = M_PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
-        xy = radius * cosf( stackAngle );             // r * cos(u)
-        z = radius * sinf( stackAngle );              // r * sin(u)
+        xy = _radius * cosf( stackAngle );             // r * cos(u)
+        z = _radius * sinf( stackAngle );              // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // the first and last vertices have same position and normal, but different tex coords
-        for (int j = 0; j <= sectorCount; ++j) {
+        for (int j = 0; j <= _sectorCount; ++j) {
             VertexData newVertex;
 
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
@@ -190,8 +190,8 @@ const std::vector<VertexData> DataProvider::generateSphereVertices( unsigned int
             newVertex.Normal.z = nz;
 
             // vertex tex coord (s, t) range between [0, 1]
-            s = (float)j / sectorCount;
-            t = (float)i / stackCount;
+            s = (float)j / _sectorCount;
+            t = (float)i / _stackCount;
             newVertex.TexCoords.x = s;
             newVertex.TexCoords.y = t;
 
@@ -202,7 +202,7 @@ const std::vector<VertexData> DataProvider::generateSphereVertices( unsigned int
     return vertices;
 }
 
-const std::vector<unsigned int> DataProvider::generateSphereIndices( unsigned int sectorCount, unsigned int stackCount ) {
+const std::vector<unsigned int> DataProvider::generateSphereIndices( unsigned int _sectorCount, unsigned int _stackCount ) {
     std::vector<unsigned int> indices;
 
     // generate CCW index list of sphere triangles
@@ -212,11 +212,11 @@ const std::vector<unsigned int> DataProvider::generateSphereIndices( unsigned in
     // k2--k2+1
     std::vector<unsigned int> lineIndices;
     int k1, k2;
-    for (int i = 0; i < stackCount; ++i) {
-        k1 = i * (sectorCount + 1);     // beginning of current stack
-        k2 = k1 + sectorCount + 1;      // beginning of next stack
+    for (int i = 0; i < _stackCount; ++i) {
+        k1 = i * (_sectorCount + 1);     // beginning of current stack
+        k2 = k1 + _sectorCount + 1;      // beginning of next stack
 
-        for (int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
+        for (int j = 0; j < _sectorCount; ++j, ++k1, ++k2) {
             // 2 triangles per sector excluding first and last stacks
             // k1 => k2 => k1+1
             if (i != 0) {
@@ -226,7 +226,7 @@ const std::vector<unsigned int> DataProvider::generateSphereIndices( unsigned in
             }
 
             // k1+1 => k2 => k2+1
-            if (i != (stackCount - 1)) {
+            if (i != (_stackCount - 1)) {
                 indices.push_back( k1 + 1 );
                 indices.push_back( k2 );
                 indices.push_back( k2 + 1 );
@@ -240,6 +240,144 @@ const std::vector<unsigned int> DataProvider::generateSphereIndices( unsigned in
             {
                 lineIndices.push_back( k1 );
                 lineIndices.push_back( k1 + 1 );
+            }
+        }
+    }
+
+    return indices;
+}
+
+    // procedural capsule
+const std::vector<VertexData> DataProvider::generateCapsuleVertices( unsigned int _divisions, float _height, float _radius ) {
+    std::vector<VertexData> vertices;
+
+    if (_divisions % 2 == 0) _divisions++;
+
+    float cylinderStep = (2 * M_PI) / _divisions;
+    float lengthInv = 1.0f / _radius;
+
+    // generate the two half spheres
+    std::vector<VertexData> upperCircleVerts;
+    std::vector<VertexData> lowerCircleVerts;
+
+    unsigned int cylinderVertCount = vertices.size();
+
+
+    float x, y, z, xz;                              // vertex position
+    float nx, ny, nz;    // vertex normal
+    float s, t;                                     // vertex texCoord
+
+    float sectorStep = 2 * M_PI / _divisions;
+    float stackStep = M_PI / _divisions;
+    float sectorAngle, stackAngle;
+
+    for (int i = 0; i <= _divisions; ++i) {
+        stackAngle = M_PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
+        xz = _radius * cosf( stackAngle );             // r * cos(u)
+        y = _radius * sinf( stackAngle );              // r * sin(u)
+
+        // add (sectorCount+1) vertices per stack
+        // the first and last vertices have same position and normal, but different tex coords
+        for (int j = 0; j <= _divisions; ++j) {
+            VertexData newVertex;
+
+            sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+
+            // vertex position (x, y, z)
+            x = xz * cosf( sectorAngle );             // r * cos(u) * cos(v)
+            z = xz * sinf( sectorAngle );             // r * cos(u) * sin(v)
+            newVertex.Position.x = x;
+            newVertex.Position.y = y;
+            newVertex.Position.z = z;
+
+            // normalized vertex normal (nx, ny, nz)
+            nx = x * lengthInv;
+            ny = y * lengthInv;
+            nz = z * lengthInv;
+            newVertex.Normal.x = nx;
+            newVertex.Normal.y = ny;
+            newVertex.Normal.z = nz;
+
+            // vertex tex coord (s, t) range between [0, 1]
+            s = (float)j / _divisions;
+            t = (float)i / _divisions;
+            newVertex.TexCoords.x = s;
+            newVertex.TexCoords.y = t;
+
+            if (i == ceil( _divisions / 2 )) {
+                newVertex.Position.y += _height / 2;
+                upperCircleVerts.push_back( newVertex );
+                newVertex.Position.y -= _height;
+                lowerCircleVerts.push_back( newVertex );
+                continue;
+            }
+            if (i < ceil( _divisions / 2 )) {
+                newVertex.Position.y += _height/2;
+                upperCircleVerts.push_back( newVertex );
+                continue;
+            }
+            if (i > ceil( _divisions / 2 )) {
+                newVertex.Position.y -= _height/2;
+                lowerCircleVerts.push_back( newVertex );
+                continue;
+            }
+        }
+    }
+
+    vertices.insert(vertices.end(), upperCircleVerts.begin(), upperCircleVerts.end() );
+    vertices.insert(vertices.end(), lowerCircleVerts.begin(), lowerCircleVerts.end() );
+
+    return vertices;
+}
+
+const std::vector<unsigned int> DataProvider::generateCapsuleIndices( unsigned int _divisions ) {
+    std::vector<unsigned int> indices;
+
+    if (_divisions % 2 == 0) _divisions++;
+
+    // generate CCW index list of sphere triangles
+    // k1--k1+1
+    // |  / |
+    // | /  |
+    // k2--k2+1
+
+    std::vector<int> lineIndices;
+    int k1, k2;
+    for(int i = 0; i < _divisions + 1; ++i)
+    {
+        k1 = i * (_divisions + 1);     // beginning of current stack
+        k2 = k1 + _divisions + 1;      // beginning of next stack
+
+        //if (i == floor( _divisions / 2.0f )) continue;
+
+        for(int j = 0; j < _divisions; ++j, ++k1, ++k2)
+        {
+
+            // 2 triangles per sector excluding first and last stacks
+            // k1 => k2 => k1+1
+            if(i != 0)
+            {
+                indices.push_back(k2);
+                indices.push_back(k1);
+                indices.push_back(k1 + 1);
+            }
+
+            // k1+1 => k2 => k2+1
+            if(i != (_divisions))
+            {
+                indices.push_back(k2);
+                indices.push_back(k1 + 1);
+                indices.push_back(k2 + 1);
+            }
+
+            // store indices for lines
+            // vertical lines for all stacks, k1 => k2
+            lineIndices.push_back(k1);
+            lineIndices.push_back(k2);
+            if(i != 0)  // horizontal lines except 1st stack, k1 => k+1
+            {
+                lineIndices.push_back(k1);
+                lineIndices.push_back(k1 + 1);
             }
         }
     }

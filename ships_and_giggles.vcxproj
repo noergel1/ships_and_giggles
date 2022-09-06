@@ -148,11 +148,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="models\model_data.cpp" />
     <ClCompile Include="utils\benchmark.cpp" />
     <ClCompile Include="utils\camera.cpp" />
     <ClCompile Include="utils\camera_freefloat.cpp" />
     <ClCompile Include="utils\camera_isometric.cpp" />
+    <ClCompile Include="utils\collision_detection.cpp" />
+    <ClCompile Include="utils\cooldown.cpp" />
     <ClCompile Include="utils\dataprovider.cpp" />
     <ClCompile Include="utils\debug.cpp" />
     <ClCompile Include="utils\framebuffer.cpp" />
@@ -178,6 +179,8 @@
     <ClInclude Include="utils\camera.h" />
     <ClInclude Include="utils\camera_freefloat.h" />
     <ClInclude Include="utils\camera_isometric.h" />
+    <ClInclude Include="utils\collision_detection.h" />
+    <ClInclude Include="utils\cooldown.h" />
     <ClInclude Include="utils\dataprovider.h" />
     <ClInclude Include="utils\debug.h" />
     <ClInclude Include="utils\definitions.h" />
@@ -202,6 +205,8 @@
     <ClInclude Include="utils\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shader\showCollidersFS.glsl" />
+    <None Include="shader\showCollidersVS.glsl" />
     <None Include="shader\showNormalsFS.glsl" />
     <None Include="shader\showNormalsGS.glsl" />
     <None Include="shader\showNormalsVS.glsl" />
@@ -226,7 +231,7 @@
     <None Include="shader\waterVS.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="utils\todo.txt">
+    <Text Include="utils\aTodo.txt">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </Text>
   </ItemGroup>

@@ -23,9 +23,6 @@
     <Filter Include="utils\imgui">
       <UniqueIdentifier>{462ad4e3-743e-4d26-ac05-6a1b4454b6bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utils\textures">
-      <UniqueIdentifier>{72e3a5fb-ec34-4d1c-aa47-83a90e6f6b94}</UniqueIdentifier>
-    </Filter>
     <Filter Include="shader\standard">
       <UniqueIdentifier>{f79b3f9c-fb29-4dd1-9f67-4b1bd434c9cf}</UniqueIdentifier>
     </Filter>
@@ -53,6 +50,21 @@
     <Filter Include="shader\debug\showNormals\waterNormals">
       <UniqueIdentifier>{6a842861-d85f-433b-a032-693456e69c86}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\general">
+      <UniqueIdentifier>{0b378f83-06ba-4018-b770-bb6e34d1ba7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\rendering">
+      <UniqueIdentifier>{81ea7d52-dd88-49fe-9903-ceb74501c5d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\rendering\textures">
+      <UniqueIdentifier>{72e3a5fb-ec34-4d1c-aa47-83a90e6f6b94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\game">
+      <UniqueIdentifier>{a80b995d-772b-466b-a58f-855200064603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\debug\showColliders">
+      <UniqueIdentifier>{f39b3ace-68d2-43b5-b8f7-10549c959f24}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="utils\renderer.cpp">
@@ -73,17 +85,8 @@
     <ClCompile Include="main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="utils\dataprovider.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="gl.c">
       <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\debug.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\simple_model_loader.cpp">
-      <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\imgui\imgui.cpp">
       <Filter>utils\imgui</Filter>
@@ -106,55 +109,49 @@
     <ClCompile Include="utils\imgui\imgui_widgets.cpp">
       <Filter>utils\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="utils\helpers.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="utils\texture_2d.cpp">
-      <Filter>utils\textures</Filter>
+      <Filter>utils\rendering\textures</Filter>
     </ClCompile>
     <ClCompile Include="utils\texture_cubemap.cpp">
-      <Filter>utils\textures</Filter>
+      <Filter>utils\rendering\textures</Filter>
     </ClCompile>
     <ClCompile Include="utils\framebuffer.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\framebuffer.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="models\model_data.cpp">
-      <Filter>models</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\benchmark.cpp">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="core\gamelogic.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="utils\simple_model_loader.cpp">
+      <Filter>utils\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\debug.cpp">
+      <Filter>utils\general</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\framebuffer.cpp">
+      <Filter>utils\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\helpers.cpp">
+      <Filter>utils\general</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\dataprovider.cpp">
+      <Filter>utils\general</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\benchmark.cpp">
+      <Filter>utils\general</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\cooldown.cpp">
+      <Filter>utils\game</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\collision_detection.cpp">
+      <Filter>utils\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="models\model_data.h">
-      <Filter>models</Filter>
-    </ClInclude>
     <ClInclude Include="utils\renderer.h">
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="core\application.h">
       <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\debug.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\dataprovider.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\shader.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\definitions.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\stb_image.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\camera.h">
       <Filter>camera</Filter>
@@ -164,12 +161,6 @@
     </ClInclude>
     <ClInclude Include="utils\camera_isometric.h">
       <Filter>camera</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\tiny_obj_loader.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\simple_model_loader.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\imgui\imconfig.h">
       <Filter>utils\imgui</Filter>
@@ -198,29 +189,59 @@
     <ClInclude Include="utils\imgui\imstb_truetype.h">
       <Filter>utils\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="utils\helpers.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="utils\texture.h">
-      <Filter>utils\textures</Filter>
+      <Filter>utils\rendering\textures</Filter>
     </ClInclude>
     <ClInclude Include="utils\texture_2d.h">
-      <Filter>utils\textures</Filter>
+      <Filter>utils\rendering\textures</Filter>
     </ClInclude>
     <ClInclude Include="utils\texture_cubemap.h">
-      <Filter>utils\textures</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\framebuffer.h">
-      <Filter>utils</Filter>
+      <Filter>utils\rendering\textures</Filter>
     </ClInclude>
     <ClInclude Include="core\gamesettings.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="utils\benchmark.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="core\gamelogic.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="models\model_data.h">
+      <Filter>utils\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\shader.h">
+      <Filter>utils\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\simple_model_loader.h">
+      <Filter>utils\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\debug.h">
+      <Filter>utils\general</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\framebuffer.h">
+      <Filter>utils\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\helpers.h">
+      <Filter>utils\general</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\definitions.h">
+      <Filter>utils\general</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\dataprovider.h">
+      <Filter>utils\general</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_image.h">
+      <Filter>utils\general</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tiny_obj_loader.h">
+      <Filter>utils\general</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\benchmark.h">
+      <Filter>utils\general</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\cooldown.h">
+      <Filter>utils\game</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\collision_detection.h">
+      <Filter>utils\game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -290,8 +311,16 @@
     <None Include="shader\waterNormalsVS.glsl">
       <Filter>shader\debug\showNormals\waterNormals</Filter>
     </None>
+    <None Include="shader\showCollidersFS.glsl">
+      <Filter>shader\debug\showColliders</Filter>
+    </None>
+    <None Include="shader\showCollidersVS.glsl">
+      <Filter>shader\debug\showColliders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="utils\todo.txt" />
+    <Text Include="utils\aTodo.txt">
+      <Filter>Quelldateien</Filter>
+    </Text>
   </ItemGroup>
 </Project>
