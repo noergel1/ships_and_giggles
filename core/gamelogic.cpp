@@ -27,12 +27,13 @@ GameLogic::GameLogic( GameSettings _settings )
 }
 
 void GameLogic::tick( float _deltaTime ) {
-    enemiesTurn(_deltaTime);
+    if (m_settings.CAM_MODE == Camera_Mode::ISOMETRIC) {
+        enemiesTurn( _deltaTime );
 
-    if(glfwGetTime() > lastGameStart) enemiesShoot(_deltaTime);
-    moveCannonballs( _deltaTime );
-    processCollisions();
-
+        if (glfwGetTime() > lastGameStart) enemiesShoot( _deltaTime );
+        moveCannonballs( _deltaTime );
+        processCollisions();
+    };
 }
 
 Entity* GameLogic::getPlayer() {

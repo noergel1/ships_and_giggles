@@ -22,7 +22,7 @@ int main(void)
     GameSettings gameSetting = {
         /* Screen Width: */             800,//px
         /* Screen Height: */            600,//px                           
-        /* Camera Mode: */              Camera_Mode::ISOMETRIC,
+        /* Camera Mode: */              Camera_Mode::FREE_FLOAT,
         /* Postprocessing: */           DataProvider::noPostProcessing(),
         /* Polygon Mode: */             DISABLE,
         /* Show Normals: */             DISABLE,
