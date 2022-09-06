@@ -54,7 +54,6 @@ public:
 
 private:
 	void modelRender( const Entity* _entity, unsigned int _shader, unsigned int _indiceCount );
-	void colliderRender( const Entity* _modelEntity, const Entity* _colliderEntity, unsigned int _shader, unsigned int _indiceCount );
 
 	GameSettings m_settings;
 

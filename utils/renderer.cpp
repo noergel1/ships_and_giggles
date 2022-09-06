@@ -340,16 +340,24 @@
 			for (auto const& entity : entities) {
 
 				// render function executed for every entity
-				//colliderRender( entity, &colliderTransform, modelShader, indiceCount );
+				// collider matrix
+				glm::mat4 colliderMat = glm::mat4( 1.0f );
 
-				glm::vec3 newScale = entity->Scale * colliderTransform.Scale;
 
-				Entity* newEntity = new Entity( {
-					entity->Position + colliderTransform.Position,
-					entity->Scale * colliderTransform.Scale,
-					entity->Rotation + colliderTransform.Rotation,
-					} );
-				modelRender( newEntity, modelShader, indiceCount );
+								//translate
+				colliderMat = createSRTMat4( colliderTransform );
+
+
+				// model matrix
+				glm::mat4 modelMat = createSRTMat4( *entity );
+
+
+
+				Shader::setMat4( modelShader, "model", modelMat * colliderMat );
+
+
+				// draw
+				glDrawElements(GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0);
 			}
 		}
 
@@ -361,20 +369,7 @@
 	void Renderer::modelRender( const Entity* _entity, unsigned int _shader, unsigned int _indiceCount )
 	{
 
-		// set model matrix
-		glm::mat4 model = glm::mat4( 1.0f );
-
-
-						//translate
-		model = glm::translate( model, _entity->Position );
-
-				// rotate
-		model = glm::rotate( model, glm::radians( _entity->Rotation.x ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _entity->Rotation.y ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _entity->Rotation.z ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-
-						//scale
-		model = glm::scale( model, _entity->Scale );
+		glm::mat4 model = createSRTMat4( *_entity );
 
 
 
@@ -383,52 +378,6 @@
 
 		// draw
 		glDrawElements(GL_TRIANGLES, _indiceCount, GL_UNSIGNED_INT, 0);
-	}
-
-	void Renderer::colliderRender( const Entity* _modelEntity, const Entity* _colliderEntity, unsigned int _shader, unsigned int _indiceCount ) {
-		// set model matrix
-		glm::mat4 model = glm::mat4( 1.0f );
-
-		// coolider transformations
-		///////////////////////////
-		
-
-
-
-
-
-
-
-		// model transformations
-		///////////////////////////
-		
-		//translate
-		model = glm::translate( model, _colliderEntity->Position );
-		//translate
-		model = glm::translate( model, _modelEntity->Position );
-
-		// rotate
-		model = glm::rotate( model, glm::radians( _colliderEntity->Rotation.x ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _colliderEntity->Rotation.y ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _colliderEntity->Rotation.z ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-		// rotate
-		model = glm::rotate( model, glm::radians( _modelEntity->Rotation.x ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _modelEntity->Rotation.y ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
-		model = glm::rotate( model, glm::radians( _modelEntity->Rotation.z ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-
-				//scale
-		model = glm::scale( model, _colliderEntity->Scale );
-						//scale
-		model = glm::scale( model, _modelEntity->Scale );
-
-
-
-		Shader::setMat4( _shader, "model", model );
-
-
-		// draw
-		glDrawElements(GL_TRIANGLES, _indiceCount, GL_UNSIGNED_INT, 0);
-
 	}
 
 	bool Renderer::shutdownRenderer()

@@ -24,8 +24,14 @@ struct CannonOffsets {
 };
 
 struct Cannonball {
+	const Entity* emitter;
 	Entity* entity;
 	glm::vec3 direction;
+};
+
+struct Ship {
+	Entity* entity;
+	Cooldown shootCD;
 };
 
 class GameLogic {
@@ -35,6 +41,7 @@ public:
 	void tick( float _deltaTime );
 
 	void setupGame();
+	void restartGame();
 
 	Camera* getCamera();
 	Entity* getPlayer();
@@ -50,25 +57,30 @@ private:
 
 	std::map<ModelName, std::vector<Entity*>> m_entities;	// vector containing all entities in the game
 
-	//player variables
+	//player
 private:
-	Entity* m_player;										// pointer to the player entity
+	Ship m_player;										// pointer to the player entity
 	const float playerMoveSpeed = 1.5f;
-	const float playerTurnSpeed = 30.0f;
-
-	std::map<PlayerAction, Cooldown> playerCooldowns = {
-		{PlayerAction::SHOOT, Cooldown( 0.5f )},
-	};
+	const float playerTurnSpeed = 45.0f;
 
 	void movePlayer( float _speed, float _deltaTime );
 	void turnPlayer( float _speed, float _deltaTime );
-	void playerShoot();
+
+	//enemies
+private:
+	void enemiesShoot(float _deltaTime);
+	void enemiesTurn(float _deltaTime);
+
+	std::vector<Ship> enemyShips;
 
 	//projectiles
 private:
+	void shipShoot(Ship* _emitter);
+
+private:
 	const float cannonballScale = 0.02f;
 	const float cannonballSpeed = 1.5f;
-	std::vector<Cannonball> player_Cannonballs;
+	std::vector<Cannonball> cannonballs;
 	CannonOffsets offsets_standardModel = {
 		glm::vec3( 0.0f, 0.0f, 0.18f ),
 		glm::vec3( 0.045f, 0.0f, 0.0f ),
@@ -81,7 +93,11 @@ private:
 private:
 	// gamestate management
 	// ---------------------
+	float lastGameStart = 5.0f;
 
+	float level_xBoundary = 20.0f;
+	float level_yBoundary = 20.0f;
+	float level_zBoundary = 20.0f;
 
 	// entity management
 	// -------------

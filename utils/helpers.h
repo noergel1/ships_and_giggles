@@ -21,3 +21,5 @@ glm::vec3 rotatePointAroundCenter( glm::vec3 _point, glm::vec3 _center, glm::mat
 
 unsigned int createVao(const std::vector<VertexData>& _vertices, const std::vector<unsigned int>& _indices);
 unsigned int createVao(const std::vector<VertexData>& _vertices);
+
+glm::mat4 createSRTMat4( const Entity _entity );

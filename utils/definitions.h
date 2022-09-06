@@ -11,13 +11,9 @@
 
 
 struct Entity {
-    // entity position
     glm::vec3 Position;
-    // entity scaling
     glm::vec3 Scale;
-    // entity rotation
     glm::vec3 Rotation;
-    
 };
 
 // defines possible inputs of player
@@ -46,6 +42,8 @@ enum class ModelName {
     //models are rendered top->bottom
     NO_MODEL,
     SHIP_STANDARD,
+    CANNON,
+    WALL,
     CRATE,
     ROCK,
     CANNONBALL,

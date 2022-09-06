@@ -96,6 +96,16 @@ bool Application::setupModels()
 
     shipVao = createVao(shipVertices, shipIndices);
 
+    //    // cannone model
+    //std::vector<VertexData> cannonVertices;
+    //std::vector<unsigned int> cannonIndices;
+    //std::vector<Texture*> cannonTextures;
+
+    //ModelLoader::loadModel("ressources/cannon/cannon.obj", &cannonVertices, &cannonIndices, &cannonTextures, glm::mat4());
+
+    //unsigned int cannonVao = createVao(cannonVertices, cannonIndices);
+
+
     // plane model
     unsigned int divisions = 500;
     glm::vec3 v0 = glm::vec3( -0.5f, 0.0f, -0.5f );
@@ -108,7 +118,12 @@ bool Application::setupModels()
 
     std::vector<Texture*> waterTextures = std::vector<Texture*>( { &m_renderVariables->framebuffer_waterReflection.m_texture, &m_renderVariables->framebuffer_waterRefraction.m_texture, new Texture_2D( "ressources/water/water_dudv.jpg", false ) } );
 
-
+        // wall model
+    //divisions = 1;
+    //std::vector<VertexData> wallVertices = DataProvider::generatePlaneVertices( v0, v1, v2, v3, divisions );
+    //std::vector<unsigned int> wallIndices = DataProvider::generatePlaneIndices( divisions );
+    //unsigned int wallVao = createVao(wallVertices, wallIndices);
+    //std::vector<Texture*> wallTextures = std::vector<Texture*>( { new Texture_2D( "ressources/wall/wall_diffuse.jpg", false ), new Texture_2D( "ressources/wall/wall_specular.png", false ) } );
 
     // sphere model
     unsigned int sectorCount = 20;
@@ -185,6 +200,8 @@ bool Application::setupModels()
     std::vector<Texture*> quadTextures = { &m_renderVariables->framebuffer_postprocessing.m_texture };
 
 
+    
+
     ////////////////////////////////////////////////////////////////
     // CREATE COLLIDER VAOS INSIDE RENDERER                      //
     //////////////////////////////////////////////////////////////
@@ -243,14 +260,14 @@ bool Application::setupModels()
         16.0f
     );
 
-    m_renderer->AddNewModel(
-        ModelName::TEST_OBJECT,
-        capsuleVao,
-        capsuleIndices.size(),
-        "standard",
-        standardCrateTextures,
-        16.0f
-    );
+    //m_renderer->AddNewModel(
+    //    ModelName::WALL,
+    //    wallVao,
+    //    wallIndices.size(),
+    //    "standard",
+    //    wallTextures,
+    //    16.0f
+    //);
 
     // renderer does no postprocessing, if model isn't added
     if (!m_settings.POSTPROCESSING_KERNEL.empty())
@@ -336,7 +353,6 @@ bool Application::runApplication()
 #endif // !NDEBUG
 
     m_gameLogic = new GameLogic( m_settings );
-    m_camera = m_gameLogic->getCamera();
     m_gameLogic->setupGame();
     generateUniformBuffers();
     setupModels();
@@ -422,7 +438,7 @@ bool Application::updateUniforms() {
 
     // set the camera position
     glBindBuffer( GL_UNIFORM_BUFFER, cameraBuffer );
-    glm::vec3 cameraPos = m_camera->getPosition();
+    glm::vec3 cameraPos = m_gameLogic->getCamera()->getPosition();
     glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::vec3 ), &cameraPos );
     glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 
@@ -431,8 +447,8 @@ bool Application::updateUniforms() {
 
 bool Application::updateCameraMatrices() {
         // update matrices
-    glm::mat4 view = m_camera->GetViewMatrix();
-    glm::mat4 projection = glm::perspective( glm::radians( m_camera->getZoom() ), (float)m_settings.SCR_WIDTH / (float)m_settings.SCR_HEIGHT, 0.1f, 100.0f );
+    glm::mat4 view = m_gameLogic->getCamera()->GetViewMatrix();
+    glm::mat4 projection = glm::perspective( glm::radians( m_gameLogic->getCamera()->getZoom() ), (float)m_settings.SCR_WIDTH / (float)m_settings.SCR_HEIGHT, 0.1f, 100.0f );
 
     glBindBuffer( GL_UNIFORM_BUFFER, viewProjectionBuffer );
     glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( glm::mat4 ), glm::value_ptr( projection ) );
@@ -448,10 +464,10 @@ bool Application::renderFramebuffers() {
     // --------------
     m_renderVariables->framebuffer_waterReflection.bind();
     clearBufferBits();
-    glm::vec3 cameraPos = m_camera->getPosition();
+    glm::vec3 cameraPos = m_gameLogic->getCamera()->getPosition();
     float distance = 2 * (cameraPos.y - waterHeight);
-    m_camera->setPosition( glm::vec3(cameraPos.x, m_camera->getPosition().y - distance, cameraPos.z) );
-    m_camera->invertPitch();
+    m_gameLogic->getCamera()->setPosition( glm::vec3(cameraPos.x, m_gameLogic->getCamera()->getPosition().y - distance, cameraPos.z) );
+    m_gameLogic->getCamera()->invertPitch();
     updateCameraMatrices();
     setClippingPlane( glm::vec4( 0.0f, 1.0f, 0.0f, waterHeight ) );
     //setClippingPlane( glm::vec4( 0.0f ) );
@@ -467,8 +483,8 @@ bool Application::renderFramebuffers() {
     m_renderer->renderEntities( ModelName::SKYBOX, entities.at(ModelName::SKYBOX) );
     resetTesting();
     m_renderVariables->framebuffer_waterReflection.unbind();
-    m_camera->setPosition( glm::vec3( cameraPos.x, m_camera->getPosition().y + distance, cameraPos.z ) );
-    m_camera->invertPitch();
+    m_gameLogic->getCamera()->setPosition( glm::vec3( cameraPos.x, m_gameLogic->getCamera()->getPosition().y + distance, cameraPos.z ) );
+    m_gameLogic->getCamera()->invertPitch();
     updateCameraMatrices();
 
 
@@ -586,7 +602,7 @@ bool Application::SetUniforms() {
     // --------------
     unsigned int waterShader = m_renderer->getShaderID("water");
     Shader::useShader( waterShader );
-    Shader::setVec3( waterShader, "viewPos", m_camera->getPosition() );
+    Shader::setVec3( waterShader, "viewPos", m_gameLogic->getCamera()->getPosition() );
     Shader::setInt( waterShader, "reflectionTexture", 0 );
     Shader::setInt( waterShader, "refractionTexture", 1 );
     Shader::setInt( waterShader, "dudvTexture", 2 );
@@ -704,10 +720,10 @@ void Application::processInput(GLFWwindow* _window)
 
 
     if (glfwGetKey( _window, GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS)
-        m_camera->Accelerated = true;
+        m_gameLogic->getCamera()->Accelerated = true;
 
     if (glfwGetKey( _window, GLFW_KEY_LEFT_SHIFT ) == GLFW_RELEASE)
-        m_camera->Accelerated = false;
+        m_gameLogic->getCamera()->Accelerated = false;
 
     if (glfwGetKey(_window, GLFW_KEY_TAB) == GLFW_PRESS && (lastFrame - lastCursorToggle) >= cursorToggleDelay)
     {
@@ -752,13 +768,13 @@ void Application::process_mouse(GLFWwindow* _window, double _xpos, double _ypos)
         lastX = _xpos;
         lastY = _ypos;
 
-        m_camera->ProcessMouseMovement(xoffset, yoffset);
+        m_gameLogic->getCamera()->ProcessMouseMovement(xoffset, yoffset);
     }
 }
 
 void Application::process_scroll(GLFWwindow* _window, double _xoffset, double _yoffset)
 {
-    m_camera->ProcessMouseScroll(_yoffset);
+    m_gameLogic->getCamera()->ProcessMouseScroll(_yoffset);
 }
 
 bool Application::clearBufferBits() {
