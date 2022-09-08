@@ -21,8 +21,11 @@ To mention is the camera mode, which can be either `Camera_Mode::ISOMETRIC` or `
 ## Controls
 
 W - Move ship forwards
+
 A - Turn ship left
+
 S - Move ship backwards
+
 D - Turn ship right
 
 SPACE - Shoot the ships' cannons
