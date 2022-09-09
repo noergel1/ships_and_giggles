@@ -101,9 +101,10 @@
 			}
 
 			for (auto const& entity : entities) {
-				// render function executed for every entity
-				modelRender(entity, modelShader, indiceCount);
+				Shader::setMat4( modelShader, "model", createSRTMat4( *entity ) );
 			}
+
+			glDrawElementsInstanced( GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0, entities.size() );
 		}
 
 		Shader::useShader( 0 );
@@ -143,10 +144,11 @@
 				curTexture->use( i );
 			}
 
-			for (auto const& entity : entities) {
-				// render function executed for every entity
-				modelRender( entity, modelShader, indiceCount );
+			for (int i = 0; i < entities.size(); i++) {
+				Shader::setMat4( modelShader, "model[" + std::to_string(i) + "]", createSRTMat4(*entities[i]));
 			}
+
+			glDrawElementsInstanced( GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0, entities.size() );
 		}
 
 		Shader::useShader( 0 );
@@ -183,10 +185,11 @@
 				curTexture->use( i );
 			}
 
-			for (auto const& entity : entities) {
-				// render function executed for every entity
-				modelRender( entity, modelShader, indiceCount );
+			for (int i = 0; i < entities.size(); i++) {
+				Shader::setMat4( modelShader, "model[" + std::to_string(i) + "]", createSRTMat4(*entities[i]));
 			}
+
+			glDrawElementsInstanced( GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0, entities.size() );
 		}
 
 		Shader::useShader( 0 );
@@ -228,10 +231,11 @@
 				curTexture->use( i );
 			}
 
-			for (auto const& entity : entities) {
-				// render function executed for every entity
-				modelRender( entity, modelShader, indiceCount );
+			for (int i = 0; i < entities.size(); i++) {
+				Shader::setMat4( modelShader, "model[" + std::to_string(i) + "]", createSRTMat4(*entities[i]));
 			}
+
+			glDrawElementsInstanced( GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0, entities.size() );
 		}
 
 		Shader::useShader( 0 );
@@ -260,10 +264,11 @@
 				curTexture->use( i );
 			}
 
-			for (auto const& entity : _entities) {
-				// render function executed for every entity
-				modelRender( entity, modelShader, indiceCount );
+			for (int i = 0; i < _entities.size(); i++) {
+				Shader::setMat4( modelShader, "model[" + std::to_string(i) + "]", createSRTMat4(*_entities[i]));
 			}
+
+			glDrawElementsInstanced( GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0, _entities.size() );
 
 			Shader::useShader( 0 );
 	}
@@ -291,10 +296,11 @@
 			curTexture->use( i );
 		}
 
-		for (auto const& entity : _entities) {
-			// render function executed for every entity
-			modelRender( entity, modelShader, indiceCount );
+		for (int i = 0; i < _entities.size(); i++) {
+			Shader::setMat4( modelShader, "model[" + std::to_string(i) + "]", createSRTMat4(*_entities[i]));
 		}
+
+		glDrawElementsInstanced( GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0, _entities.size() );
 
 		Shader::useShader( 0 );
 	}
@@ -337,28 +343,17 @@
 			// activate shader
 			Shader::useShader( modelShader );
 
-			for (auto const& entity : entities) {
-
-				// render function executed for every entity
+			for (int i = 0; i < entities.size(); i++) {
 				// collider matrix
-				glm::mat4 colliderMat = glm::mat4( 1.0f );
-
-
-								//translate
-				colliderMat = createSRTMat4( colliderTransform );
-
+				glm::mat4 colliderMat = createSRTMat4( colliderTransform );
 
 				// model matrix
-				glm::mat4 modelMat = createSRTMat4( *entity );
+				glm::mat4 modelMat = createSRTMat4( *entities[i]);
 
-
-
-				Shader::setMat4( modelShader, "model", modelMat * colliderMat );
-
-
-				// draw
-				glDrawElements(GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0);
+				Shader::setMat4( modelShader, "model[" + std::to_string(i) + "]", modelMat * colliderMat);
 			}
+
+			glDrawElementsInstanced( GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0, entities.size() );
 		}
 
 		if(!m_settings.ENABLE_POLYGONMODE) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
