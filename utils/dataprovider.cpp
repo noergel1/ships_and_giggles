@@ -136,16 +136,6 @@ const std::vector<unsigned int> DataProvider::generatePlaneIndices(unsigned int 
         }
     }
 
-    //int count = 0;
-    //for (int i = 0; i < indices.size(); i = i + 3)         {
-    //    std::cout << "Vertex " + std::to_string(count) + ":\n";
-    //    std::cout << indices[i] << "\n";
-    //    std::cout << indices[i+1] << "\n";
-    //    std::cout << indices[i+2] << "\n";
-
-    //    count++;
-    //}
-
     benchmark.endBenchmark();
 
     return indices;
@@ -348,8 +338,6 @@ const std::vector<unsigned int> DataProvider::generateCapsuleIndices( unsigned i
         k1 = i * (_divisions + 1);     // beginning of current stack
         k2 = k1 + _divisions + 1;      // beginning of next stack
 
-        //if (i == floor( _divisions / 2.0f )) continue;
-
         for(int j = 0; j < _divisions; ++j, ++k1, ++k2)
         {
 
@@ -389,7 +377,7 @@ const std::vector<float> DataProvider::getQuadVertices()
 {
     return std::vector<float>{
         // positions   // texCoords
-        -1.0f, 1.0f, 0.0f, 1.0f,
+            -1.0f, 1.0f, 0.0f, 1.0f,
             -1.0f, -1.0f, 0.0f, 0.0f,
             1.0f, -1.0f, 1.0f, 0.0f,
 

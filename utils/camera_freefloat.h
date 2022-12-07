@@ -41,7 +41,7 @@ public:
 
 private:
 
-    // euler Angles
+    // euler angles
     float Yaw;
     float Pitch;
 };

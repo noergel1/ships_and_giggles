@@ -69,10 +69,4 @@ private:
 
 	bool SetupShaders();
 
-
-
-
-
-
-
 };

@@ -107,24 +107,4 @@ vec3 CalcDirLight()
     vec3 diffuse  = dirDiffuse  * diff * texColorDiffuse;
     vec3 specular = dirSpecular * spec * texColorSpecular;
     return (ambient + diffuse + specular);
-}  
-//vec3 generateWaveSineSumImprovedNormal(sinParams _params[sineCount])
-//{
-//        vec2 pos = vec2(aPos.x, aPos.z);
-//        vec3 normal = vec3(0.0f, 1.0f, 0.0f);
-//
-//        for(int i=0; i<sineCount; i++)
-//        {
-//            sinParams curParams = _params[i];
-//            normal.x += sineExponent * curParams.direction.x * curParams.frequency * curParams.amplitude * 
-//                        pow((sin(dot(curParams.direction, pos) * curParams.frequency + curTime * curParams.speed)+1)/2, sineExponent-1)
-//                        * cos(dot(curParams.direction, pos) * curParams.frequency + curTime * curParams.speed);
-//
-//            normal.z += sineExponent * curParams.direction.y * curParams.frequency * curParams.amplitude * 
-//                        pow((sin(dot(curParams.direction, pos) * curParams.frequency + curTime * curParams.speed)+1)/2, sineExponent-1)
-//                        * cos(dot(curParams.direction, pos) * curParams.frequency + curTime * curParams.speed);
-//        }
-//
-//        return vec3(-normal.x, normal.y, -normal.z);
-//
-//}
+} 

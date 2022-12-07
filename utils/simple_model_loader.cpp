@@ -26,8 +26,6 @@ bool ModelLoader::loadModel(std::string _modelPath, std::vector<VertexData>* _ve
         int indexCounter = 0;
 
         while (std::getline(objFile, line)) {
-            // using printf() in all tests for consistency
-            //printf("%s\n", line.c_str());
             lineNumber++;
 
 
@@ -110,7 +108,6 @@ bool ModelLoader::loadModel(std::string _modelPath, std::vector<VertexData>* _ve
                 {
                     if (token == "f" || vertexPerLine > 2)
                     {
-                        // if (vertexPerLine > 2) std::cout << "faulty vertex" << std::endl;
                         vertexPerLine = 0;
                         continue;
                     }
@@ -156,8 +153,6 @@ bool ModelLoader::loadModel(std::string _modelPath, std::vector<VertexData>* _ve
         return false;
     }
 
-
-    //std::string filename = "ressources/ship_2cannons";
     std::ifstream mtlFile(mtlName);
     if (mtlFile.is_open()) {
         std::string line;
@@ -214,8 +209,6 @@ bool ModelLoader::loadModel_x3(std::string _modelPath, std::vector<VertexData>* 
         int indexCounter = 0;
 
         while (std::getline(objFile, line)) {
-            // using printf() in all tests for consistency
-            //printf("%s\n", line.c_str());
             lineNumber++;
 
 
@@ -298,7 +291,6 @@ bool ModelLoader::loadModel_x3(std::string _modelPath, std::vector<VertexData>* 
                 {
                     if (token == "f" || vertexPerLine > 2)
                     {
-                        // if (vertexPerLine > 2) std::cout << "faulty vertex" << std::endl;
                         vertexPerLine = 0;
                         continue;
                     }
@@ -344,8 +336,6 @@ bool ModelLoader::loadModel_x3(std::string _modelPath, std::vector<VertexData>* 
         return false;
     }
 
-
-    //std::string filename = "ressources/ship_2cannons";
     std::ifstream mtlFile(mtlName);
     if (mtlFile.is_open()) {
         std::string line;
@@ -378,58 +368,6 @@ bool ModelLoader::loadModel_x3(std::string _modelPath, std::vector<VertexData>* 
 
     return false;
 }
-
-//bool ModelLoader::loadModel(std::string _modelPath, std::vector<VertexData>* _vertices, std::vector<unsigned int>* _indices, std::vector<Texture>* _textures, glm::mat4 _preTransform)
-//{
-//    tinyobj::attrib_t attributes;
-//    std::vector<tinyobj::shape_t> shapes;
-//    std::vector<tinyobj::material_t> materials;
-//    std::string warning, error;
-//
-//    if (!tinyobj::LoadObj(&attributes, &shapes, &materials, &warning, &error, _modelPath.c_str()))
-//    {
-//        std::cout << warning << error << "\n";
-//    }
-//
-//    for (const auto& shape : shapes)
-//    {
-//        for (const auto& index : shape.mesh.material_ids)
-//        {
-//            _textures->push_back(Texture(materials[index]));
-//        }
-//
-//        for (const auto& index : shape.mesh.indices) {
-//
-//            glm::vec4 pos = {
-//                attributes.vertices[3 * index.vertex_index],
-//                attributes.vertices[3 * index.vertex_index + 1],
-//                attributes.vertices[3 * index.vertex_index + 2],
-//                1.0f
-//            };
-//
-//            pos = _preTransform * pos;
-//
-//            glm::vec3 normal = {
-//                attributes.normals[3 * index.normal_index],
-//                attributes.normals[3 * index.normal_index + 1],
-//                attributes.normals[3 * index.normal_index + 2],
-//            };
-//
-//            normal = glm::normalize( glm::mat3(_preTransform) * normal );
-//
-//            glm::vec2 texCoord = {
-//                attributes.texcoords[3 * index.texcoord_index],
-//                attributes.texcoords[3 * index.texcoord_index + 1],
-//            };
-//
-//            VertexData vertex{  glm::vec3(pos.x, pos.y, pos.z), 
-//                                glm::vec3(normal.x, normal.y, normal.z), 
-//                                glm::vec2(texCoord.x, texCoord.y)           };
-//        }
-//    }
-//
-//    return true;
-//}
 
 bool ModelLoader::createModelSimplification(std::string _modelPath, std::vector<VertexData>* _vertices, std::vector<unsigned int>* _indices)
 {

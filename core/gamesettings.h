@@ -24,4 +24,5 @@ struct GameSettings
 
 
 	// other options
+
 };

@@ -41,15 +41,6 @@ Entity* GameLogic::getPlayer() {
 }
 
 void GameLogic::setupGame() {
-        // generate objects
-    //addCrate(
-    //    // position
-    //    glm::vec3( 3.0f, 0.0f, 0.0f ),
-    //    //scale
-    //    glm::vec3( 1.0f ),
-    //    //rotation
-    //    glm::vec3( 0.0f, 0.0f, 0.0f )
-    //);
 
     addWater(
         // position
@@ -101,30 +92,6 @@ void GameLogic::setupGame() {
     );
     enemyShips.push_back( Ship( { ship4, Cooldown( 2.5f ) } ) );
 
-    //        //skybox
-    //addEntity(
-    //    // position
-    //    glm::vec3( 0.0f, 1.0f, 0.0f ),
-    //    //scale
-    //    glm::vec3( 1.0f ),
-    //    //rotation
-    //    glm::vec3( 90.0f, 0.0f, 0.0f ),
-    //    //modelname
-    //    ModelName::TEST_OBJECT
-    //);
-
-            //skybox
-    //addEntity(
-    //    // position
-    //    glm::vec3( 0.0f, 0.0f, 0.0f ),
-    //    //scale
-    //    glm::vec3( 1.0f ),
-    //    //rotation
-    //    glm::vec3( 0.0f ),
-    //    //modelname
-    //    ModelName::WALL
-    //);
-
         //skybox
     addEntity(
         // position
@@ -153,15 +120,6 @@ void GameLogic::restartGame() {
         //rotation
         glm::vec3( 0.0f, 0.0f, 0.0f )
     );
-
-    //playerPtr = addShip(
-    //    // position
-    //    glm::vec3( 0.0f, 0.0f, 3.0f ),
-    //    //scale
-    //    glm::vec3( 0.1f ),
-    //    //rotation
-    //    glm::vec3( 0.0f, 0.0f, 0.0f )
-    //);
 
     m_player = Ship( { playerPtr, Cooldown( 0.5f ) } );
 
@@ -364,8 +322,7 @@ void GameLogic::processCollisions() {
                 std::cout << "penetration depth : " << collision.penetrationDepth << "\n";
 
                 glm::vec3 deltaVec = glm::normalize( glm::vec3( collision.penetrationNormal.x, 0.0f, collision.penetrationNormal.z ) ) * collision.penetrationDepth;
-                m_player.entity->Position += deltaVec; // / 2.0f;
-                //ships[i]->Position -= deltaVec / 2.0f;
+                m_player.entity->Position += deltaVec;
             }
 
     }
@@ -431,25 +388,12 @@ void GameLogic::enemiesTurn(float _deltaTime) {
         glm::vec3 vecToPlayer = glm::normalize( playerPos - otherShipPos );
         float turnAngle = getAngleBetweenVectorsDeg( curShipRotation, vecToPlayer );
 
-        //std::cout << "turnAngle: " << turnAngle << "\n";
-        //std::cout << "ship["<<i<<"] rotation: " << ships[i]->Rotation.y << "\n";
-
         ships[i]->Rotation.y += std::fmodf(180.0f-(90.0f + turnAngle), 360.0f) ;
     }
 }
 
-// debuggin
+// debugging
 void GameLogic::fillImGui() {
-    //ImGui::Text( "" );
-    //ImGui::Text( "Collision Testing" );
-    //ImGui::Text( "Ship 1" );
-    //ImGui::SliderFloat3( "Position1", &testShip1->Position.x, -5.0f, 5.0f);
-    //ImGui::SliderFloat3( "Rotation1", &testShip1->Rotation.x, -180.0f, 180.0f);
-    //ImGui::SliderFloat3( "Scale1", &testShip1->Scale.x, 0.1f, 5.0f);
-    //ImGui::Text( "Ship 2" );
-    //ImGui::SliderFloat3( "Position2", &testShip2->Position.x, -5.0f, 5.0f);
-    //ImGui::SliderFloat3( "Rotation2", &testShip2->Rotation.x, -180.0f, 180.0f);
-    //ImGui::SliderFloat3( "Scale2", &testShip2->Scale.x, 0.1f, 5.0f);
 }
 
 // entity management

@@ -76,8 +76,6 @@ void main()
     /* Speed      */ speed
     );
 
-    //TODO: find some way to not fuck up reflection when changing water geometry
-    //TODO: and change object height based on underlying water vertices
     vec3 vertexPos = generateWaveSineSumImproved(sinFuncs);
     vertexPos = aPos;
 

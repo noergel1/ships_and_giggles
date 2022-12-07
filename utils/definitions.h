@@ -25,7 +25,6 @@ enum class PlayerAction {
     SHOOT
 };
 
-
 enum class ColliderType {
     CAPSULE,
     CUBE,
@@ -67,14 +66,5 @@ std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::os
 {
     return stream << static_cast<typename std::underlying_type<T>::type>(e);
 }
-
-
-
-
-
-
-
-
-
 
 #endif

@@ -8,9 +8,6 @@
     <Filter Include="core">
       <UniqueIdentifier>{f573f9d3-7173-4e2c-9305-e249a7514780}</UniqueIdentifier>
     </Filter>
-    <Filter Include="models">
-      <UniqueIdentifier>{4c848abd-8ac9-4711-8bd0-c6b9ac2e4e88}</UniqueIdentifier>
-    </Filter>
     <Filter Include="camera">
       <UniqueIdentifier>{6ce3bb31-599d-4297-b26d-ebf44f4ba1ed}</UniqueIdentifier>
     </Filter>
@@ -317,10 +314,5 @@
     <None Include="shader\showCollidersVS.glsl">
       <Filter>shader\debug\showColliders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="utils\aTodo.txt">
-      <Filter>Quelldateien</Filter>
-    </Text>
   </ItemGroup>
 </Project>

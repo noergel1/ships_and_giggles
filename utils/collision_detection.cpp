@@ -60,9 +60,6 @@ const Collision CollisionDetection::SphereToTriangle( glm::vec3 _center, float _
 			intersects |= distsq3 < radiussq;
 	}
 
- 
-
-
 	if(inside || intersects)
 	{
 		glm::vec3 best_point = point0;

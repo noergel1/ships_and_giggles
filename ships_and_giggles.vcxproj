@@ -230,11 +230,6 @@
     <None Include="shader\waterNormalsVS.glsl" />
     <None Include="shader\waterVS.glsl" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="utils\aTodo.txt">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </Text>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

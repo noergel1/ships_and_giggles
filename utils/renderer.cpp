@@ -93,7 +93,6 @@
 			std::vector<Texture*> modelTextures = modelData->m_textures;
 			const unsigned int indiceCount = modelData->m_indiceCount;
 
-			//render
 			// set the corresponding textures
 			for (int i = 0; i < modelData->m_textures.size(); i++) {
 				Texture* curTexture = modelData->m_textures[i];
@@ -104,6 +103,7 @@
 				Shader::setMat4( modelShader, "model", createSRTMat4( *entity ) );
 			}
 
+			// render
 			glDrawElementsInstanced( GL_TRIANGLES, indiceCount, GL_UNSIGNED_INT, 0, entities.size() );
 		}
 
@@ -111,7 +111,7 @@
 	}
 
 	void Renderer::renderScene( const std::map<ModelName, std::vector<Entity*>> _entities, std::vector<ModelName> _exclude ) {
-				// go through all key/value pairs in the _entities map
+		// go through all key/value pairs in the _entities map
 		for (auto const& _entityVector : _entities) {
 
 			const ModelName modelName = _entityVector.first;
@@ -363,13 +363,9 @@
 
 	void Renderer::modelRender( const Entity* _entity, unsigned int _shader, unsigned int _indiceCount )
 	{
-
 		glm::mat4 model = createSRTMat4( *_entity );
 
-
-
 		Shader::setMat4( _shader, "model", model );
-
 
 		// draw
 		glDrawElements(GL_TRIANGLES, _indiceCount, GL_UNSIGNED_INT, 0);
@@ -400,16 +396,12 @@
 
 		// should also free all VBOs aswell
 
-		/////////
-		////////
-		///////
+		//////////
+		// TODO //
+		//////////
 
-
-
-		// delete all the VAOs at once
+		// delete all the VAOs
 		glDeleteVertexArrays(deletedVaos.size(), &deletedVaos[0]);
-
-
 
 		// free all shaders
 		for (auto const& shader : m_shaders)
