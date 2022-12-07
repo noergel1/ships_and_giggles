@@ -37,9 +37,6 @@ std::vector<float> DataProvider::getEdgeDetectionKernel()
 };
 
 const std::vector<VertexData> DataProvider::generatePlaneVertices( glm::vec3 _v0, glm::vec3 _v1, glm::vec3 _v2, glm::vec3 _v3, unsigned int _div ) {
-    // start benchmark
-    std::string benchmarkTitle = std::string( "generatePlaneVertices(div=") + boost::lexical_cast<std::string>(_div) + ")";
-    Benchmark benchmark = Benchmark( benchmarkTitle );
 
     //  v3-----v2
     //  |       |
@@ -71,17 +68,10 @@ const std::vector<VertexData> DataProvider::generatePlaneVertices( glm::vec3 _v0
         }
     }
 
-    benchmark.endBenchmark();
-
     return vertices;
 }
 
 const std::vector<unsigned int> DataProvider::generatePlaneIndices(unsigned int _div ) {
-    // start benchmark
-    std::string benchmarkTitle = std::string( "generatePlaneIndices(div=" ) + boost::lexical_cast<std::string>(_div) + ")";
-    Benchmark benchmark = Benchmark( benchmarkTitle );
-    
-    
         //  v3-----v2
         //  |       |
         //  |       |
@@ -136,7 +126,6 @@ const std::vector<unsigned int> DataProvider::generatePlaneIndices(unsigned int 
         }
     }
 
-    benchmark.endBenchmark();
 
     return indices;
 }
